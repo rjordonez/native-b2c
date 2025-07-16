@@ -22,15 +22,15 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-4xl font-bold text-gray-900">{welcomeMessage}</h1>
+    <div className="space-y-8">
+      <h1 className="text-4xl font-bold text-black">{welcomeMessage}</h1>
       
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-gray-600 mb-4">
+      <div className="bg-white border border-gray-100 rounded-lg p-6">
+        <p className="text-gray-600 mb-6">
           You've visited this page {visitCount} {visitCount === 1 ? 'time' : 'times'}.
         </p>
         
-        <div className="space-x-4">
+        <div className="flex gap-4">
           <HomeButton
             label="Click Me"
             count={visitCount}
@@ -47,19 +47,19 @@ const HomePage: React.FC = () => {
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Card 1</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white border border-gray-100 rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-3 text-black">Card 1</h3>
           <p className="text-gray-600">This is a sample card component.</p>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Card 2</h3>
+        <div className="bg-white border border-gray-100 rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-3 text-black">Card 2</h3>
           <p className="text-gray-600">Redux state management is working!</p>
         </div>
         
-        <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="text-lg font-semibold mb-2">Card 3</h3>
+        <div className="bg-white border border-gray-100 rounded-lg p-6">
+          <h3 className="text-lg font-semibold mb-3 text-black">Card 3</h3>
           <p className="text-gray-600">TypeScript provides type safety.</p>
         </div>
       </div>
