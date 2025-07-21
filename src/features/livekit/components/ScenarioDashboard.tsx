@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Clock, MessageCircle, BookOpen } from 'phosphor-react';
+import { Play, Clock, ChatCircle, BookOpen } from 'phosphor-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
 import { Button } from '../../../shared/components/layout/ui/button';
 import { IELTS_SCENARIOS, getScenariosByLevel } from '../constants/scenarios';
@@ -94,7 +94,7 @@ const ScenarioDashboard: React.FC<ScenarioDashboardProps> = ({ onScenarioSelect 
                         <span>{scenario.turns} turns</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <MessageCircle size={14} />
+                        <ChatCircle size={14} />
                         <span>Speaking Practice</span>
                       </div>
                     </div>

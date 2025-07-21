@@ -1,7 +1,7 @@
 'use client';
 
 import { type RefObject, useEffect, useRef } from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from '../../utils/cn';
 
 export function useAutoScroll(scrollContentContainerRef: RefObject<Element | null>) {
   useEffect(() => {

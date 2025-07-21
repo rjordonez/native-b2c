@@ -1,80 +1,109 @@
-import React, { useState } from 'react';
-import ScenarioDashboard from './components/ScenarioDashboard';
-import type { IELTSScenario } from './types';
+import { useEffect, useMemo, useState } from 'react';
+import { Room, RoomEvent } from 'livekit-client';
+import { RoomAudioRenderer, RoomContext, StartAudio } from '@livekit/components-react';
+import { toastAlert } from '../../shared/components/ui/alert-toast';
+import { SessionView } from './components/SessionView';
+import { Toaster } from '../../shared/components/ui/sonner';
+import { ScenarioDashboard, type Scenario } from '../../livekit/scenario-dashboard';
+import useConnectionDetails from '../../shared/hooks/useConnectionDetails';
+import type { AppConfig } from './types';
+import { APP_CONFIG_DEFAULTS } from './app-config';
 
 const LiveKitPage: React.FC = () => {
-  const [activeScenario, setActiveScenario] = useState<IELTSScenario | null>(null);
+  const room = useMemo(() => new Room(), []);
+  const [sessionStarted, setSessionStarted] = useState(false);
+  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const { connectionDetails, refreshConnectionDetails } = useConnectionDetails(selectedScenario);
+  const appConfig: AppConfig = APP_CONFIG_DEFAULTS;
 
-  const handleScenarioSelect = (scenario: IELTSScenario) => {
-    console.log('🎭 Selected scenario:', scenario);
-    setActiveScenario(scenario);
-    
-    // Here you could integrate with your LiveKit connection
-    // For now, we'll just log the scenario selection
-    console.log('Starting LiveKit session with scenario:', {
-      scenarioId: scenario.id,
-      greeting: scenario.greeting,
-      turns: scenario.turns,
-      conversationScript: scenario.conversationScript
-    });
-    
-    // You could call your backend endpoint here:
-    // const connectionDetails = await fetch(`http://localhost:3001/api/connection-details?${new URLSearchParams({
-    //   greeting: scenario.greeting,
-    //   scenario: scenario.id,
-    //   scenarioLevel: scenario.level,
-    //   scenarioTurns: scenario.turns.toString(),
-    //   conversationScript: JSON.stringify(scenario.conversationScript)
-    // })}`);
+  // Auto-start session when connection details are ready and scenario is selected
+  useEffect(() => {
+    if (connectionDetails && selectedScenario && !sessionStarted) {
+      setSessionStarted(true);
+    }
+  }, [connectionDetails, selectedScenario, sessionStarted]);
+
+  const handleScenarioSelect = (scenario: Scenario) => {
+    setSelectedScenario(scenario);
   };
 
-  const handleBackToDashboard = () => {
-    setActiveScenario(null);
+  // Room event handlers
+  useEffect(() => {
+    const onDisconnected = () => {
+      setSessionStarted(false);
+      refreshConnectionDetails();
+    };
+
+    const onMediaDevicesError = (error: Error) => {
+      toastAlert({
+        title: 'Media device error',
+        description: `${error.name}: ${error.message}`,
+      });
+    };
+
+    room.on(RoomEvent.Disconnected, onDisconnected);
+    room.on(RoomEvent.MediaDevicesError, onMediaDevicesError);
+
+    return () => {
+      room.off(RoomEvent.Disconnected, onDisconnected);
+      room.off(RoomEvent.MediaDevicesError, onMediaDevicesError);
+    };
+  }, [room, refreshConnectionDetails]);
+
+  // Connect to room when session starts
+  useEffect(() => {
+    if (sessionStarted && connectionDetails) {
+      connectToRoom();
+    }
+    return () => {
+      if (room.state !== 'disconnected') {
+        room.disconnect();
+      }
+    };
+  }, [sessionStarted, connectionDetails]);
+
+  const connectToRoom = async () => {
+    if (!connectionDetails) return;
+
+    try {
+      await room.connect(connectionDetails.serverUrl, connectionDetails.participantToken);
+      await room.localParticipant.setMicrophoneEnabled(true);
+    } catch (error) {
+      console.error('Connection failed:', error);
+      toastAlert({
+        title: 'Connection failed',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      });
+    }
   };
+
+  // Show scenario selection if no scenario is selected
+  if (!selectedScenario) {
+    return (
+      <div className="h-full">
+        <ScenarioDashboard 
+          onScenarioSelect={handleScenarioSelect}
+          selectedScenario={selectedScenario}
+        />
+        <Toaster />
+      </div>
+    );
+  }
 
   return (
-    <div className="h-full">
-      {!activeScenario ? (
-        <ScenarioDashboard onScenarioSelect={handleScenarioSelect} />
-      ) : (
-        <div className="space-y-6">
-          {/* Practice Session View - Placeholder for now */}
-          <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{activeScenario.icon}</span>
-                <div>
-                  <h2 className="text-xl font-semibold text-black">{activeScenario.name}</h2>
-                  <p className="text-sm text-gray-600">{activeScenario.level} Level</p>
-                </div>
-              </div>
-              <button
-                onClick={handleBackToDashboard}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-              >
-                Back to Dashboard
-              </button>
-            </div>
-            
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">{activeScenario.icon}</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Practice Session Ready</h3>
-              <p className="text-gray-600 mb-6">
-                Ready to practice "{activeScenario.name}" scenario
-              </p>
-              <div className="bg-gray-50 p-4 rounded-lg max-w-md mx-auto">
-                <p className="text-sm text-gray-700">
-                  <strong>Opening question:</strong> "{activeScenario.greeting}"
-                </p>
-              </div>
-              <p className="text-xs text-gray-500 mt-4">
-                LiveKit integration would be implemented here to start the voice session
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
+    <RoomContext.Provider value={room}>
+      <RoomAudioRenderer />
+      <StartAudio label="Start Audio" />
+
+      <SessionView
+        appConfig={appConfig}
+        disabled={!sessionStarted}
+        sessionStarted={sessionStarted}
+        selectedScenario={selectedScenario}
+      />
+
+      <Toaster />
+    </RoomContext.Provider>
   );
 };
 

@@ -6,7 +6,9 @@
       "Bash(npx tailwindcss:*)",
       "Bash(mkdir:*)",
       "Bash(mv:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(npm run build:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   }

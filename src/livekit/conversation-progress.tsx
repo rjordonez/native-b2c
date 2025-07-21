@@ -1,7 +1,7 @@
 import { type AgentState, useVoiceAssistant } from '@livekit/components-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../utils/cn';
 import { useState, useEffect } from 'react';
-import type { Scenario } from '../scenario-dashboard';
+import type { Scenario } from './scenario-dashboard';
 
 
 interface ConversationProgressProps {

@@ -4,15 +4,15 @@ import * as React from 'react';
 import { Track } from 'livekit-client';
 import { useTrackToggle } from '@livekit/components-react';
 import {
-  MicrophoneIcon,
-  MicrophoneSlashIcon,
-  MonitorArrowUpIcon,
-  SpinnerIcon,
-  VideoCameraIcon,
-  VideoCameraSlashIcon,
-} from '@phosphor-icons/react/dist/ssr';
-import { Toggle } from '@/components/ui/toggle';
-import { cn } from '@/lib/utils';
+  Microphone,
+  MicrophoneSlash,
+  Monitor,
+  Spinner,
+  VideoCamera,
+  VideoCameraSlash,
+} from 'phosphor-react';
+import { Toggle } from '../shared/components/layout/ui/toggle';
+import { cn } from '../utils/cn';
 
 export type TrackToggleProps = React.ComponentProps<typeof Toggle> & {
   source: Parameters<typeof useTrackToggle>[0]['source'];
@@ -21,16 +21,16 @@ export type TrackToggleProps = React.ComponentProps<typeof Toggle> & {
 
 function getSourceIcon(source: Track.Source, enabled: boolean, pending = false) {
   if (pending) {
-    return SpinnerIcon;
+    return Spinner;
   }
 
   switch (source) {
     case Track.Source.Microphone:
-      return enabled ? MicrophoneIcon : MicrophoneSlashIcon;
+      return enabled ? Microphone : MicrophoneSlash;
     case Track.Source.Camera:
-      return enabled ? VideoCameraIcon : VideoCameraSlashIcon;
+      return enabled ? VideoCamera : VideoCameraSlash;
     case Track.Source.ScreenShare:
-      return MonitorArrowUpIcon;
+      return Monitor;
     default:
       return React.Fragment;
   }
