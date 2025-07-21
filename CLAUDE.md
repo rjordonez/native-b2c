@@ -157,7 +157,8 @@ src/
 - `npm run preview` - Preview production build
 
 ### Backend
-- `node backend/index.js` - Start backend server (port 3001)
+- `npm run backend` - Start backend server (port 3001)
+- `npm run dev:full` - Start both frontend and backend concurrently
 - Backend provides:
   - `/api/connection-details` - LiveKit token generation
   - `/proxy` - External API proxy for submissions

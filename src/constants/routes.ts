@@ -1,5 +1,5 @@
 import { RouteConfig } from '../shared/types/common';
-import { House, BookOpen, PencilSimple } from 'phosphor-react';
+import { House, BookOpen, PencilSimple, Microphone } from 'phosphor-react';
 
 export const ROUTES: RouteConfig[] = [
   {
@@ -16,5 +16,10 @@ export const ROUTES: RouteConfig[] = [
     path: '/topic-library',
     name: 'Topic Library',
     icon: BookOpen,
+  },
+  {
+    path: '/voice-practice',
+    name: 'Voice Practice',
+    icon: Microphone,
   },
 ];
