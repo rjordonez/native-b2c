@@ -1,10 +1,28 @@
 const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
+const { AccessToken } = require('livekit-server-sdk');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// LiveKit token creation function
+async function createParticipantToken(userInfo, roomName, apiKey, apiSecret) {
+  const at = new AccessToken(apiKey, apiSecret, {
+    ...userInfo,
+    ttl: '15m',
+  });
+  const grant = {
+    room: roomName,
+    roomJoin: true,
+    canPublish: true,
+    canPublishData: true,
+    canSubscribe: true,
+  };
+  at.addGrant(grant);
+  return await at.toJwt();
+}
 
 app.get("/", (req, res) => {
   res.send("✅ Node.js server is working!");
@@ -50,7 +68,77 @@ app.post("/proxy", async (req, res) => {
   }
 });
 
+// LiveKit connection endpoint
+app.get("/api/connection-details", async (req, res) => {
+  console.log('🔥 Connection details request received');
+  
+  // Environment variables
+  const API_KEY = process.env.LIVEKIT_API_KEY;
+  const API_SECRET = process.env.LIVEKIT_API_SECRET;
+  const LIVEKIT_URL = process.env.LIVEKIT_URL;
+
+  try {
+    if (LIVEKIT_URL === undefined) {
+      throw new Error('LIVEKIT_URL is not defined');
+    }
+    if (API_KEY === undefined) {
+      throw new Error('LIVEKIT_API_KEY is not defined');
+    }
+    if (API_SECRET === undefined) { 
+      throw new Error('LIVEKIT_API_SECRET is not defined');
+    }
+
+    // Generate participant token with special naming convention
+    const randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    const customGreeting = req.query.greeting || "Hi I am Luna";
+    const scenario = req.query.scenario || "";
+   
+    const conversationScript = req.query.conversationScript || "";
+    const scenarioLevel = req.query.scenarioLevel || "";
+    const scenarioTurns = req.query.scenarioTurns || "";
+    
+    console.log('🎭 Backend received scenario data:', {
+      scenario,
+      level: scenarioLevel,
+      turns: scenarioTurns,
+      scriptLength: conversationScript.length
+    });
+    
+    // Include scenario data in participant name if provided
+    let scenarioSuffix = "";
+    if (scenario) {
+      // Encode script data for agent (base64 to avoid URL issues)
+      const scriptData = conversationScript ? Buffer.from(conversationScript).toString('base64') : "";
+      scenarioSuffix = `_scenario_${scenario}_level_${scenarioLevel}_turns_${scenarioTurns}_script_${scriptData}`;
+    }
+    const participantName = `user_${randomDigits}_say_${customGreeting.replace(/\s+/g, '_').toLowerCase()}${scenarioSuffix}`;
+    const participantIdentity = `voice_assistant_user_${Math.floor(Math.random() * 10_000)}`;
+    const roomName = `voice_assistant_room_${Math.floor(Math.random() * 10_000)}`;
+    const participantToken = await createParticipantToken(
+      { identity: participantIdentity, name: participantName },
+      roomName,
+      API_KEY,
+      API_SECRET
+    );
+
+    // Return connection details
+    const data = {
+      serverUrl: LIVEKIT_URL,
+      roomName,
+      participantToken: participantToken,
+      participantName,
+    };
+    
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json(data);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 app.listen(3001, () => {
   console.log("🚀 Server running on http://localhost:3001");
+  console.log("🎙️ LiveKit connection endpoint: http://localhost:3001/api/connection-details");
 });
 
