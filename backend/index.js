@@ -72,10 +72,10 @@ app.post("/proxy", async (req, res) => {
 app.get("/api/connection-details", async (req, res) => {
   console.log('🔥 Connection details request received');
   
-  // Environment variables
-  const API_KEY = process.env.LIVEKIT_API_KEY;
-  const API_SECRET = process.env.LIVEKIT_API_SECRET;
-  const LIVEKIT_URL = process.env.LIVEKIT_URL;
+  // Hardcoded LiveKit credentials for testing
+  const API_KEY = "APIMeKq8mrmU6n5";
+  const API_SECRET = "fHdueZwHo6zaRv1Y9jxm7fXmFiliLe9xLlfWhAPn53kB";
+  const LIVEKIT_URL = "wss://nativewebserver-534nsmp8.livekit.cloud";
 
   try {
     if (LIVEKIT_URL === undefined) {
@@ -96,29 +96,12 @@ app.get("/api/connection-details", async (req, res) => {
     const conversationScript = req.query.conversationScript || "";
     const scenarioLevel = req.query.scenarioLevel || "";
     const scenarioTurns = req.query.scenarioTurns || "";
-    
-    console.log('🎭 Backend received scenario data:', {
-      scenario,
-      level: scenarioLevel,
-      turns: scenarioTurns,
-      scriptLength: conversationScript.length
-    });
-    
-    // Include scenario data in participant name if provided
-    let scenarioSuffix = "";
-    if (scenario) {
-      // Encode script data for agent (base64 to avoid URL issues)
-      const scriptData = conversationScript ? Buffer.from(conversationScript).toString('base64') : "";
-      scenarioSuffix = `_scenario_${scenario}_level_${scenarioLevel}_turns_${scenarioTurns}_script_${scriptData}`;
-    }
-    const participantName = `user_${randomDigits}_say_${customGreeting.replace(/\s+/g, '_').toLowerCase()}${scenarioSuffix}`;
+    const participantName = `user_${randomDigits}_say_${customGreeting.replace(/\s+/g, '_').toLowerCase()}`;
     const participantIdentity = `voice_assistant_user_${Math.floor(Math.random() * 10_000)}`;
     const roomName = `voice_assistant_room_${Math.floor(Math.random() * 10_000)}`;
     const participantToken = await createParticipantToken(
       { identity: participantIdentity, name: participantName },
-      roomName,
-      API_KEY,
-      API_SECRET
+      roomName
     );
 
     // Return connection details

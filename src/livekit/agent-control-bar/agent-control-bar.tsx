@@ -3,8 +3,8 @@
 import * as React from 'react';
 import { Track } from 'livekit-client';
 import { useTranscriptions } from '@livekit/components-react';
-import { AppConfig } from '@/lib/types';
-import { cn } from '@/lib/utils';
+import { AppConfig } from '../../lib/types';
+import { cn } from '../../utils/cn';
 import { UseAgentControlBarProps, useAgentControlBar } from './hooks/use-agent-control-bar';
 
 export interface AgentControlBarProps

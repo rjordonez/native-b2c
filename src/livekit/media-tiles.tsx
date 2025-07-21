@@ -7,12 +7,12 @@ import {
   useTracks,
   useVoiceAssistant,
 } from '@livekit/components-react';
-import { cn } from '@/lib/utils';
+import { cn } from '../utils/cn';
 import { AgentTile } from './agent-tile';
 import { AvatarTile } from './avatar-tile';
 import { VideoTile } from './video-tile';
-import { SuggestedResponses } from '../suggested-responses';
-import type { Scenario } from '../scenario-dashboard';
+import { SuggestedResponses } from './suggested-responses';
+import type { Scenario } from './scenario-dashboard';
 
 const MotionVideoTile = motion.create(VideoTile);
 const MotionAgentTile = motion.create(AgentTile);
