@@ -7,7 +7,6 @@ import HomePage from './features/home/HomePage';
 import PracticePage from './features/practice/PracticePage';
 import TopicLibraryPage from './features/topic-library/TopicLibraryPage';
 import SettingsPage from './features/settings/SettingsPage';
-import LiveKitPage from './features/livekit/LiveKitPage';
 import './styles/App.css';
 
 const App: React.FC = () => {
@@ -19,7 +18,6 @@ const App: React.FC = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/practice" element={<PracticePage />} />
             <Route path="/topic-library" element={<TopicLibraryPage />} />
-            <Route path="/livekit" element={<LiveKitPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>
         </Layout>

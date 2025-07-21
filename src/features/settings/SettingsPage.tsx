@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { User, CreditCard, Camera } from 'phosphor-react';
 import { selectProfile, selectBilling, updateProfile, updateBilling } from './settingsSlice';
-import Button from '../../shared/components/ui/Button';
+import { Button } from '../../shared/components/layout/ui/button';
 
 const SettingsPage: React.FC = () => {
-  const dispatch = useDispatch();
-  const profile = useSelector(selectProfile);
-  const billing = useSelector(selectBilling);
+  const dispatch = useAppDispatch();
+  const profile = useAppSelector(selectProfile);
+  const billing = useAppSelector(selectBilling);
   
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState(profile.name);
@@ -75,10 +75,10 @@ const SettingsPage: React.FC = () => {
                   onChange={(e) => setTempName(e.target.value)}
                   className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm"
                 />
-                <Button variant="primary" size="small" onClick={handleNameSave}>
+                <Button variant="default" size="sm" onClick={handleNameSave}>
                   Save
                 </Button>
-                <Button variant="secondary" size="small" onClick={handleNameCancel}>
+                <Button variant="secondary" size="sm" onClick={handleNameCancel}>
                   Cancel
                 </Button>
               </div>
@@ -87,7 +87,7 @@ const SettingsPage: React.FC = () => {
                 <span className="text-gray-900">{profile.name}</span>
                 <Button 
                   variant="secondary" 
-                  size="small" 
+                  size="sm" 
                   onClick={() => setEditingName(true)}
                 >
                   Edit

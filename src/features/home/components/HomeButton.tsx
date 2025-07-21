@@ -1,5 +1,5 @@
 import React from 'react';
-import Button from '../../../shared/components/ui/Button';
+import { Button } from '../../../shared/components/layout/ui/button';
 
 interface HomeButtonProps {
   label: string;
@@ -9,7 +9,7 @@ interface HomeButtonProps {
 
 const HomeButton: React.FC<HomeButtonProps> = ({ label, count, onClick }) => {
   return (
-    <Button onClick={onClick} variant="primary">
+    <Button onClick={onClick} variant="default">
       {label} (clicked {count} times)
     </Button>
   );

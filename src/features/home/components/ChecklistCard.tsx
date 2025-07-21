@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckSquare, Square } from 'phosphor-react';
-import { Card, CardHeader, ProgressBar } from '../../../shared/components/ui';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
+import ProgressBar from '../../../shared/components/layout/ui/progress-bar';
 
 const ChecklistCard: React.FC = () => {
   const tasks = [
@@ -13,30 +14,34 @@ const ChecklistCard: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader title="Today's Checklist" />
+      <CardHeader>
+        <CardTitle>Today's Checklist</CardTitle>
+      </CardHeader>
       
-      <ProgressBar 
-        value={completedCount} 
-        max={tasks.length} 
-        label="Progress" 
-        showPercentage 
-        className="mb-6" 
-      />
-      
-      <div className="space-y-3">
-        {tasks.map((task) => (
-          <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
-            {task.completed ? (
-              <CheckSquare size={18} className="text-green-500 flex-shrink-0" />
-            ) : (
-              <Square size={18} className="text-gray-400 flex-shrink-0" />
-            )}
-            <span className={`text-sm ${task.completed ? 'text-gray-500 line-through' : 'text-gray-700'}`}>
-              {task.text}
-            </span>
-          </div>
-        ))}
-      </div>
+      <CardContent>
+        <ProgressBar 
+          value={completedCount} 
+          max={tasks.length} 
+          label="Progress" 
+          showPercentage 
+          className="mb-6" 
+        />
+        
+        <div className="space-y-3">
+          {tasks.map((task) => (
+            <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
+              {task.completed ? (
+                <CheckSquare size={18} className="text-green-500 flex-shrink-0" />
+              ) : (
+                <Square size={18} className="text-gray-400 flex-shrink-0" />
+              )}
+              <span className={`text-sm ${task.completed ? 'text-gray-500 line-through' : 'text-gray-700'}`}>
+                {task.text}
+              </span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
     </Card>
   );
 };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { BookOpen, MagnifyingGlass, CheckCircle, Circle, Microphone, PencilSimple, Eye, Headphones } from 'phosphor-react';
 import {
   selectFilteredTopics,
@@ -10,13 +10,13 @@ import {
   toggleTopicCompletion,
   resetFilters
 } from './topicLibrarySlice';
-import Button from '../../shared/components/ui/Button';
+import { Button } from '../../shared/components/layout/ui/button';
 
 const TopicLibraryPage: React.FC = () => {
-  const dispatch = useDispatch();
-  const topics = useSelector(selectFilteredTopics);
-  const filters = useSelector(selectFilters);
-  const searchQuery = useSelector(selectSearchQuery);
+  const dispatch = useAppDispatch();
+  const topics = useAppSelector(selectFilteredTopics);
+  const filters = useAppSelector(selectFilters);
+  const searchQuery = useAppSelector(selectSearchQuery);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -97,7 +97,7 @@ const TopicLibraryPage: React.FC = () => {
               <option value="incomplete">Incomplete</option>
             </select>
 
-            <Button variant="secondary" size="small" onClick={() => dispatch(resetFilters())}>
+            <Button variant="secondary" size="sm" onClick={() => dispatch(resetFilters())}>
               Clear
             </Button>
           </div>
@@ -152,7 +152,8 @@ const TopicLibraryPage: React.FC = () => {
               </div>
             </div>
 
-            <Button variant="primary" size="small" className="w-full">
+            <Button variant="default" size="sm" className="w-full">
+
               {topic.completed ? 'Review' : 'Start Practice'}
             </Button>
           </div>
