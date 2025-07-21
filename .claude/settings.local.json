@@ -3,7 +3,10 @@
     "allow": [
       "Bash(npm install:*)",
       "Bash(rm:*)",
-      "Bash(npx tailwindcss:*)"
+      "Bash(npx tailwindcss:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }

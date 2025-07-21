@@ -17,7 +17,10 @@ src/
 ├── shared/                # Shared components and utilities
 │   ├── components/
 │   │   ├── layout/        # Layout components (Sidebar, Layout)
-│   │   └── ui/           # Reusable UI components (Button)
+│   │   └── ui/           # Reusable UI components
+│   │       ├── Button.tsx     # Form controls
+│   │       ├── display/       # Display components (Card, CardHeader)
+│   │       └── feedback/      # Feedback components (ProgressBar)
 │   ├── hooks/            # Custom hooks
 │   └── types/            # Shared TypeScript types
 ├── store/                # Redux store configuration
@@ -48,6 +51,16 @@ src/
 - Prefer composition over inheritance
 - Keep components focused and single-purpose
 
+### Component Organization
+- **Feature Components**: Place feature-specific components in `features/[feature]/components/`
+- **Shared UI Components**: Organize by category in `shared/components/ui/`
+  - `display/`: Visual components (Card, CardHeader, etc.)
+  - `feedback/`: User feedback components (ProgressBar, etc.)
+  - Root level: Form controls (Button, Input, etc.)
+- **Layout Components**: Keep in `shared/components/layout/`
+- Use barrel exports (index.ts) for clean imports
+- Prefer shared components over duplicated patterns
+
 ### Naming Conventions
 - Components: PascalCase (e.g., `HomePage.tsx`, `DashboardCard.tsx`)
 - Files: PascalCase for components, camelCase for utilities
@@ -77,6 +90,18 @@ src/
 - Responsive layout system
 - Card-based content organization
 
+### LiveKit Integration
+- Real-time voice communication components
+- Organized in feature-based structure under `src/features/livekit/`
+- Components categorized by functionality:
+  - `video/`: Video-related components (VideoTile, AvatarTile, MediaTiles)
+  - `audio/`: Audio-related components (AgentTile)
+  - `chat/`: Chat components (ChatEntry, ChatInput, ChatMessageView)
+  - `controls/`: Control components (TrackToggle, DeviceSelect, AgentControlBar)
+- Custom hooks for LiveKit functionality in `hooks/`
+- Utilities and helper functions in `utils/`
+- Redux slice for LiveKit state management
+
 ## Development Guidelines
 
 ### Adding New Features
@@ -102,3 +127,13 @@ src/
 - React Router for navigation
 - Tailwind CSS for styling
 - Vite for build tooling
+- LiveKit Components React for real-time communication
+- Motion for animations
+- Express.js backend for LiveKit proxy server
+
+## Development Commands
+- `npm run dev` - Start frontend development server
+- `npm run backend` - Start backend server (port varies)
+- `npm run dev:full` - Start both frontend and backend concurrently
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint

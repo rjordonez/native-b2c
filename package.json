@@ -7,18 +7,26 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "backend": "cd backend && npm install && node index.js",
+    "dev:full": "concurrently \"npm run dev\" \"npm run backend\""
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.6",
+    "@livekit/components-react": "^2.9.14",
     "@reduxjs/toolkit": "^2.8.2",
     "@types/react-router-dom": "^5.3.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "motion": "^12.23.6",
     "phosphor-react": "^1.4.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-github-calendar": "^4.5.9",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.6.3",
     "redux": "^5.0.1",
+    "tailwind-merge": "^3.3.1",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
@@ -27,6 +35,7 @@
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react": "^4.6.0",
     "autoprefixer": "^10.4.21",
+    "concurrently": "^9.2.0",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",

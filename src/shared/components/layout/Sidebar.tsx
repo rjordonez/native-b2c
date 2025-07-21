@@ -11,7 +11,7 @@ const Sidebar: React.FC = () => {
   return (
     <div className="w-64 bg-white border-r border-gray-100 flex flex-col h-full">
       <div className="flex items-center h-16 px-6 border-b border-gray-100">
-        <h2 className="text-xl font-semibold text-black">My App</h2>
+        <img src="/native-logo.png" alt="Native Logo" className="h-8 w-auto" />
       </div>
       
       <nav className="flex-1 px-4 py-6 overflow-y-auto">
@@ -38,13 +38,17 @@ const Sidebar: React.FC = () => {
       </nav>
       
       <div className="p-4 border-t border-gray-100">
-        <button
-          className="flex items-center w-full px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-black rounded-lg transition-colors"
-          onClick={() => console.log('Settings clicked')}
+        <Link
+          to="/settings"
+          className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+            isActive('/settings')
+              ? 'bg-gray-100 text-black'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-black'
+          }`}
         >
           <Gear size={20} className="mr-3" />
           Settings
-        </button>
+        </Link>
       </div>
     </div>
   );
