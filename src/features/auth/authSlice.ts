@@ -9,6 +9,27 @@ const initialState: AuthState = {
   isLoading: false,
   isAuthenticated: false,
   error: null,
+  loginForm: {
+    email: '',
+    password: '',
+    showPassword: false,
+  },
+  signupForm: {
+    email: '',
+    password: '',
+    confirmPassword: '',
+    fullName: '',
+    showPassword: false,
+    showConfirmPassword: false,
+  },
+  needsOnboarding: false,
+  onboardingData: {
+    fullName: '',
+    targetScore: '',
+    currentLevel: '',
+    testDate: '',
+    studyGoal: '',
+  },
 };
 
 // Async thunks for authentication
@@ -55,7 +76,53 @@ export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    return user;
+    
+    if (!user) {
+      return { user: null, needsOnboarding: false };
+    }
+
+    // Check onboarding status from user_profiles table
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('onboarding_completed')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    return { 
+      user, 
+      needsOnboarding: !profile?.onboarding_completed 
+    };
+  }
+);
+
+export const completeOnboarding = createAsyncThunk(
+  'auth/completeOnboarding',
+  async (onboardingData: any) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    // Save onboarding data to user_profiles table
+    const { error } = await supabase
+      .from('user_profiles')
+      .update({
+        full_name: onboardingData.fullName,
+        target_band_score: parseFloat(onboardingData.targetScore),
+        current_level: onboardingData.currentLevel,
+        test_date: onboardingData.testDate || null,
+        study_goal: onboardingData.studyGoal,
+        onboarding_completed: true,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('auth_user_id', user.id);
+
+    if (error) {
+      throw error;
+    }
+
+    return onboardingData;
   }
 );
 
@@ -69,6 +136,36 @@ export const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    // Login form actions
+    updateLoginForm: (state, action: PayloadAction<Partial<typeof state.loginForm>>) => {
+      state.loginForm = { ...state.loginForm, ...action.payload };
+    },
+    toggleLoginPasswordVisibility: (state) => {
+      state.loginForm.showPassword = !state.loginForm.showPassword;
+    },
+    resetLoginForm: (state) => {
+      state.loginForm = initialState.loginForm;
+    },
+    // Signup form actions
+    updateSignupForm: (state, action: PayloadAction<Partial<typeof state.signupForm>>) => {
+      state.signupForm = { ...state.signupForm, ...action.payload };
+    },
+    toggleSignupPasswordVisibility: (state) => {
+      state.signupForm.showPassword = !state.signupForm.showPassword;
+    },
+    toggleSignupConfirmPasswordVisibility: (state) => {
+      state.signupForm.showConfirmPassword = !state.signupForm.showConfirmPassword;
+    },
+    resetSignupForm: (state) => {
+      state.signupForm = initialState.signupForm;
+    },
+    // Onboarding actions
+    updateOnboardingData: (state, action: PayloadAction<Partial<typeof state.onboardingData>>) => {
+      state.onboardingData = { ...state.onboardingData, ...action.payload };
+    },
+    setNeedsOnboarding: (state, action: PayloadAction<boolean>) => {
+      state.needsOnboarding = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -100,6 +197,8 @@ export const authSlice = createSlice({
         state.user = action.payload;
         state.isAuthenticated = !!action.payload;
         state.error = null;
+        // New users need onboarding
+        state.needsOnboarding = true;
       })
       .addCase(signUp.rejected, (state, action) => {
         state.isLoading = false;
@@ -129,18 +228,47 @@ export const authSlice = createSlice({
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
-        state.isAuthenticated = !!action.payload;
+        state.user = action.payload.user;
+        state.isAuthenticated = !!action.payload.user;
+        state.needsOnboarding = action.payload.needsOnboarding;
       })
       .addCase(checkAuth.rejected, (state) => {
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.needsOnboarding = false;
+      });
+    
+    // Complete Onboarding
+    builder
+      .addCase(completeOnboarding.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(completeOnboarding.fulfilled, (state) => {
+        state.isLoading = false;
+        state.needsOnboarding = false;
+        state.onboardingData = initialState.onboardingData;
+      })
+      .addCase(completeOnboarding.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message || 'Failed to complete onboarding';
       });
   },
 });
 
-export const { setUser, clearError } = authSlice.actions;
+export const { 
+  setUser, 
+  clearError,
+  updateLoginForm,
+  toggleLoginPasswordVisibility,
+  resetLoginForm,
+  updateSignupForm,
+  toggleSignupPasswordVisibility,
+  toggleSignupConfirmPasswordVisibility,
+  resetSignupForm,
+  updateOnboardingData,
+  setNeedsOnboarding,
+} = authSlice.actions;
 
 // Selectors
 export const selectUser = (state: RootState) => state.auth.user;

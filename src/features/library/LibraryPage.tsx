@@ -127,13 +127,7 @@ const LibraryPage: React.FC = () => {
         {/* Header Row */}
         <div className="bg-white rounded-xl p-6 shadow-sm mb-2">
           <div className="grid grid-cols-12 items-center gap-4">
-            <div className="col-span-2">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-gray-600">Status</span>
-                <CaretUp size={12} className="text-gray-400" />
-              </div>
-            </div>
-            <div className="col-span-7">
+            <div className="col-span-5">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-600">Topic</span>
                 <CaretDown size={12} className="text-gray-400" />
@@ -142,7 +136,13 @@ const LibraryPage: React.FC = () => {
             <div className="col-span-2">
               <span className="text-sm font-medium text-gray-600">Difficulty</span>
             </div>
-            <div className="col-span-1">
+            <div className="col-span-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-600">Status</span>
+                <CaretUp size={12} className="text-gray-400" />
+              </div>
+            </div>
+            <div className="col-span-3">
               <span className="text-sm font-medium text-gray-600"></span>
             </div>
           </div>
@@ -156,18 +156,8 @@ const LibraryPage: React.FC = () => {
                 className="grid grid-cols-12 items-center gap-4 p-6 cursor-pointer"
                 onClick={() => dispatch(toggleTopicExpansion(topic.id))}
               >
-                {/* Status */}
-                <div className="col-span-2">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${topic.completed ? 'bg-green-500' : 'bg-gray-400'}`} />
-                    <span className={`text-sm font-medium ${topic.completed ? 'text-green-600' : 'text-gray-500'}`}>
-                      {topic.completed ? 'Complete' : 'Available'}
-                    </span>
-                  </div>
-                </div>
-
                 {/* Topic */}
-                <div className="col-span-7">
+                <div className="col-span-5">
                   <div className="font-semibold text-gray-900">{topic.title}</div>
                 </div>
 
@@ -178,8 +168,18 @@ const LibraryPage: React.FC = () => {
                   </span>
                 </div>
 
+                {/* Status */}
+                <div className="col-span-2">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${topic.completed ? 'bg-green-500' : 'bg-gray-400'}`} />
+                    <span className={`text-sm font-medium ${topic.completed ? 'text-green-600' : 'text-gray-500'}`}>
+                      {topic.completed ? 'Complete' : 'Available'}
+                    </span>
+                  </div>
+                </div>
+
                 {/* Dropdown Arrow */}
-                <div className="col-span-1 flex justify-center">
+                <div className="col-span-3 flex justify-end">
                   <CaretDown 
                     size={24} 
                     className={`text-gray-700 transition-transform duration-300 ease-in-out ${topic.expanded ? 'rotate-180' : ''}`} 
