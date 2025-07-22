@@ -208,3 +208,38 @@ LIVEKIT_API_SECRET=your-api-secret
 - **POST** `/proxy` - Proxy external API submissions
   - Body: `{ audio_urls, submission_url }`
   - Forwards requests to external submission API
+
+## Database Schema
+
+### B2C User Table
+The application supports a dual-project structure with B2C table prefixed with `b2c_` to distinguish from other projects.
+
+#### B2C Table:
+- **b2c_user** - User profile information for IELTS students including personal details, target scores, and test preparation data
+
+#### Table Fields:
+- `id` - UUID primary key
+- `auth_user_id` - References Supabase auth.users table
+- `email` - User's email address (unique)
+- `full_name` - User's full name
+- `username` - Unique username
+- `avatar_url` - Profile picture URL
+- `phone` - Phone number
+- `country` - User's country
+- `target_band_score` - Target IELTS band score (e.g., 7.5)
+- `current_level` - Current English level (beginner, intermediate, advanced)
+- `test_date` - Scheduled IELTS test date
+- `created_at` - Account creation timestamp
+- `updated_at` - Last update timestamp
+
+#### Database Features:
+- **Row Level Security (RLS)** - Users can only access their own data
+- **UUID Primary Keys** - For better security and scalability
+- **Automatic Timestamps** - Created/updated timestamps with trigger-based updates
+- **Performance Indexes** - Optimized indexes for email, username, and auth_user_id
+- **Foreign Key Constraints** - Proper relational integrity with cascading deletes
+
+#### SQL Script Location:
+- **File**: `/sql/b2c_tables.sql`
+- **Purpose**: Database schema for B2C user table in IELTS application
+- **Usage**: Run this script in Supabase or PostgreSQL to create the B2C user table

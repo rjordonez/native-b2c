@@ -4,6 +4,7 @@ import homeReducer from '../features/home/homeSlice';
 import settingsReducer from '../features/settings/settingsSlice';
 import libraryReducer from '../features/library/librarySlice';
 import livekitReducer from '../features/livekit/livekitSlice';
+import authReducer from '../features/auth/authSlice';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     settings: settingsReducer,
     library: libraryReducer,
     livekit: livekitReducer,
+    auth: authReducer,
   },
 });
 

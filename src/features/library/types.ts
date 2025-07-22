@@ -1,3 +1,9 @@
+export interface Question {
+  id: string;
+  text: string;
+  type: 'part1' | 'part2' | 'part3';
+}
+
 export interface Topic {
   id: string;
   title: string;
@@ -7,6 +13,8 @@ export interface Topic {
   completed: boolean;
   description: string;
   estimatedTime: string;
+  questions: Question[];
+  expanded: boolean;
 }
 
 export interface LibraryState {
