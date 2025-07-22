@@ -10,12 +10,13 @@ import LibraryPage from './features/library/LibraryPage';
 import LiveKitPage from './features/livekit/LiveKitPage';
 import SettingsPage from './features/settings/SettingsPage';
 import AuthPage from './features/auth/AuthPage';
+import OnboardingPage from './features/auth/components/OnboardingPage';
 import './styles/App.css';
 
 const AppRoutes: React.FC = () => {
-  const { user, loading } = useAppSelector((state) => state.auth);
+  const { user, isLoading, needsOnboarding } = useAppSelector((state) => state.auth);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -28,6 +29,10 @@ const AppRoutes: React.FC = () => {
 
   if (!user) {
     return <AuthPage />;
+  }
+
+  if (user && needsOnboarding) {
+    return <OnboardingPage />;
   }
 
   return (

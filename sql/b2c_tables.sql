@@ -1,12 +1,11 @@
--- B2C Database Schema for IELTS Application
--- This script creates the B2C user table for the IELTS application
--- Table name is prefixed with 'b2c_' to distinguish from other projects
+-- User Profile Database Schema for Native Speaking Application
+-- This script creates the user profile table for the application
 
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- B2C User table for IELTS application
-CREATE TABLE b2c_user (
+-- User profiles table
+CREATE TABLE user_profiles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     auth_user_id UUID NOT NULL, -- References auth.users from Supabase
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -25,9 +24,9 @@ CREATE TABLE b2c_user (
 );
 
 -- Create indexes for better performance
-CREATE INDEX idx_b2c_user_email ON b2c_user(email);
-CREATE INDEX idx_b2c_user_username ON b2c_user(username);
-CREATE INDEX idx_b2c_user_auth_user_id ON b2c_user(auth_user_id);
+CREATE INDEX idx_user_profiles_email ON user_profiles(email);
+CREATE INDEX idx_user_profiles_username ON user_profiles(username);
+CREATE INDEX idx_user_profiles_auth_user_id ON user_profiles(auth_user_id);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -39,12 +38,12 @@ END;
 $$ language 'plpgsql';
 
 -- Apply updated_at trigger
-CREATE TRIGGER update_b2c_user_updated_at BEFORE UPDATE ON b2c_user FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_user_profiles_updated_at BEFORE UPDATE ON user_profiles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Row Level Security (RLS) policies
-ALTER TABLE b2c_user ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_profiles ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies - Users can only access their own data
-CREATE POLICY "Users can view their own profile" ON b2c_user FOR SELECT USING (auth_user_id = auth.uid());
-CREATE POLICY "Users can update their own profile" ON b2c_user FOR UPDATE USING (auth_user_id = auth.uid());
-CREATE POLICY "Users can insert their own profile" ON b2c_user FOR INSERT WITH CHECK (auth_user_id = auth.uid());
+CREATE POLICY "Users can view their own profile" ON user_profiles FOR SELECT USING (auth_user_id = auth.uid());
+CREATE POLICY "Users can update their own profile" ON user_profiles FOR UPDATE USING (auth_user_id = auth.uid());
+CREATE POLICY "Users can insert their own profile" ON user_profiles FOR INSERT WITH CHECK (auth_user_id = auth.uid());
