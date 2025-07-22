@@ -1,12 +1,19 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Gear, CaretUp, CaretDown } from 'phosphor-react';
+import { Gear, CaretUp, CaretDown, SignOut } from 'phosphor-react';
+import { useAppDispatch } from '../../../store/hooks';
+import { signOut } from '../../../features/auth/authSlice';
 import { ROUTES } from '../../../constants/routes';
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
+  const dispatch = useAppDispatch();
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    await dispatch(signOut());
+  };
 
   return (
     <div className="w-64 bg-white border-r border-gray-100 flex flex-col h-full">
@@ -46,7 +53,7 @@ const Sidebar: React.FC = () => {
         </ul>
       </nav>
       
-      <div className="p-4 border-t border-gray-100">
+      <div className="p-4 border-t border-gray-100 space-y-1">
         <Link
           to="/settings"
           className={`flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
@@ -58,6 +65,14 @@ const Sidebar: React.FC = () => {
           <Gear size={20} className="mr-3" />
           Settings
         </Link>
+        
+        <button
+          onClick={handleSignOut}
+          className="flex items-center w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors text-red-600 hover:bg-red-50"
+        >
+          <SignOut size={20} className="mr-3" />
+          Sign Out
+        </button>
       </div>
     </div>
   );
