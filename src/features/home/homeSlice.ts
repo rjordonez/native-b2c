@@ -13,16 +13,6 @@ const initialState: HomeState = {
     { id: 2, text: 'Review vocabulary flashcards', completed: false },
     { id: 3, text: 'Practice speaking with partner', completed: false },
   ],
-  speakingPractices: [
-    { type: 'Part 1: Introduction', time: '5 min', difficulty: 'Easy' },
-    { type: 'Part 2: Cue Card', time: '5 min', difficulty: 'Easy' },
-    { type: 'Part 3: Discussion', time: '0 min', difficulty: 'Easy' },
-  ],
-  speakingTests: [
-    { type: 'Full Mock Test', time: '15 min', difficulty: 'Hard' },
-    { type: 'Part 1 Only', time: '5 min', difficulty: 'Easy' },
-    { type: 'Part 2 Only', time: '4 min', difficulty: 'Medium' },
-  ],
 };
 
 export const homeSlice = createSlice({
@@ -67,9 +57,5 @@ export const selectPracticeActivityDates = (state: RootState) =>
 export const selectTasks = (state: RootState) => state.home.tasks;
 export const selectCompletedTasksCount = (state: RootState) => 
   state.home.tasks.filter(task => task.completed).length;
-export const selectSpeakingPractices = (state: RootState) => state.home.speakingPractices;
-export const selectSpeakingTests = (state: RootState) => state.home.speakingTests;
-export const selectPracticeFrequency = (state: RootState) => 
-  state.home.practiceActivityDates.length;
 
 export default homeSlice.reducer;
