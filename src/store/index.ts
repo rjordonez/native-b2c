@@ -2,7 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import navigationReducer from './slices/navigationSlice';
 import homeReducer from '../features/home/homeSlice';
 import settingsReducer from '../features/settings/settingsSlice';
-import topicLibraryReducer from '../features/topic-library/topicLibrarySlice';
+import libraryReducer from '../features/library/librarySlice';
 import livekitReducer from '../features/livekit/livekitSlice';
 
 const store = configureStore({
@@ -10,7 +10,7 @@ const store = configureStore({
     navigation: navigationReducer,
     home: homeReducer,
     settings: settingsReducer,
-    topicLibrary: topicLibraryReducer,
+    library: libraryReducer,
     livekit: livekitReducer,
   },
 });

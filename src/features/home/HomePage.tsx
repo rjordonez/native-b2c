@@ -1,27 +1,26 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import StreaksCard from './components/StreaksCard';
 import GitHubCard from './components/GitHubCard';
 import SpeakingTestCard from './components/SpeakingTestCard';
 import PracticeCard from './components/PracticeCard';
 import ChecklistCard from './components/ChecklistCard';
-import TopicLibraryCard from './components/TopicLibraryCard';
-import { DASHBOARD_CONFIG, PRACTICE_ACTIVITY_DATES } from './constants/dashboardData';
+import { useAppSelector } from '../../store/hooks';
+import { 
+  selectTestDate, 
+  selectPracticeActivityDates, 
+  selectPracticeFrequency 
+} from './homeSlice';
 
 const HomePage: React.FC = () => {
-  // Use constants for data configuration
-  const testDate = DASHBOARD_CONFIG.testDate;
-  const completedDays = PRACTICE_ACTIVITY_DATES;
-  
-  // Calculate frequency using useMemo for performance
-  const frequency = useMemo(() => {
-    return completedDays.length;
-  }, [completedDays]);
+  // Use Redux selectors for all data
+  const testDate = useAppSelector(selectTestDate);
+  const completedDays = useAppSelector(selectPracticeActivityDates);
+  const frequency = useAppSelector(selectPracticeFrequency);
 
   return (
     <div className="h-full flex flex-col">
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-black mb-2">Dashboard</h1>
-        <p className="text-gray-600">Track your IELTS preparation progress</p>
       </div>
       
       {/* Desktop: Asymmetric two-column layout */}
@@ -35,10 +34,10 @@ const HomePage: React.FC = () => {
             frequency={frequency}
           />
           
-          {/* 2x1 Grid for Speaking Test and Practice */}
+          {/* 2x1 Grid for Speaking Practice and Test */}
           <div className="grid grid-cols-2 gap-4">
-            <SpeakingTestCard />
             <PracticeCard />
+            <SpeakingTestCard />
           </div>
         </div>
         
@@ -52,9 +51,6 @@ const HomePage: React.FC = () => {
           
           {/* Checklist - Natural height */}
           <ChecklistCard />
-          
-          {/* Topic Library - Natural height */}
-          <TopicLibraryCard />
         </div>
       </div>
       
@@ -70,9 +66,8 @@ const HomePage: React.FC = () => {
           completedDays={completedDays}
         />
         <ChecklistCard />
-        <SpeakingTestCard />
         <PracticeCard />
-        <TopicLibraryCard />
+        <SpeakingTestCard />
       </div>
     </div>
   );
