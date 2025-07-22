@@ -1,11 +1,13 @@
 import React from 'react';
 import { ArrowRight } from 'phosphor-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
-import { useAppSelector } from '../../../store/hooks';
-import { selectSpeakingPractices } from '../homeSlice';
 
 const PracticeCard: React.FC = () => {
-  const practices = useAppSelector(selectSpeakingPractices);
+  const practices = [
+    { type: 'Part 1: Introduction', time: '5 min', difficulty: 'Easy' },
+    { type: 'Part 2: Cue Card', time: '5 min', difficulty: 'Easy' },
+    { type: 'Part 3: Discussion', time: '0 min', difficulty: 'Easy' },
+  ];
 
   return (
     <Card>

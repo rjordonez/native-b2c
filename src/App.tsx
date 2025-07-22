@@ -12,6 +12,7 @@ import SettingsPage from './features/settings/SettingsPage';
 import AuthPage from './features/auth/AuthPage';
 import OnboardingPage from './features/auth/components/OnboardingPage';
 import './styles/App.css';
+import BlockSpinner from './shared/components/layout/BlockSpinner';
 
 const AppRoutes: React.FC = () => {
   const { user, isLoading, needsOnboarding } = useAppSelector((state) => state.auth);
@@ -20,8 +21,7 @@ const AppRoutes: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <BlockSpinner className="mx-auto mb-4" />
         </div>
       </div>
     );
