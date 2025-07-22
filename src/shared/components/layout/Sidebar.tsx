@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Gear } from 'phosphor-react';
+import { Gear, CaretUp, CaretDown } from 'phosphor-react';
 import { ROUTES } from '../../../constants/routes';
 
 const Sidebar: React.FC = () => {
@@ -10,8 +10,17 @@ const Sidebar: React.FC = () => {
 
   return (
     <div className="w-64 bg-white border-r border-gray-100 flex flex-col h-full">
-      <div className="flex items-center h-16 px-6 border-b border-gray-100">
-        <img src="/native-logo.png" alt="Native Logo" className="h-8 w-auto" />
+      <div className="flex items-center justify-between h-16 px-6 border-b border-gray-100">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+            <span className="text-white text-sm font-medium">JD</span>
+          </div>
+          <span className="text-sm font-medium text-gray-900">John Doe</span>
+        </div>
+        <div className="flex flex-col">
+          <CaretUp size={12} className="text-gray-400 -mb-1" />
+          <CaretDown size={12} className="text-gray-400" />
+        </div>
       </div>
       
       <nav className="flex-1 px-4 py-6 overflow-y-auto">

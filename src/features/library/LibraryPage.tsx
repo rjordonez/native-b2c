@@ -9,10 +9,10 @@ import {
   setSearchQuery,
   toggleTopicCompletion,
   resetFilters
-} from './topicLibrarySlice';
+} from './librarySlice';
 import { Button } from '../../shared/components/layout/ui/button';
 
-const TopicLibraryPage: React.FC = () => {
+const LibraryPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const topics = useAppSelector(selectFilteredTopics);
   const filters = useAppSelector(selectFilters);
@@ -40,7 +40,7 @@ const TopicLibraryPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-black mb-2">Topic Library</h1>
+        <h1 className="text-3xl font-bold text-black mb-2">Library</h1>
         <p className="text-gray-600">Practice with curated IELTS topics</p>
       </div>
 
@@ -173,4 +173,4 @@ const TopicLibraryPage: React.FC = () => {
   );
 };
 
-export default TopicLibraryPage;
+export default LibraryPage;

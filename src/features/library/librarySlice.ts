@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../store/types';
-import { TopicLibraryState, Topic, TopicProgressPayload, FilterUpdatePayload } from './types';
+import { LibraryState, Topic, TopicProgressPayload, FilterUpdatePayload } from './types';
 
-const initialState: TopicLibraryState = {
+const initialState: LibraryState = {
   topics: [
     {
       id: '1',
@@ -73,8 +73,8 @@ const initialState: TopicLibraryState = {
   searchQuery: '',
 };
 
-export const topicLibrarySlice = createSlice({
-  name: 'topicLibrary',
+export const librarySlice = createSlice({
+  name: 'library',
   initialState,
   reducers: {
     updateTopicProgress: (state, action: PayloadAction<TopicProgressPayload>) => {
@@ -114,14 +114,14 @@ export const {
   updateFilters,
   setSearchQuery,
   resetFilters,
-} = topicLibrarySlice.actions;
+} = librarySlice.actions;
 
-export const selectTopics = (state: RootState) => state.topicLibrary.topics;
-export const selectFilters = (state: RootState) => state.topicLibrary.filters;
-export const selectSearchQuery = (state: RootState) => state.topicLibrary.searchQuery;
+export const selectTopics = (state: RootState) => state.library.topics;
+export const selectFilters = (state: RootState) => state.library.filters;
+export const selectSearchQuery = (state: RootState) => state.library.searchQuery;
 
 export const selectFilteredTopics = (state: RootState) => {
-  const { topics, filters, searchQuery } = state.topicLibrary;
+  const { topics, filters, searchQuery } = state.library;
   
   return topics.filter(topic => {
     const matchesCategory = filters.category === 'all' || topic.category === filters.category;
@@ -135,4 +135,4 @@ export const selectFilteredTopics = (state: RootState) => {
   });
 };
 
-export default topicLibrarySlice.reducer;
+export default librarySlice.reducer;

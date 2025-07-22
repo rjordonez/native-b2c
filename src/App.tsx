@@ -4,8 +4,7 @@ import { Provider } from 'react-redux';
 import store from './store';
 import Layout from './shared/components/layout/Layout';
 import HomePage from './features/home/HomePage';
-import PracticePage from './features/practice/PracticePage';
-import TopicLibraryPage from './features/topic-library/TopicLibraryPage';
+import LibraryPage from './features/library/LibraryPage';
 import LiveKitPage from './features/livekit/LiveKitPage';
 import SettingsPage from './features/settings/SettingsPage';
 import './styles/App.css';
@@ -17,8 +16,7 @@ const App: React.FC = () => {
         <Layout>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/practice" element={<PracticePage />} />
-            <Route path="/topic-library" element={<TopicLibraryPage />} />
+            <Route path="/library" element={<LibraryPage />} />
             <Route path="/voice-practice" element={<LiveKitPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Routes>

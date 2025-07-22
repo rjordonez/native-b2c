@@ -9,7 +9,7 @@ export interface Topic {
   estimatedTime: string;
 }
 
-export interface TopicLibraryState {
+export interface LibraryState {
   topics: Topic[];
   filters: {
     category: string;

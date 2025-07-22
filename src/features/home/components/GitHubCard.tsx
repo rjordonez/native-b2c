@@ -19,33 +19,39 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
 
   // Transform completedDays into the format expected by react-github-calendar
   const transformData = useMemo(() => (contributions: any[]) => {
-    return contributions.map(day => {
-      const dateStr = day.date;
-      const testDateStr = testDate.toISOString().split('T')[0];
-      
-      // Check if this is the test date
-      const isTestDate = testDateStr === dateStr;
-      
-      if (isTestDate) {
+    // Filter to show only last 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    
+    return contributions
+      .filter(day => new Date(day.date) >= sixMonthsAgo)
+      .map(day => {
+        const dateStr = day.date;
+        const testDateStr = testDate.toISOString().split('T')[0];
+        
+        // Check if this is the test date
+        const isTestDate = testDateStr === dateStr;
+        
+        if (isTestDate) {
+          return {
+            ...day,
+            count: 4, // Max level for test date highlighting
+            level: 4
+          };
+        }
+        
+        // Count activities for this date
+        const activityCount = completedDays.filter(cd => {
+          const cdStr = cd.toISOString().split('T')[0];
+          return cdStr === dateStr;
+        }).length;
+        
         return {
           ...day,
-          count: 4, // Max level for test date highlighting
-          level: 4
+          count: activityCount,
+          level: Math.min(activityCount, 4)
         };
-      }
-      
-      // Count activities for this date
-      const activityCount = completedDays.filter(cd => {
-        const cdStr = cd.toISOString().split('T')[0];
-        return cdStr === dateStr;
-      }).length;
-      
-      return {
-        ...day,
-        count: activityCount,
-        level: Math.min(activityCount, 4)
-      };
-    });
+      });
   }, [testDate, completedDays]);
 
   // Create CSS styles for test date highlighting
@@ -99,22 +105,40 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
         </div>
         
         {/* GitHub Calendar */}
-        <div className="overflow-x-auto">
-          <GitHubCalendar
-            username="any-username" // This won't be used due to transformData
-            transformData={transformData}
-            theme={{
-              light: ['#ebedf0', '#ffd7b3', '#ffb366', '#ff8f1a', '#ff6b00']
-            }}
-            colorScheme="light"
-            fontSize={9}
-            blockSize={10}
-            blockMargin={3}
-            hideColorLegend={false}
-            hideTotalCount={true}
-            hideMonthLabels={false}
-            loading={false}
-          />
+        <div className="overflow-x-auto" style={{ scrollbarWidth: 'thin' }}>
+          <style>{`
+            .github-card .overflow-x-auto::-webkit-scrollbar {
+              height: 4px;
+            }
+            .github-card .overflow-x-auto::-webkit-scrollbar-track {
+              background: #f1f1f1;
+              border-radius: 2px;
+            }
+            .github-card .overflow-x-auto::-webkit-scrollbar-thumb {
+              background: #c1c1c1;
+              border-radius: 2px;
+            }
+            .github-card .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+              background: #a8a8a8;
+            }
+          `}</style>
+          <div className="min-w-fit">
+            <GitHubCalendar
+              username="any-username" // This won't be used due to transformData
+              transformData={transformData}
+              theme={{
+                light: ['#ebedf0', '#ffd7b3', '#ffb366', '#ff8f1a', '#ff6b00']
+              }}
+              colorScheme="light"
+              fontSize={8}
+              blockSize={10}
+              blockMargin={3}
+              hideColorLegend={false}
+              hideTotalCount={true}
+              hideMonthLabels={false}
+              loading={false}
+            />
+          </div>
         </div>
       </CardContent>
     </Card>

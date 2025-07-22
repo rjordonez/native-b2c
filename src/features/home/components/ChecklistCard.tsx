@@ -2,15 +2,17 @@ import React from 'react';
 import { CheckSquare, Square } from 'phosphor-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
 import ProgressBar from '../../../shared/components/layout/ui/progress-bar';
+import { useAppSelector, useAppDispatch } from '../../../store/hooks';
+import { selectTasks, selectCompletedTasksCount, toggleTask } from '../homeSlice';
 
 const ChecklistCard: React.FC = () => {
-  const tasks = [
-    { id: 1, text: 'Complete Reading Practice Test', completed: true },
-    { id: 2, text: 'Review vocabulary flashcards', completed: false },
-    { id: 3, text: 'Practice speaking with partner', completed: false },
-  ];
+  const dispatch = useAppDispatch();
+  const tasks = useAppSelector(selectTasks);
+  const completedCount = useAppSelector(selectCompletedTasksCount);
 
-  const completedCount = tasks.filter(task => task.completed).length;
+  const handleTaskToggle = (taskId: number) => {
+    dispatch(toggleTask(taskId));
+  };
 
   return (
     <Card>
@@ -29,7 +31,11 @@ const ChecklistCard: React.FC = () => {
         
         <div className="space-y-3">
           {tasks.map((task) => (
-            <div key={task.id} className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
+            <div 
+              key={task.id} 
+              className="flex items-center gap-3 p-2 rounded-lg bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors"
+              onClick={() => handleTaskToggle(task.id)}
+            >
               {task.completed ? (
                 <CheckSquare size={18} className="text-green-500 flex-shrink-0" />
               ) : (

@@ -1,39 +1,38 @@
 import React from 'react';
-import { Play } from 'phosphor-react';
+import { ArrowRight } from 'phosphor-react';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
+import { useAppSelector } from '../../../store/hooks';
+import { selectSpeakingTests } from '../homeSlice';
 
 const SpeakingTestCard: React.FC = () => {
+  const tests = useAppSelector(selectSpeakingTests);
+
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-6 shadow-sm">
-      <div className="mb-4">
-        <h3 className="text-lg font-semibold text-black">Speaking Test</h3>
-      </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Speaking Test</CardTitle>
+      </CardHeader>
       
-      <div className="space-y-4">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-blue-600 mb-1">7.5</div>
-          <div className="text-sm text-gray-500">Last Score</div>
+      <CardContent>
+        <div className="space-y-3">
+          {tests.map((test, index) => (
+            <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer">
+              <div className="flex-1">
+                <div className="font-medium text-gray-700">{test.type}</div>
+                <div className="text-xs text-gray-500">{test.time} • {test.difficulty}</div>
+              </div>
+              <ArrowRight size={16} className="text-gray-400" />
+            </div>
+          ))}
         </div>
         
-        <div className="bg-blue-50 rounded-lg p-4">
-          <div className="flex items-center gap-3 mb-3">
-            <Play size={16} className="text-blue-600" />
-            <span className="text-sm font-medium text-blue-700">Next Practice</span>
-          </div>
-          <p className="text-sm text-gray-600 mb-3">
-            "Describe a time when you learned something new"
-          </p>
-          <button className="w-full bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-            Start Speaking
+        <div className="mt-4 pt-4 border-t border-gray-100">
+          <button className="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium">
+            View all speaking tests →
           </button>
         </div>
-        
-        <div className="text-center">
-          <div className="text-xs text-gray-400">
-            Practice daily • Target: 8.0
-          </div>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
