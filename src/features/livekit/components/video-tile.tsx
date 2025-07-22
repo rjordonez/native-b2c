@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { VideoTrack } from '@livekit/components-react';
-import { cn } from '../utils/cn';
+import { cn } from '../../../utils/cn';
 
 const MotionVideoTrack = motion.create(VideoTrack);
 

@@ -8,7 +8,7 @@ import {
   useTrackToggle,
 } from '@livekit/components-react';
 import { usePublishPermissions } from './use-publish-permissions';
-import { usePushToTalk } from '../../../shared/hooks/usePushToTalk';
+import { usePushToTalk } from '../../../hooks';
 
 export interface ControlBarControls {
   microphone?: boolean;

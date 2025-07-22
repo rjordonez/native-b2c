@@ -1,12 +1,12 @@
 import { type AgentState, useVoiceAssistant } from '@livekit/components-react';
-import { cn } from '../utils/cn';
+import { cn } from '../../../utils/cn';
 import { useState, useEffect } from 'react';
-import type { Scenario } from './scenario-dashboard';
+import type { IELTSScenario } from '../types';
 
 
 interface ConversationProgressProps {
   className?: string;
-  scenario?: Scenario;
+  scenario?: IELTSScenario;
   scriptAwareTurns?: number; // For BEGINNER scenarios, sync with SuggestedResponses turn count
 }
 

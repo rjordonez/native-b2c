@@ -91,11 +91,11 @@ app.get("/api/connection-details", async (req, res) => {
     // Generate participant token with special naming convention
     const randomDigits = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
     const customGreeting = req.query.greeting || "Hi I am Luna";
-    const scenario = req.query.scenario || "";
+    const _scenario = req.query.scenario || "";
    
-    const conversationScript = req.query.conversationScript || "";
-    const scenarioLevel = req.query.scenarioLevel || "";
-    const scenarioTurns = req.query.scenarioTurns || "";
+    const _conversationScript = req.query.conversationScript || "";
+    const _scenarioLevel = req.query.scenarioLevel || "";
+    const _scenarioTurns = req.query.scenarioTurns || "";
     const participantName = `user_${randomDigits}_say_${customGreeting.replace(/\s+/g, '_').toLowerCase()}`;
     const participantIdentity = `voice_assistant_user_${Math.floor(Math.random() * 10_000)}`;
     const roomName = `voice_assistant_room_${Math.floor(Math.random() * 10_000)}`;

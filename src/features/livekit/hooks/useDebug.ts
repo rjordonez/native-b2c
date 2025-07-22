@@ -2,7 +2,7 @@ import * as React from 'react';
 import { LogLevel, setLogLevel } from 'livekit-client';
 import { useRoomContext } from '@livekit/components-react';
 
-export const useDebugMode = ({ logLevel }: { logLevel?: LogLevel } = {}) => {
+export const useDebug = ({ logLevel }: { logLevel?: LogLevel } = {}) => {
   const room = useRoomContext();
 
   React.useEffect(() => {

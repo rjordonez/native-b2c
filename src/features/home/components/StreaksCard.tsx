@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import GitHubCalendar from 'react-github-calendar';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
 
 interface StreaksCardProps {
   testDate: Date;
@@ -9,7 +9,7 @@ interface StreaksCardProps {
 
 const StreaksCard: React.FC<StreaksCardProps> = ({ 
   testDate,
-  completedDays
+  frequency
 }) => {
   // Calculate days left using useMemo for performance
   const daysLeft = useMemo(() => {
@@ -17,101 +17,37 @@ const StreaksCard: React.FC<StreaksCardProps> = ({
     return Math.max(0, Math.ceil((testDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
   }, [testDate]);
 
-  // Transform completedDays into the format expected by react-github-calendar
-  const transformData = useMemo(() => (contributions: any[]) => {
-    return contributions.map(day => {
-      const dateStr = day.date;
-      const testDateStr = testDate.toISOString().split('T')[0];
-      
-      // Check if this is the test date
-      const isTestDate = testDateStr === dateStr;
-      
-      if (isTestDate) {
-        return {
-          ...day,
-          count: 4, // Max level for test date highlighting
-          level: 4
-        };
-      }
-      
-      // Count activities for this date
-      const activityCount = completedDays.filter(cd => {
-        const cdStr = cd.toISOString().split('T')[0];
-        return cdStr === dateStr;
-      }).length;
-      
-      return {
-        ...day,
-        count: activityCount,
-        level: Math.min(activityCount, 4)
-      };
-    });
-  }, [testDate, completedDays]);
-
-  // Create CSS styles for test date highlighting
-  const testDateStyles = useMemo(() => {
-    const testDateStr = testDate.toISOString().split('T')[0];
-    return `
-      .react-activity-calendar rect[data-date="${testDateStr}"] {
-        fill: #ffd700 !important;
-        stroke: #ffb700 !important;
-        stroke-width: 2px !important;
-      }
-      .streaks-card .react-activity-calendar__legend {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        font-size: 11px;
-      }
-      .test-date-indicator {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        margin-right: 0.5rem;
-      }
-      .test-date-box {
-        width: 10px;
-        height: 10px;
-        background: #ffd700;
-        border: 1px solid #ffb700;
-        border-radius: 2px;
-      }
-    `;
-  }, [testDate]);
-
   return (
-    <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm streaks-card">
-      <style>{testDateStyles}</style>
+    <Card>
+      <CardHeader>
+        <CardTitle>Practice Streaks</CardTitle>
+      </CardHeader>
       
-      {/* Custom Legend */}
-      <div className="mb-4 flex items-center gap-4 text-xs text-gray-600 flex-wrap">
-        <div className="test-date-indicator">
-          <span>Test date:</span>
-          <div className="test-date-box"></div>
-          <span className="font-medium">{daysLeft} days left</span>
+      <CardContent>
+        <div className="grid grid-cols-3 gap-4 text-center">
+          <div className="p-4 rounded-lg bg-blue-50">
+            <div className="text-2xl font-bold text-blue-600">{frequency}</div>
+            <div className="text-sm text-gray-600">Days Practiced</div>
+          </div>
+          <div className="p-4 rounded-lg bg-green-50">
+            <div className="text-2xl font-bold text-green-600">{daysLeft}</div>
+            <div className="text-sm text-gray-600">Days Until Test</div>
+          </div>
+          <div className="p-4 rounded-lg bg-orange-50">
+            <div className="text-2xl font-bold text-orange-600">
+              {Math.round((frequency / Math.max(1, 30 - daysLeft)) * 100)}%
+            </div>
+            <div className="text-sm text-gray-600">Consistency</div>
+          </div>
         </div>
-      </div>
-      
-      {/* GitHub Calendar */}
-      <div className="overflow-x-auto">
-        <GitHubCalendar
-          username="any-username" // This won't be used due to transformData
-          transformData={transformData}
-          theme={{
-            light: ['#ebedf0', '#ffd7b3', '#ffb366', '#ff8f1a', '#ff6b00']
-          }}
-          colorScheme="light"
-          fontSize={9}
-          blockSize={10}
-          blockMargin={3}
-          hideColorLegend={false}
-          hideTotalCount={true}
-          hideMonthLabels={false}
-          loading={false}
-        />
-      </div>
-    </div>
+        
+        <div className="mt-4 p-3 bg-yellow-50 rounded-lg border border-yellow-200">
+          <div className="text-sm font-medium text-yellow-800">
+            Test Date: {testDate.toLocaleDateString()}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

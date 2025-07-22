@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useVoiceAssistant, useTranscriptions, useRoomContext, type AgentState } from '@livekit/components-react';
-import { Button } from '../shared/components/layout/ui/button';
-import { Card, CardContent } from '../shared/components/layout/ui/card';
-import type { Scenario } from './scenario-dashboard';
+import { Button } from '../../../shared/components/layout/ui/button';
+import { Card, CardContent } from '../../../shared/components/layout/ui/card';
+import type { IELTSScenario } from '../types';
 
 interface SuggestedResponsesProps {
-  scenario?: Scenario;
+  scenario?: IELTSScenario;
   onResponseSelect: (response: string) => void;
   disabled?: boolean;
   onTurnChange?: (turns: number) => void; // Callback to notify parent of turn changes

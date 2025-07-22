@@ -7,12 +7,12 @@ import {
   useTracks,
   useVoiceAssistant,
 } from '@livekit/components-react';
-import { cn } from '../utils/cn';
+import { cn } from '../../../utils/cn';
 import { AgentTile } from './agent-tile';
 import { AvatarTile } from './avatar-tile';
 import { VideoTile } from './video-tile';
 import { SuggestedResponses } from './suggested-responses';
-import type { Scenario } from './scenario-dashboard';
+import type { IELTSScenario } from '../types';
 
 const MotionVideoTile = motion.create(VideoTile);
 const MotionAgentTile = motion.create(AgentTile);
@@ -90,7 +90,7 @@ export function useLocalTrackRef(source: Track.Source) {
 
 interface MediaTilesProps {
   chatOpen: boolean;
-  selectedScenario?: Scenario;
+  selectedScenario?: IELTSScenario;
   sessionStarted?: boolean;
   onResponseSelect?: (response: string) => void;
   onTurnChange?: (turn: number) => void;
