@@ -1,6 +1,6 @@
 import * as React from 'react';
 import type { MessageFormatter, ReceivedChatMessage } from '@livekit/components-react';
-import { cn } from '../../utils/cn';
+import { cn } from '../../../../utils/cn';
 import { useChatMessage } from './hooks/utils';
 
 export interface ChatEntryProps extends React.HTMLAttributes<HTMLLIElement> {

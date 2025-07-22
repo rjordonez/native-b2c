@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import StreaksCard from './components/StreaksCard';
+import GitHubCard from './components/GitHubCard';
 import SpeakingTestCard from './components/SpeakingTestCard';
 import PracticeCard from './components/PracticeCard';
 import ChecklistCard from './components/ChecklistCard';
@@ -43,6 +44,12 @@ const HomePage: React.FC = () => {
         
         {/* Right Column - Takes 1 column (narrower) */}
         <div className="col-span-1 flex flex-col gap-4">
+          {/* GitHub Activity - Above checklist */}
+          <GitHubCard
+            testDate={testDate}
+            completedDays={completedDays}
+          />
+          
           {/* Checklist - Natural height */}
           <ChecklistCard />
           
@@ -57,6 +64,10 @@ const HomePage: React.FC = () => {
           testDate={testDate}
           completedDays={completedDays}
           frequency={frequency}
+        />
+        <GitHubCard
+          testDate={testDate}
+          completedDays={completedDays}
         />
         <ChecklistCard />
         <SpeakingTestCard />

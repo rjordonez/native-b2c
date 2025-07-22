@@ -1,8 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { ConnectionDetails } from '@/components/server/index';
-import type { Scenario } from '@/components/scenario-dashboard';
+import type { IELTSScenario } from '../types';
 
-export default function useConnectionDetails(selectedScenario?: Scenario) {
+export interface ConnectionDetails {
+  serverUrl: string;
+  roomName: string;
+  participantName: string;
+  participantToken: string;
+}
+
+export function useConnectionDetails(selectedScenario?: IELTSScenario) {
   // Generate room connection details, including:
   //   - A random Room name
   //   - A random Participant name

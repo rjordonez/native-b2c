@@ -4,15 +4,16 @@ import { RoomAudioRenderer, RoomContext, StartAudio } from '@livekit/components-
 import { toastAlert } from '../../shared/components/ui/alert-toast';
 import { SessionView } from './components/SessionView';
 import { Toaster } from '../../shared/components/ui/sonner';
-import { ScenarioDashboard, type Scenario } from '../../livekit/scenario-dashboard';
-import useConnectionDetails from '../../shared/hooks/useConnectionDetails';
+import ScenarioDashboard from './components/ScenarioDashboard';
+import type { IELTSScenario } from './types';
+import { useConnectionDetails } from './hooks';
 import type { AppConfig } from './types';
 import { APP_CONFIG_DEFAULTS } from './app-config';
 
 const LiveKitPage: React.FC = () => {
   const room = useMemo(() => new Room(), []);
   const [sessionStarted, setSessionStarted] = useState(false);
-  const [selectedScenario, setSelectedScenario] = useState<Scenario | null>(null);
+  const [selectedScenario, setSelectedScenario] = useState<IELTSScenario | null>(null);
   const { connectionDetails, refreshConnectionDetails } = useConnectionDetails(selectedScenario);
   const appConfig: AppConfig = APP_CONFIG_DEFAULTS;
 
@@ -23,7 +24,7 @@ const LiveKitPage: React.FC = () => {
     }
   }, [connectionDetails, selectedScenario, sessionStarted]);
 
-  const handleScenarioSelect = (scenario: Scenario) => {
+  const handleScenarioSelect = (scenario: IELTSScenario) => {
     setSelectedScenario(scenario);
   };
 

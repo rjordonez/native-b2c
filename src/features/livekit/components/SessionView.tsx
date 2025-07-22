@@ -9,18 +9,17 @@ import {
   useVoiceAssistant,
 } from '@livekit/components-react';
 import { toastAlert } from '../../../shared/components/ui/alert-toast';
-import { AgentControlBar } from '../../../livekit/agent-control-bar/agent-control-bar';
-import { ChatEntry } from '../../../livekit/chat/chat-entry';
-import { ChatMessageView } from '../../../livekit/chat/chat-message-view';
-import { MediaTiles } from '../../../livekit/media-tiles';
-import useChatAndTranscription from '../../../shared/hooks/useChatAndTranscription';
-import { useDebugMode } from '../../../shared/hooks/useDebug';
+import { AgentControlBar } from './agent-control-bar/agent-control-bar';
+import { ChatEntry } from './chat/chat-entry';
+import { ChatMessageView } from './chat/chat-message-view';
+import { MediaTiles } from './media-tiles';
+import { useChatAndTranscription, useDebug } from '../hooks';
 import type { AppConfig } from '../types';
 import { cn } from '../../../utils/cn';
-import { ConversationProgress } from '../../../livekit/conversation-progress';
+import { ConversationProgress } from './conversation-progress';
 import { SettingsDropdown } from '../../../shared/components/ui/settings-dropdown';
 import type { IELTSScenario } from '../types';
-import { useAgentControlBar } from '../../../livekit/agent-control-bar/hooks/use-agent-control-bar';
+import { useAgentControlBar } from './agent-control-bar/hooks/use-agent-control-bar';
 
 function isAgentAvailable(agentState: AgentState) {
   return agentState == 'listening' || agentState == 'thinking' || agentState == 'speaking';
@@ -51,7 +50,7 @@ export const SessionView = forwardRef<HTMLElement, SessionViewProps>(({
   const room = useRoomContext();
   const { pushToTalk } = useAgentControlBar();
 
-  useDebugMode();
+  useDebug();
 
   // Helper function to track assignment completion
   const trackAssignmentCompletion = async (reason: string) => {

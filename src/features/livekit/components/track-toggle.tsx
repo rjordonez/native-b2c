@@ -11,8 +11,8 @@ import {
   VideoCamera,
   VideoCameraSlash,
 } from 'phosphor-react';
-import { Toggle } from '../shared/components/layout/ui/toggle';
-import { cn } from '../utils/cn';
+import { Toggle } from '../../../shared/components/layout/ui/toggle';
+import { cn } from '../../../utils/cn';
 
 export type TrackToggleProps = React.ComponentProps<typeof Toggle> & {
   source: Parameters<typeof useTrackToggle>[0]['source'];

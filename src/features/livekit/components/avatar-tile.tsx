@@ -1,5 +1,5 @@
 import { type TrackReference, VideoTrack } from '@livekit/components-react';
-import { cn } from '../utils/cn';
+import { cn } from '../../../utils/cn';
 
 interface AgentAudioTileProps {
   videoTrack: TrackReference;

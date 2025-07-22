@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { Button } from '../../shared/components/layout/ui/button';
-import { cn } from '../../utils/cn';
+import { Button } from '../../../../shared/components/layout/ui/button';
+import { cn } from '../../../../utils/cn';
 
 interface ChatInputProps extends React.HTMLAttributes<HTMLFormElement> {
   onSend?: (message: string) => void;
