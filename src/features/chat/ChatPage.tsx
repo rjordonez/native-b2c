@@ -5,14 +5,17 @@ import {
   selectIsLoading,
   selectIsTyping,
   selectError,
+  selectTtsSpeed,
   createConversation,
   clearError,
-  startTopicPractice
+  startTopicPractice,
+  setTtsSpeed
 } from './chatSlice';
 import {
   ChatMessages,
   VoiceRecorder,
-  EmptyState
+  EmptyState,
+  TtsSpeedSelector
 } from './components';
 import { PronunciationModal } from '../pronunciation/components/PronunciationModal';
 
@@ -22,6 +25,7 @@ const ChatPage: React.FC = () => {
   const isLoading = useAppSelector(selectIsLoading);
   const isTyping = useAppSelector(selectIsTyping);
   const error = useAppSelector(selectError);
+  const ttsSpeed = useAppSelector(selectTtsSpeed);
   
   console.log('ChatPage render - activeConversation:', activeConversation);
 
@@ -45,6 +49,10 @@ const ChatPage: React.FC = () => {
     dispatch(startTopicPractice({ topicName: topic }));
   };
 
+  const handleTtsSpeedChange = (speed: number) => {
+    dispatch(setTtsSpeed(speed));
+  };
+
   const formatTimestamp = (timestamp: string) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
@@ -60,13 +68,19 @@ const ChatPage: React.FC = () => {
         <>
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
-            <div>
-              <h1 className="text-xl font-semibold text-gray-900">
-                {activeConversation.title}
-              </h1>
-              <p className="text-sm text-gray-500">
-                {activeConversation.messages.length} messages
-              </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900">
+                  {activeConversation.title}
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {activeConversation.messages.length} messages
+                </p>
+              </div>
+              <TtsSpeedSelector
+                value={ttsSpeed}
+                onChange={handleTtsSpeedChange}
+              />
             </div>
           </div>
 

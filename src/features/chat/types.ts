@@ -66,6 +66,7 @@ export interface ChatState {
   error: string | null;
   voiceRecording: VoiceRecordingState;
   topicPractice: TopicPracticeState;
+  ttsSpeed: number;
 }
 
 export interface SendMessagePayload {
