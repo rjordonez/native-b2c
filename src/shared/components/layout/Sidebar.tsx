@@ -91,6 +91,7 @@ const Sidebar: React.FC = () => {
         {sidebarCollapsed ? (
           // Square N logo for collapsed state - click to expand
           <div className="relative">
+            {/* N Logo - always present */}
             <button 
               onClick={() => {
                 setHoveredItem(null);
@@ -108,10 +109,37 @@ const Sidebar: React.FC = () => {
                 setHoveredItem(null);
                 setTooltipPosition(null);
               }}
-              className="w-10 h-10 rounded-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+              className={`w-10 h-10 rounded-md flex items-center justify-center hover:opacity-90 transition-opacity duration-200 ${
+                hoveredItem === 'logo' ? 'opacity-0' : 'opacity-100'
+              }`}
               style={gradientStyle}
             >
               <span className="text-white text-lg font-bold">N</span>
+            </button>
+
+            {/* Split Screen Icon - shows on hover */}
+            <button
+              onClick={() => {
+                setHoveredItem(null);
+                dispatch(toggleSidebarCollapse());
+              }}
+              onMouseEnter={(e) => {
+                setHoveredItem('logo');
+                const rect = e.currentTarget.getBoundingClientRect();
+                setTooltipPosition({
+                  top: rect.top + rect.height / 2,
+                  left: rect.right + 8
+                });
+              }}
+              onMouseLeave={() => {
+                setHoveredItem(null);
+                setTooltipPosition(null);
+              }}
+              className={`absolute top-0 left-0 w-10 h-10 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all duration-200 ${
+                hoveredItem === 'logo' ? 'opacity-100' : 'opacity-0 pointer-events-none'
+              }`}
+            >
+              <SplitScreenIcon sx={{ fontSize: 20, transform: 'rotate(90deg)' }} />
             </button>
             {hoveredItem === 'logo' && tooltipPosition && (
               <div 
@@ -133,7 +161,7 @@ const Sidebar: React.FC = () => {
             <div className="relative">
               <button
                 onClick={() => dispatch(toggleSidebarCollapse())}
-                className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors"
+                className="w-10 h-10 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
                 title="Close sidebar"
               >
                 <SplitScreenIcon sx={{ fontSize: 20, transform: 'rotate(90deg)' }} />
