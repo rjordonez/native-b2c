@@ -7,7 +7,7 @@ export const useTopicPractice = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
 
-  const startPractice = (topicName: string) => {
+  const startPractice = async (topicName: string) => {
     console.log('Starting practice for topic:', topicName);
     
     // Check if we're already on the chat page
@@ -17,8 +17,13 @@ export const useTopicPractice = () => {
       // If already on chat page, just start the practice
       dispatch(startTopicPractice({ topicName }));
     } else {
-      // Navigate to chat page with state indicating we want to start practice
-      navigate('/chat', { state: { startPractice: topicName } });
+      // Start the practice session first
+      const result = await dispatch(startTopicPractice({ topicName }));
+      
+      // If successful, navigate to chat
+      if (startTopicPractice.fulfilled.match(result)) {
+        navigate('/chat');
+      }
     }
   };
 
