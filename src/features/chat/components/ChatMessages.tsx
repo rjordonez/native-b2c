@@ -1,11 +1,12 @@
 import React, { useRef, useEffect } from 'react';
 import { CircleNotch } from 'phosphor-react';
 import { Conversation } from '../types';
+import VoiceMessage from './VoiceMessage';
 
 interface ChatMessagesProps {
   activeConversation: Conversation;
   isTyping: boolean;
-  formatTimestamp: (date: Date) => string;
+  formatTimestamp: (timestamp: string) => string;
 }
 
 const ChatMessages: React.FC<ChatMessagesProps> = ({
@@ -22,29 +23,43 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
 
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
-      {activeConversation.messages.map((msg) => (
-        <div
-          key={msg.id}
-          className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-        >
+      {activeConversation.messages.map((msg) => {
+        // Render voice message if audioUrl exists
+        if (msg.audioUrl) {
+          return (
+            <VoiceMessage
+              key={msg.id}
+              audioUrl={msg.audioUrl}
+              sender={msg.sender}
+              timestamp={msg.timestamp}
+              formatTimestamp={formatTimestamp}
+            />
+          );
+        }
+
+        // Render text message
+        return (
           <div
-            className={`max-w-[70%] p-3 rounded-lg ${
-              msg.sender === 'user'
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-100 text-gray-900'
-            }`}
+            key={msg.id}
+            className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-            <p
-              className={`text-xs mt-1 ${
-                msg.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
-              }`}
-            >
-              {formatTimestamp(msg.timestamp)}
-            </p>
+            <div className={`flex flex-col max-w-xs lg:max-w-md ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+              <div
+                className={`px-4 py-3 rounded-2xl ${
+                  msg.sender === 'user'
+                    ? 'bg-blue-500 text-white rounded-br-sm'
+                    : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+                }`}
+              >
+                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+              </div>
+              <span className="text-xs text-gray-500 mt-1 px-1">
+                {formatTimestamp(msg.timestamp)}
+              </span>
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
       
       {/* Typing Indicator */}
       {isTyping && (

@@ -2,7 +2,7 @@ export interface Message {
   id: string;
   content: string;
   sender: 'user' | 'assistant';
-  timestamp: Date;
+  timestamp: string; // ISO string for Redux serialization
   isTyping?: boolean;
   audioUrl?: string; // For voice messages
 }
@@ -11,15 +11,14 @@ export interface Conversation {
   id: string;
   title: string;
   messages: Message[];
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string; // ISO string for Redux serialization
+  updatedAt: string; // ISO string for Redux serialization
 }
 
 export interface VoiceRecordingState {
   isRecording: boolean;
   isPaused: boolean;
-  audioBlob: Blob | null;
-  audioUrl: string | null;
+  audioUrl: string | null; // Store URL instead of Blob for Redux serialization
   recordingDuration: number;
   recordingState: 'idle' | 'recording' | 'recorded' | 'playing';
 }

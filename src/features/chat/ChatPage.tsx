@@ -35,13 +35,13 @@ const ChatPage: React.FC = () => {
     dispatch(createConversation({ title: 'New Conversation' }));
   };
 
-  const formatTimestamp = (date: Date) => {
+  const formatTimestamp = (timestamp: string) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
-    }).format(new Date(date));
+    }).format(new Date(timestamp));
   };
 
   return (

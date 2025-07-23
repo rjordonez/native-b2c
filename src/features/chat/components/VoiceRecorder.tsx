@@ -31,6 +31,8 @@ const VoiceRecorder: React.FC = () => {
   const wavesurferRef = useRef<WaveSurfer | null>(null);
   const [isPressed, setIsPressed] = useState(false);
   const [isWaveformPlaying, setIsWaveformPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [totalDuration, setTotalDuration] = useState(0);
 
   // Format duration for display
   const formatDuration = (seconds: number) => {
@@ -59,7 +61,6 @@ const VoiceRecorder: React.FC = () => {
         const audioUrl = URL.createObjectURL(audioBlob);
         
         dispatch(stopRecording({
-          audioBlob,
           audioUrl,
           duration: recordingDuration
         }));
@@ -178,6 +179,17 @@ const VoiceRecorder: React.FC = () => {
       wavesurfer.on('finish', () => {
         setIsWaveformPlaying(false);
         dispatch(pauseRecording());
+        setCurrentTime(0);
+      });
+
+      // Track current time during playback
+      wavesurfer.on('timeupdate', (time) => {
+        setCurrentTime(time);
+      });
+
+      // Get total duration when ready
+      wavesurfer.on('ready', () => {
+        setTotalDuration(wavesurfer.getDuration());
       });
     }
 
@@ -206,6 +218,8 @@ const VoiceRecorder: React.FC = () => {
       wavesurferRef.current = null;
     }
     setIsWaveformPlaying(false);
+    setCurrentTime(0);
+    setTotalDuration(0);
     dispatch(clearRecording());
   };
 
@@ -227,8 +241,15 @@ const VoiceRecorder: React.FC = () => {
       audioUrl
     }));
 
-    // Clear recording after sending
-    handleClear();
+    // Clear recording without revoking URL (needed for chat message)
+    if (wavesurferRef.current) {
+      wavesurferRef.current.destroy();
+      wavesurferRef.current = null;
+    }
+    setIsWaveformPlaying(false);
+    setCurrentTime(0);
+    setTotalDuration(0);
+    dispatch(clearRecording());
   };
 
   // Update play button state based on Wavesurfer or Redux state
@@ -294,7 +315,7 @@ const VoiceRecorder: React.FC = () => {
 
         {/* Duration */}
         <span className="text-xs text-gray-500 mx-2">
-          {formatDuration(recordingDuration)}
+          {formatDuration(currentTime)} / {formatDuration(totalDuration)}
         </span>
 
         {/* Action buttons */}
