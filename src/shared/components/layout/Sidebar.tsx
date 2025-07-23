@@ -20,6 +20,8 @@ const Sidebar: React.FC = () => {
   const sidebarCollapsed = useAppSelector(selectSidebarCollapsed);
   const user = useAppSelector((state) => state.auth.user);
   const userInfoRef = useRef<HTMLDivElement>(null);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
   
   // Chat-related state
   const conversations = useAppSelector(selectConversations);
@@ -88,14 +90,42 @@ const Sidebar: React.FC = () => {
       <div className={`flex items-center h-20 ${sidebarCollapsed ? 'px-2 justify-center' : 'px-6 justify-between'} pt-4 pb-2 relative overflow-hidden`}>
         {sidebarCollapsed ? (
           // Square N logo for collapsed state - click to expand
-          <button 
-            onClick={() => dispatch(toggleSidebarCollapse())}
-            className="w-10 h-10 rounded-lg flex items-center justify-center hover:opacity-90 transition-opacity"
-            style={gradientStyle}
-            title="Expand sidebar"
-          >
-            <span className="text-white text-lg font-bold">N</span>
-          </button>
+          <div className="relative">
+            <button 
+              onClick={() => {
+                setHoveredItem(null);
+                dispatch(toggleSidebarCollapse());
+              }}
+              onMouseEnter={(e) => {
+                setHoveredItem('logo');
+                const rect = e.currentTarget.getBoundingClientRect();
+                setTooltipPosition({
+                  top: rect.top + rect.height / 2,
+                  left: rect.right + 8
+                });
+              }}
+              onMouseLeave={() => {
+                setHoveredItem(null);
+                setTooltipPosition(null);
+              }}
+              className="w-10 h-10 rounded-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+              style={gradientStyle}
+            >
+              <span className="text-white text-lg font-bold">N</span>
+            </button>
+            {hoveredItem === 'logo' && tooltipPosition && (
+              <div 
+                className="fixed px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap z-50"
+                style={{ 
+                  top: `${tooltipPosition.top}px`, 
+                  left: `${tooltipPosition.left}px`,
+                  transform: 'translateY(-50%)'
+                }}
+              >
+                Open
+              </div>
+            )}
+          </div>
         ) : (
           <>
             <img src="/native-logo.png" alt="Native Logo" className="h-7 w-auto" />
@@ -122,6 +152,24 @@ const Sidebar: React.FC = () => {
                 <li key={route.path} className="relative">
                   <Link
                     to={route.path}
+                    onMouseEnter={(e) => {
+                      if (sidebarCollapsed) {
+                        setHoveredItem(route.path);
+                        const rect = e.currentTarget.getBoundingClientRect();
+                        setTooltipPosition({
+                          top: rect.top + rect.height / 2,
+                          left: rect.right + 8
+                        });
+                      }
+                    }}
+                    onMouseLeave={() => {
+                      setHoveredItem(null);
+                      setTooltipPosition(null);
+                    }}
+                    onClick={() => {
+                      setHoveredItem(null);
+                      setTooltipPosition(null);
+                    }}
                     className={`flex items-center ${
                       sidebarCollapsed 
                         ? 'justify-center px-2 py-3' 
@@ -131,11 +179,22 @@ const Sidebar: React.FC = () => {
                         ? 'bg-gray-100 text-black'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-black'
                     }`}
-                    title={sidebarCollapsed ? route.name : undefined}
                   >
                     <IconComponent size={20} className={sidebarCollapsed ? '' : 'mr-3'} />
                     {!sidebarCollapsed && route.name}
                   </Link>
+                  {sidebarCollapsed && hoveredItem === route.path && tooltipPosition && (
+                    <div 
+                      className="fixed px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg whitespace-nowrap z-50"
+                      style={{ 
+                        top: `${tooltipPosition.top}px`, 
+                        left: `${tooltipPosition.left}px`,
+                        transform: 'translateY(-50%)'
+                      }}
+                    >
+                      {route.name}
+                    </div>
+                  )}
                 </li>
               );
             })}
