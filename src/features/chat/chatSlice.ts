@@ -97,6 +97,50 @@ export const transcribeAudio = createAsyncThunk(
   }
 );
 
+export const transcribeWithPronunciation = createAsyncThunk(
+  'chat/transcribeWithPronunciation',
+  async ({ messageId, audioData, contentType }: { 
+    messageId: string; 
+    audioData: string; 
+    contentType?: string; 
+  }, { rejectWithValue }) => {
+    try {
+      console.log(`Starting combined transcription + pronunciation for message ${messageId}`);
+      
+      const result = await transcriptionApi.transcribeWithPronunciation(
+        audioData,
+        contentType || 'audio/wav',
+        {
+          speechModel: 'universal',
+          punctuate: true,
+          formatText: true
+        }
+      );
+      
+      return {
+        messageId,
+        transcription: {
+          text: result.transcription.text,
+          confidence: result.transcription.confidence,
+          transcriptId: result.transcription.id,
+          isLoading: false,
+          error: undefined
+        },
+        pronunciation: {
+          ...result.pronunciation,
+          isLoading: false
+        }
+      };
+    } catch (error) {
+      console.error(`Combined transcription + pronunciation failed for message ${messageId}:`, error);
+      return rejectWithValue({
+        messageId,
+        error: error instanceof Error ? error.message : 'Analysis failed'
+      });
+    }
+  }
+);
+
 const initialState: ChatState = {
   conversations: SAMPLE_CONVERSATIONS,
   activeConversationId: SAMPLE_CONVERSATIONS[0]?.id || null,
@@ -111,6 +155,7 @@ const initialState: ChatState = {
     recordingDuration: 0,
     recordingState: 'idle',
     isPressed: false,
+    mimeType: null,
   },
 };
 
@@ -169,12 +214,13 @@ export const chatSlice = createSlice({
       state.voiceRecording.recordingState = 'recording';
       state.voiceRecording.recordingDuration = 0;
     },
-    stopRecording: (state, action: PayloadAction<{ audioUrl: string; audioData: string; duration: number }>) => {
+    stopRecording: (state, action: PayloadAction<{ audioUrl: string; audioData: string; duration: number; mimeType: string }>) => {
       state.voiceRecording.isRecording = false;
       state.voiceRecording.recordingState = 'recorded';
       state.voiceRecording.audioUrl = action.payload.audioUrl;
       state.voiceRecording.audioData = action.payload.audioData;
       state.voiceRecording.recordingDuration = action.payload.duration;
+      state.voiceRecording.mimeType = action.payload.mimeType;
     },
     playRecording: (state) => {
       state.voiceRecording.recordingState = 'playing';
@@ -191,6 +237,7 @@ export const chatSlice = createSlice({
         recordingDuration: 0,
         recordingState: 'idle',
         isPressed: false,
+        mimeType: null,
       };
     },
     updateRecordingDuration: (state, action: PayloadAction<number>) => {
@@ -212,6 +259,18 @@ export const chatSlice = createSlice({
             confidence: 0,
             error: undefined
           };
+          // Initialize pronunciation loading state for user messages
+          if (message.sender === 'user') {
+            message.pronunciation = {
+              words: [],
+              overallScore: 0,
+              accuracy: 0,
+              fluency: 0,
+              completeness: 0,
+              isLoading: true,
+              error: undefined
+            };
+          }
         }
       }
     },
@@ -282,6 +341,44 @@ export const chatSlice = createSlice({
             };
           }
         }
+      })
+      // Combined transcription + pronunciation
+      .addCase(transcribeWithPronunciation.pending, (state, action) => {
+        // Loading states are already set by startTranscription action
+        state.error = null;
+      })
+      .addCase(transcribeWithPronunciation.fulfilled, (state, action) => {
+        const conversation = state.conversations.find(c => c.id === state.activeConversationId);
+        if (conversation) {
+          const message = conversation.messages.find(m => m.id === action.payload.messageId);
+          if (message) {
+            message.transcription = action.payload.transcription;
+            message.pronunciation = action.payload.pronunciation;
+          }
+        }
+      })
+      .addCase(transcribeWithPronunciation.rejected, (state, action) => {
+        const payload = action.payload as { messageId: string; error: string };
+        const conversation = state.conversations.find(c => c.id === state.activeConversationId);
+        if (conversation) {
+          const message = conversation.messages.find(m => m.id === payload.messageId);
+          if (message) {
+            if (message.transcription) {
+              message.transcription = {
+                ...message.transcription,
+                isLoading: false,
+                error: payload.error
+              };
+            }
+            if (message.pronunciation) {
+              message.pronunciation = {
+                ...message.pronunciation,
+                isLoading: false,
+                error: payload.error
+              };
+            }
+          }
+        }
       });
   },
 });
@@ -327,5 +424,6 @@ export const selectAudioUrl = (state: RootState) => state.chat.voiceRecording.au
 export const selectAudioData = (state: RootState) => state.chat.voiceRecording.audioData;
 export const selectRecordingDuration = (state: RootState) => state.chat.voiceRecording.recordingDuration;
 export const selectIsPressed = (state: RootState) => state.chat.voiceRecording.isPressed;
+export const selectMimeType = (state: RootState) => state.chat.voiceRecording.mimeType;
 
 export default chatSlice.reducer;

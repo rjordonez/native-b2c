@@ -7,7 +7,7 @@ import { SentenceView } from './SentenceView';
 import { WordPracticeView } from './WordPracticeView';
 import { CompleteView } from './CompleteView';
 import { Button } from '../../../shared/components/layout/ui/button';
-import { TIMER_DURATION } from '../constants';
+import { TIMER_DURATION } from '../../../shared/constants/pronunciation';
 
 export const PronunciationModal: React.FC = () => {
   const {
