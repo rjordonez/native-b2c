@@ -13,6 +13,7 @@ import {
 } from '../librarySlice';
 import { Button } from '../../../shared/components/layout/ui/button';
 import TopicRow from './TopicRow';
+import TopicRowSkeleton from './TopicRowSkeleton';
 
 const TopicList: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -23,25 +24,20 @@ const TopicList: React.FC = () => {
   const paginationInfo = useAppSelector(selectPaginationInfo);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Capture first page height for fixed container size
+  // Capture first page height for fixed container size - only once when first page loads
   useEffect(() => {
-    if (!loading && topics.length > 0 && paginationInfo.currentPage === 1 && containerRef.current && !fixedHeight) {
-      setTimeout(() => {
-        if (containerRef.current) {
-          dispatch(setFixedHeight(containerRef.current.scrollHeight));
+    if (!loading && topics.length > 0 && paginationInfo.currentPage === 1 && containerRef.current && fixedHeight === null) {
+      // Small delay to ensure content is fully rendered
+      const timer = setTimeout(() => {
+        if (containerRef.current && fixedHeight === null) {
+          const measuredHeight = containerRef.current.scrollHeight;
+          dispatch(setFixedHeight(measuredHeight));
         }
       }, 100);
+      
+      return () => clearTimeout(timer);
     }
-  }, [loading, topics, paginationInfo.currentPage, fixedHeight, dispatch]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <CircleNotch size={32} className="animate-spin text-gray-400" />
-        <span className="ml-3 text-gray-600">Loading topics...</span>
-      </div>
-    );
-  }
+  }, [loading, topics.length, paginationInfo.currentPage, fixedHeight, dispatch]);
 
   if (error) {
     return (
@@ -92,11 +88,17 @@ const TopicList: React.FC = () => {
         <div 
           ref={containerRef}
           className="overflow-y-auto overflow-x-hidden space-y-1"
-          style={{ 
-            height: fixedHeight ? `${fixedHeight}px` : 'auto'
+          style={{
+            height: fixedHeight !== null ? `${fixedHeight}px` : '480px',
+            transition: fixedHeight !== null ? 'height 0.3s ease-out' : 'none'
           }}
         >
-          {topics.length > 0 ? (
+          {loading ? (
+            // Skeleton loading - show 10 skeleton rows
+            Array.from({ length: 10 }).map((_, index) => (
+              <TopicRowSkeleton key={`skeleton-${index}`} />
+            ))
+          ) : topics.length > 0 ? (
             topics.map((topic) => (
               <TopicRow key={topic.id} topic={topic} />
             ))

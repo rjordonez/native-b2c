@@ -37,10 +37,7 @@ const LibraryPage: React.FC = () => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-black mb-2">Dashboard</h1>
-        <p className="text-gray-600">Your IELTS preparation hub with practice topics and progress tracking</p>
-      </div>
+     
       
       {/* Desktop: Two-column layout */}
       <div className="hidden lg:flex gap-6 flex-1">
