@@ -1,15 +1,15 @@
 import { RouteConfig } from '../shared/types/common';
-import { BookOpen, Microphone } from 'phosphor-react';
+import { House, ChatCircle } from 'phosphor-react';
 
 export const ROUTES: RouteConfig[] = [
   {
     path: '/',
     name: 'Dashboard',
-    icon: BookOpen,
+    icon: House,
   },
   {
-    path: '/voice-practice',
-    name: 'Voice Practice',
-    icon: Microphone,
+    path: '/chat',
+    name: 'Chat',
+    icon: ChatCircle,
   },
 ];

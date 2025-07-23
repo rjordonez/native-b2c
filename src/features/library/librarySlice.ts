@@ -42,6 +42,7 @@ export const toggleTopicCompletionInDB = createAsyncThunk(
 interface ExtendedLibraryState extends LibraryState {
   loading: boolean;
   error: string | null;
+  fixedHeight: number | null;
 }
 
 const initialState: ExtendedLibraryState = {
@@ -57,6 +58,7 @@ const initialState: ExtendedLibraryState = {
   },
   loading: false,
   error: null,
+  fixedHeight: null,
 };
 
 export const librarySlice = createSlice({
@@ -112,6 +114,9 @@ export const librarySlice = createSlice({
       if (state.pagination.currentPage > 1) {
         state.pagination.currentPage -= 1;
       }
+    },
+    setFixedHeight: (state, action: PayloadAction<number>) => {
+      state.fixedHeight = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -174,6 +179,7 @@ export const {
   setCurrentPage,
   nextPage,
   previousPage,
+  setFixedHeight,
 } = librarySlice.actions;
 
 export const selectTopics = (state: RootState) => state.library.topics;
@@ -182,6 +188,7 @@ export const selectSearchQuery = (state: RootState) => state.library.searchQuery
 export const selectPagination = (state: RootState) => state.library.pagination;
 export const selectLoading = (state: RootState) => state.library.loading;
 export const selectError = (state: RootState) => state.library.error;
+export const selectFixedHeight = (state: RootState) => state.library.fixedHeight;
 
 export const selectFilteredTopics = (state: RootState) => {
   const { topics, filters, searchQuery } = state.library;

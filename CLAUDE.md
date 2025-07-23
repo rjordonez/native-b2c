@@ -104,7 +104,17 @@ src/
 - Practice progress tracking and checklists
 - Speaking test preparation components
 - Topic library for practice materials
-- LiveKit voice communication backend support
+- AI chat interface for IELTS practice conversations
+
+### Chat Feature Details
+- **Real-time conversation interface** for IELTS practice
+- **Multiple conversation management** with conversation history
+- **AI-powered responses** (currently simulated, ready for API integration)
+- **Message persistence** with Redux state management
+- **Conversation editing** (rename, delete conversations)
+- **Typing indicators** and loading states
+- **Responsive design** with sidebar for conversation list
+- **Auto-scrolling** messages for better UX
 
 ## Development Guidelines
 
@@ -143,8 +153,7 @@ src/
 - Motion for animations
 
 ### Backend
-- Express.js server for API proxy and LiveKit integration
-- LiveKit Server SDK for voice communication tokens
+- Express.js server for API proxy
 - CORS support for cross-origin requests
 - Axios for external API calls
 
@@ -160,21 +169,18 @@ src/
 - `npm run backend` - Start backend server (port 3001)
 - `npm run dev:full` - Start both frontend and backend concurrently
 - Backend provides:
-  - `/api/connection-details` - LiveKit token generation
   - `/proxy` - External API proxy for submissions
-
-## Environment Setup
-Create a `.env` file in the root directory with:
-```
-LIVEKIT_URL=wss://your-livekit-server.com
-LIVEKIT_API_KEY=your-api-key
-LIVEKIT_API_SECRET=your-api-secret
-```
 
 ## File Structure
 ```
 ├── src/                       # Frontend React application
 │   ├── features/
+│   │   ├── chat/              # Chat feature
+│   │   │   ├── ChatPage.tsx   # Main chat interface
+│   │   │   ├── chatSlice.ts   # Redux state management
+│   │   │   ├── types.ts       # TypeScript interfaces
+│   │   │   └── constants/     # Chat-specific data
+│   │   ├── library/           # Topic library feature
 │   │   └── [feature]/
 │   │       ├── constants/     # Feature-specific data
 │   │       └── components/    # Feature components
@@ -185,7 +191,7 @@ LIVEKIT_API_SECRET=your-api-secret
 │   │   └── cn.ts             # Class name utility
 │   └── main.tsx              # Entry point (TypeScript)
 ├── backend/                   # Backend Express server
-│   ├── index.js              # Main server file with LiveKit support
+│   ├── index.js              # Main server file
 │   ├── package.json          # Backend dependencies
 │   └── node_modules/         # Backend dependencies
 ├── .env.example              # Environment variables template
@@ -193,16 +199,6 @@ LIVEKIT_API_SECRET=your-api-secret
 ```
 
 ## API Endpoints
-
-### LiveKit Integration
-- **GET** `/api/connection-details` - Generate LiveKit participant tokens
-  - Query parameters:
-    - `greeting` (optional) - Custom greeting for the participant
-    - `scenario` (optional) - Conversation scenario
-    - `scenarioLevel` (optional) - Difficulty level
-    - `scenarioTurns` (optional) - Number of conversation turns
-    - `conversationScript` (optional) - Conversation script content
-  - Returns: `{ serverUrl, roomName, participantToken, participantName }`
 
 ### Proxy Endpoints  
 - **POST** `/proxy` - Proxy external API submissions

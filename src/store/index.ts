@@ -3,7 +3,7 @@ import navigationReducer from './slices/navigationSlice';
 import dashboardReducer from '../shared/store/dashboardSlice';
 import settingsReducer from '../features/settings/settingsSlice';
 import libraryReducer from '../features/library/librarySlice';
-import livekitReducer from '../features/livekit/livekitSlice';
+import chatReducer from '../features/chat/chatSlice';
 import authReducer from '../features/auth/authSlice';
 
 const store = configureStore({
@@ -12,7 +12,7 @@ const store = configureStore({
     dashboard: dashboardReducer,
     settings: settingsReducer,
     library: libraryReducer,
-    livekit: livekitReducer,
+    chat: chatReducer,
     auth: authReducer,
   },
 });
