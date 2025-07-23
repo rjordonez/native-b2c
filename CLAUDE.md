@@ -133,6 +133,14 @@ src/
 - Use `useMemo` for performance optimization
 - Extract complex data to constants files
 
+### WaveSurfer State Management
+- **DO NOT put WaveSurfer UI state in Redux** - Use WaveSurfer's internal state instead
+- **Redux**: Only for persistent/shared state (audioUrl, audioData, recordingState)
+- **Local State**: UI-only state (currentTime, totalDuration from WaveSurfer events)
+- **WaveSurfer Internal**: Play/pause state (`wavesurferRef.current?.isPlaying()`)
+- Use `forceUpdate({})` to trigger re-renders when WaveSurfer state changes
+- **Avoid Redux for**: `isWaveformPlaying`, `currentTime`, `totalDuration` - these are transient UI states
+
 ### Testing & Quality
 - Run `npm run build` to check for TypeScript errors
 - Run `npm run lint` for ESLint validation

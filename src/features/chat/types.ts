@@ -24,9 +24,6 @@ export interface VoiceRecordingState {
   recordingDuration: number;
   recordingState: 'idle' | 'recording' | 'recorded' | 'playing';
   isPressed: boolean;
-  isWaveformPlaying: boolean;
-  currentTime: number;
-  totalDuration: number;
 }
 
 export interface ChatState {
