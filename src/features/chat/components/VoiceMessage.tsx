@@ -30,6 +30,7 @@ interface VoiceMessageProps {
     isLoading: boolean;
     error?: string;
   };
+  onEnhanceTranscript?: (transcript: string) => void;
 }
 
 const VoiceMessage: React.FC<VoiceMessageProps> = ({
@@ -39,7 +40,8 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   timestamp,
   formatTimestamp,
   transcription,
-  pronunciation
+  pronunciation,
+  onEnhanceTranscript
 }) => {
   const waveformRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
@@ -234,23 +236,14 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
                   </p>
                 )}
                 
-                {/* Show transcription confidence and pronunciation score */}
+                {/* Enhanced transcript button */}
                 <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
-                  <span className="text-xs text-gray-500">
-                    {pronunciation && !pronunciation.error && !pronunciation.isLoading ? 'Transcription + Pronunciation' : 'Transcription'}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    {transcription.confidence && (
-                      <span className="text-xs text-gray-400">
-                        {Math.round(transcription.confidence * 100)}% confidence
-                      </span>
-                    )}
-                    {pronunciation && !pronunciation.error && !pronunciation.isLoading && sender === 'user' && (
-                      <span className="text-xs text-blue-600 font-medium">
-                        {Math.round(pronunciation.overallScore)}% pronunciation
-                      </span>
-                    )}
-                  </div>
+                  <button
+                    onClick={() => onEnhanceTranscript?.(transcription.text)}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                  >
+                    Enhanced
+                  </button>
                 </div>
               </div>
             )}
