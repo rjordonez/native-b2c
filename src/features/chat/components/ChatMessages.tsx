@@ -24,12 +24,13 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   return (
     <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
       {activeConversation.messages.map((msg) => {
-        // Render voice message if audioUrl exists
-        if (msg.audioUrl) {
+        // Render voice message if audioUrl or audioData exists
+        if (msg.audioUrl || msg.audioData) {
           return (
             <VoiceMessage
               key={msg.id}
               audioUrl={msg.audioUrl}
+              audioData={msg.audioData}
               sender={msg.sender}
               timestamp={msg.timestamp}
               formatTimestamp={formatTimestamp}

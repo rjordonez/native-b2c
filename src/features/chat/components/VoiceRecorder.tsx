@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import {
   selectRecordingState,
   selectAudioUrl,
+  selectAudioData,
   selectRecordingDuration,
   selectActiveConversationId,
   startRecording,
@@ -21,6 +22,7 @@ const VoiceRecorder: React.FC = () => {
   const dispatch = useAppDispatch();
   const recordingState = useAppSelector(selectRecordingState);
   const audioUrl = useAppSelector(selectAudioUrl);
+  const audioData = useAppSelector(selectAudioData);
   const recordingDuration = useAppSelector(selectRecordingDuration);
   const activeConversationId = useAppSelector(selectActiveConversationId);
 
@@ -56,14 +58,22 @@ const VoiceRecorder: React.FC = () => {
         }
       };
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         const audioUrl = URL.createObjectURL(audioBlob);
         
-        dispatch(stopRecording({
-          audioUrl,
-          duration: recordingDuration
-        }));
+        // Convert blob to base64 for persistent storage
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Data = reader.result as string;
+          
+          dispatch(stopRecording({
+            audioUrl,
+            audioData: base64Data, // Store base64 data for persistence
+            duration: recordingDuration
+          }));
+        };
+        reader.readAsDataURL(audioBlob);
 
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
@@ -225,20 +235,23 @@ const VoiceRecorder: React.FC = () => {
 
   // Send voice message
   const handleSend = () => {
-    if (!activeConversationId || !audioUrl) return;
+    if (!activeConversationId || !audioData) {
+      return;
+    }
 
-    // Add voice message to chat
+
+    // Add voice message to chat (only use audioData for persistence)
     dispatch(addUserMessage({
       conversationId: activeConversationId,
       content: 'Voice message',
-      audioUrl
+      audioData: audioData || undefined
     }));
 
     // Send to AI (simulate)
     dispatch(sendMessage({
       conversationId: activeConversationId,
       content: 'Voice message',
-      audioUrl
+      audioData: audioData || undefined
     }));
 
     // Clear recording without revoking URL (needed for chat message)

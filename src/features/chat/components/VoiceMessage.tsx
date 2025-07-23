@@ -3,7 +3,8 @@ import { Play, Pause } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
 
 interface VoiceMessageProps {
-  audioUrl: string;
+  audioUrl?: string;
+  audioData?: string;
   sender: 'user' | 'assistant';
   timestamp: string;
   formatTimestamp: (timestamp: string) => string;
@@ -11,6 +12,7 @@ interface VoiceMessageProps {
 
 const VoiceMessage: React.FC<VoiceMessageProps> = ({
   audioUrl,
+  audioData,
   sender,
   timestamp,
   formatTimestamp
@@ -30,23 +32,56 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
 
   // Initialize Wavesurfer when component mounts
   useEffect(() => {
-    if (audioUrl && waveformRef.current && !wavesurferRef.current) {
+    // Cleanup any existing wavesurfer first
+    if (wavesurferRef.current) {
+      try {
+        wavesurferRef.current.destroy();
+      } catch (error) {
+        // Ignore cleanup errors
+      }
+      wavesurferRef.current = null;
+    }
+
+    // For chat messages, prioritize audioData (base64) over audioUrl (temporary blob)
+    const audioSource = audioData || audioUrl;
+    
+    if (audioSource && waveformRef.current) {
+      
       const wavesurfer = WaveSurfer.create({
         container: waveformRef.current,
-        waveColor: sender === 'user' ? '#d1d5db' : '#e5e7eb',
-        progressColor: sender === 'user' ? '#4F46E5' : '#6B7280',
+        waveColor: sender === 'user' ? '#ffffff' : '#e5e7eb',
+        progressColor: sender === 'user' ? '#d1d5db' : '#6B7280',
         height: 24,
         barWidth: 1,
         barGap: 1,
         barRadius: 1,
       });
 
-      wavesurfer.load(audioUrl);
-      wavesurferRef.current = wavesurfer;
+      // Add error handling
+      wavesurfer.on('error', (error) => {
+        console.warn('Wavesurfer error:', error);
+        // Clean up on error
+        if (wavesurferRef.current === wavesurfer) {
+          wavesurferRef.current = null;
+        }
+      });
+
+      try {
+        wavesurfer.load(audioSource);
+        wavesurferRef.current = wavesurfer;
+      } catch (error) {
+        console.warn('Failed to load audio:', error);
+        wavesurfer.destroy();
+        return;
+      }
 
       // Handle play/pause events
       wavesurfer.on('play', () => {
         setIsPlaying(true);
+        // Update progress color when playing for user messages
+        if (sender === 'user') {
+          wavesurfer.setOptions({ progressColor: '#ffffff' });
+        }
       });
 
       wavesurfer.on('pause', () => {
@@ -56,6 +91,10 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
       wavesurfer.on('finish', () => {
         setIsPlaying(false);
         setCurrentTime(0);
+        // Reset progress color when finished for user messages
+        if (sender === 'user') {
+          wavesurfer.setOptions({ progressColor: '#d1d5db' });
+        }
       });
 
       // Track current time during playback
@@ -65,17 +104,29 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
 
       // Get total duration when ready
       wavesurfer.on('ready', () => {
-        setTotalDuration(wavesurfer.getDuration());
+        const duration = wavesurfer.getDuration();
+        setTotalDuration(duration);
       });
+
     }
 
     return () => {
+      // Cleanup function - will run when component unmounts or dependencies change
       if (wavesurferRef.current) {
-        wavesurferRef.current.destroy();
-        wavesurferRef.current = null;
+        const instance = wavesurferRef.current;
+        wavesurferRef.current = null; // Clear reference first
+        
+        // Cleanup asynchronously to avoid blocking
+        setTimeout(() => {
+          try {
+            instance.destroy();
+          } catch (error) {
+            // Ignore AbortError and other cleanup errors
+          }
+        }, 0);
       }
     };
-  }, [audioUrl, sender]);
+  }, [audioData, audioUrl, sender]);
 
   // Play/pause audio with Wavesurfer
   const handlePlayPause = () => {
