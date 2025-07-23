@@ -5,17 +5,15 @@ import {
   selectIsLoading,
   selectIsTyping,
   selectError,
-  selectTtsSpeed,
   createConversation,
   clearError,
-  startTopicPractice,
-  setTtsSpeed
+  startTopicPractice
 } from './chatSlice';
 import {
   ChatMessages,
   VoiceRecorder,
   EmptyState,
-  TtsSpeedSelector
+  TtsConfigButton
 } from './components';
 import { PronunciationModal } from '../pronunciation/components/PronunciationModal';
 
@@ -25,7 +23,6 @@ const ChatPage: React.FC = () => {
   const isLoading = useAppSelector(selectIsLoading);
   const isTyping = useAppSelector(selectIsTyping);
   const error = useAppSelector(selectError);
-  const ttsSpeed = useAppSelector(selectTtsSpeed);
   
   console.log('ChatPage render - activeConversation:', activeConversation);
 
@@ -47,10 +44,6 @@ const ChatPage: React.FC = () => {
     console.log('Topic selected:', topic);
     // Start topic practice which creates conversation and sends first question
     dispatch(startTopicPractice({ topicName: topic }));
-  };
-
-  const handleTtsSpeedChange = (speed: number) => {
-    dispatch(setTtsSpeed(speed));
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -77,10 +70,7 @@ const ChatPage: React.FC = () => {
                   {activeConversation.messages.length} messages
                 </p>
               </div>
-              <TtsSpeedSelector
-                value={ttsSpeed}
-                onChange={handleTtsSpeedChange}
-              />
+              <TtsConfigButton />
             </div>
           </div>
 
