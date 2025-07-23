@@ -5,7 +5,6 @@ import store from './store';
 import AuthProvider from './features/auth/AuthProvider';
 import { useAppSelector } from './store/hooks';
 import Layout from './shared/components/layout/Layout';
-import HomePage from './features/home/HomePage';
 import LibraryPage from './features/library/LibraryPage';
 import LiveKitPage from './features/livekit/LiveKitPage';
 import SettingsPage from './features/settings/SettingsPage';
@@ -38,8 +37,7 @@ const AppRoutes: React.FC = () => {
   return (
     <Layout>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/library" element={<LibraryPage />} />
+        <Route path="/" element={<LibraryPage />} />
         <Route path="/voice-practice" element={<LiveKitPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />

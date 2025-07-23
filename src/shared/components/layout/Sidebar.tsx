@@ -10,9 +10,24 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const dropdownOpen = useAppSelector(selectUserDropdownOpen);
+  const user = useAppSelector((state) => state.auth.user);
   const userInfoRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
+  
+  const getInitials = (name?: string, email?: string) => {
+    if (name) {
+      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+    }
+    if (email) {
+      return email.substring(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
+  
+  const getDisplayName = (name?: string, email?: string) => {
+    return name || email || 'User';
+  };
 
   const handleSignOut = async () => {
     await dispatch(signOut());
@@ -98,9 +113,13 @@ const Sidebar: React.FC = () => {
           <div className="flex items-center justify-between gap-3 px-2 py-1 rounded-lg transition-colors hover:bg-gray-100 hover:ring-2 hover:ring-primary/30 hover:shadow-md">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full flex items-center justify-center" style={gradientStyle}>
-                <span className="text-white text-sm font-medium">JD</span>
+                <span className="text-white text-sm font-medium">
+                  {getInitials(user?.user_metadata?.full_name, user?.email)}
+                </span>
               </div>
-              <span className="bg-white rounded-lg px-2 py-1 text-xs font-medium text-gray-900 shadow border border-gray-200">John Doe</span>
+              <span className="bg-white rounded-lg px-2 py-1 text-xs font-medium text-gray-900 shadow border border-gray-200">
+                {getDisplayName(user?.user_metadata?.full_name, user?.email)}
+              </span>
             </div>
             <DotsThree size={22} weight="bold" className="text-gray-400" />
           </div>

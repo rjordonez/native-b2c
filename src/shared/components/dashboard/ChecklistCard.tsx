@@ -1,9 +1,9 @@
 import React from 'react';
 import { CheckSquare, Square } from 'phosphor-react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
-import ProgressBar from '../../../shared/components/layout/ui/progress-bar';
+import { Card, CardHeader, CardTitle, CardContent } from '../layout/ui/card';
+import ProgressBar from '../layout/ui/progress-bar';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
-import { selectTasks, selectCompletedTasksCount, toggleTask } from '../homeSlice';
+import { selectTasks, selectCompletedTasksCount, toggleTask } from '../../store/dashboardSlice';
 
 const ChecklistCard: React.FC = () => {
   const dispatch = useAppDispatch();

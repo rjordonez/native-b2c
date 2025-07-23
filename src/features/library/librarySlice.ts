@@ -1,118 +1,62 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../store/types';
 import { LibraryState, Topic, TopicProgressPayload, FilterUpdatePayload } from './types';
+import { fetchTopics, updateTopicProgress as updateTopicProgressAPI, toggleTopicCompletion as toggleTopicCompletionAPI } from '../../lib/supabase/topics';
 
-const initialState: LibraryState = {
-  topics: [
-    {
-      id: '1',
-      title: 'Environmental Issues',
-      category: 'speaking',
-      difficulty: 'medium',
-      progress: 85,
-      completed: false,
-      description: 'Discuss environmental challenges and solutions',
-      estimatedTime: '15 min',
-      expanded: false,
-      questions: [
-        { id: '1-1', text: 'What are the main environmental problems in your country?', type: 'part1' },
-        { id: '1-2', text: 'Do you think individuals can make a difference in protecting the environment?', type: 'part1' },
-        { id: '1-3', text: 'Describe a time when you did something to help the environment.', type: 'part2' },
-        { id: '1-4', text: 'What role should governments play in environmental protection?', type: 'part3' },
-      ],
-    },
-    {
-      id: '2',
-      title: 'Technology in Education',
-      category: 'speaking',
-      difficulty: 'hard',
-      progress: 60,
-      completed: false,
-      description: 'Discuss the impact of technology in modern education',
-      estimatedTime: '15 min',
-      expanded: false,
-      questions: [
-        { id: '2-1', text: 'Do you use technology for studying?', type: 'part1' },
-        { id: '2-2', text: 'How has technology changed the way people learn?', type: 'part1' },
-        { id: '2-3', text: 'Describe a useful app or website you use for learning.', type: 'part2' },
-        { id: '2-4', text: 'Will traditional classrooms become obsolete in the future?', type: 'part3' },
-      ],
-    },
-    {
-      id: '3',
-      title: 'Cultural Traditions',
-      category: 'speaking',
-      difficulty: 'easy',
-      progress: 100,
-      completed: true,
-      description: 'Talk about traditions in your culture',
-      estimatedTime: '15 min',
-      expanded: false,
-      questions: [
-        { id: '3-1', text: 'What traditions are important in your family?', type: 'part1' },
-        { id: '3-2', text: 'Do you think traditions are important for young people?', type: 'part1' },
-        { id: '3-3', text: 'Describe a traditional celebration in your country.', type: 'part2' },
-        { id: '3-4', text: 'How do traditions change over time?', type: 'part3' },
-      ],
-    },
-    {
-      id: '4',
-      title: 'Global Health Challenges',
-      category: 'speaking',
-      difficulty: 'hard',
-      progress: 30,
-      completed: false,
-      description: 'Discuss health topics and medical issues',
-      estimatedTime: '15 min',
-      expanded: false,
-      questions: [
-        { id: '4-1', text: 'How do you stay healthy?', type: 'part1' },
-        { id: '4-2', text: 'What are the biggest health challenges facing the world today?', type: 'part1' },
-        { id: '4-3', text: 'Describe a time when you had to visit a doctor or hospital.', type: 'part2' },
-        { id: '4-4', text: 'How can governments improve public health?', type: 'part3' },
-      ],
-    },
-    {
-      id: '5',
-      title: 'Urban Planning',
-      category: 'speaking',
-      difficulty: 'medium',
-      progress: 45,
-      completed: false,
-      description: 'Discuss city development and urban issues',
-      estimatedTime: '15 min',
-      expanded: false,
-      questions: [
-        { id: '5-1', text: 'Do you prefer living in the city or countryside?', type: 'part1' },
-        { id: '5-2', text: 'What makes a good neighborhood?', type: 'part1' },
-        { id: '5-3', text: 'Describe a place in your city that has changed recently.', type: 'part2' },
-        { id: '5-4', text: 'What are the advantages and disadvantages of urbanization?', type: 'part3' },
-      ],
-    },
-    {
-      id: '6',
-      title: 'Social Media Impact',
-      category: 'speaking',
-      difficulty: 'medium',
-      progress: 90,
-      completed: false,
-      description: 'Analyze the effects of social media on society',
-      estimatedTime: '15 min',
-      expanded: false,
-      questions: [
-        { id: '6-1', text: 'Do you use social media regularly?', type: 'part1' },
-        { id: '6-2', text: 'How has social media changed the way people communicate?', type: 'part1' },
-        { id: '6-3', text: 'Describe a social media platform that you find useful.', type: 'part2' },
-        { id: '6-4', text: 'What are the negative effects of social media on young people?', type: 'part3' },
-      ],
-    },
-  ],
+// Async thunks for API calls
+export const fetchTopicsFromDB = createAsyncThunk(
+  'library/fetchTopics',
+  async (_, { rejectWithValue }) => {
+    try {
+      return await fetchTopics();
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch topics');
+    }
+  }
+);
+
+export const updateTopicProgressInDB = createAsyncThunk(
+  'library/updateTopicProgress',
+  async ({ topicId, progress, completed }: { topicId: string; progress: number; completed?: boolean }, { rejectWithValue }) => {
+    try {
+      await updateTopicProgressAPI(topicId, progress, completed || false);
+      return { topicId, progress, completed: completed || false };
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to update progress');
+    }
+  }
+);
+
+export const toggleTopicCompletionInDB = createAsyncThunk(
+  'library/toggleTopicCompletion',
+  async (topicId: string, { rejectWithValue }) => {
+    try {
+      const result = await toggleTopicCompletionAPI(topicId);
+      return { topicId, progress: result.progress, completed: result.completed };
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to toggle completion');
+    }
+  }
+);
+
+interface ExtendedLibraryState extends LibraryState {
+  loading: boolean;
+  error: string | null;
+}
+
+const initialState: ExtendedLibraryState = {
+  topics: [],
   filters: {
-    category: 'all',
-    difficulty: 'all',
+    part: 'all',
     completed: null,
   },
   searchQuery: '',
+  pagination: {
+    currentPage: 1,
+    itemsPerPage: 10,
+  },
+  loading: false,
+  error: null,
 };
 
 export const librarySlice = createSlice({
@@ -135,17 +79,19 @@ export const librarySlice = createSlice({
     },
     updateFilters: (state, action: PayloadAction<FilterUpdatePayload>) => {
       state.filters = { ...state.filters, ...action.payload };
+      state.pagination.currentPage = 1;
     },
     setSearchQuery: (state, action: PayloadAction<string>) => {
       state.searchQuery = action.payload;
+      state.pagination.currentPage = 1;
     },
     resetFilters: (state) => {
       state.filters = {
-        category: 'all',
-        difficulty: 'all',
+        part: 'all',
         completed: null,
       };
       state.searchQuery = '';
+      state.pagination.currentPage = 1;
     },
     toggleTopicExpansion: (state, action: PayloadAction<string>) => {
       const topic = state.topics.find(t => t.id === action.payload);
@@ -153,6 +99,67 @@ export const librarySlice = createSlice({
         topic.expanded = !topic.expanded;
       }
     },
+    clearError: (state) => {
+      state.error = null;
+    },
+    setCurrentPage: (state, action: PayloadAction<number>) => {
+      state.pagination.currentPage = action.payload;
+    },
+    nextPage: (state) => {
+      state.pagination.currentPage += 1;
+    },
+    previousPage: (state) => {
+      if (state.pagination.currentPage > 1) {
+        state.pagination.currentPage -= 1;
+      }
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      // Fetch topics
+      .addCase(fetchTopicsFromDB.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTopicsFromDB.fulfilled, (state, action) => {
+        state.loading = false;
+        state.topics = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchTopicsFromDB.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Update topic progress
+      .addCase(updateTopicProgressInDB.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(updateTopicProgressInDB.fulfilled, (state, action) => {
+        const { topicId, progress, completed } = action.payload;
+        const topic = state.topics.find(t => t.id === topicId);
+        if (topic) {
+          topic.progress = progress;
+          topic.completed = completed;
+        }
+      })
+      .addCase(updateTopicProgressInDB.rejected, (state, action) => {
+        state.error = action.payload as string;
+      })
+      // Toggle topic completion
+      .addCase(toggleTopicCompletionInDB.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(toggleTopicCompletionInDB.fulfilled, (state, action) => {
+        const { topicId, progress, completed } = action.payload;
+        const topic = state.topics.find(t => t.id === topicId);
+        if (topic) {
+          topic.progress = progress;
+          topic.completed = completed;
+        }
+      })
+      .addCase(toggleTopicCompletionInDB.rejected, (state, action) => {
+        state.error = action.payload as string;
+      });
   },
 });
 
@@ -163,25 +170,64 @@ export const {
   setSearchQuery,
   resetFilters,
   toggleTopicExpansion,
+  clearError,
+  setCurrentPage,
+  nextPage,
+  previousPage,
 } = librarySlice.actions;
 
 export const selectTopics = (state: RootState) => state.library.topics;
 export const selectFilters = (state: RootState) => state.library.filters;
 export const selectSearchQuery = (state: RootState) => state.library.searchQuery;
+export const selectPagination = (state: RootState) => state.library.pagination;
+export const selectLoading = (state: RootState) => state.library.loading;
+export const selectError = (state: RootState) => state.library.error;
 
 export const selectFilteredTopics = (state: RootState) => {
   const { topics, filters, searchQuery } = state.library;
   
   return topics.filter(topic => {
-    const matchesCategory = filters.category === 'all' || topic.category === filters.category;
-    const matchesDifficulty = filters.difficulty === 'all' || topic.difficulty === filters.difficulty;
+    const matchesPart = filters.part === 'all' || topic.part === filters.part;
     const matchesCompleted = filters.completed === null || topic.completed === filters.completed;
     const matchesSearch = searchQuery === '' || 
       topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      topic.description.toLowerCase().includes(searchQuery.toLowerCase());
+      topic.questions.toLowerCase().includes(searchQuery.toLowerCase());
     
-    return matchesCategory && matchesDifficulty && matchesCompleted && matchesSearch;
+    return matchesPart && matchesCompleted && matchesSearch;
   });
+};
+
+export const selectPaginatedTopics = (state: RootState) => {
+  const filteredTopics = selectFilteredTopics(state);
+  const { currentPage, itemsPerPage } = state.library.pagination;
+  
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  
+  return filteredTopics.slice(startIndex, endIndex);
+};
+
+export const selectPaginationInfo = (state: RootState) => {
+  const filteredTopics = selectFilteredTopics(state);
+  const { currentPage, itemsPerPage } = state.library.pagination;
+  
+  const totalItems = filteredTopics.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const hasNextPage = currentPage < totalPages;
+  const hasPreviousPage = currentPage > 1;
+  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+  
+  return {
+    currentPage,
+    totalPages,
+    totalItems,
+    itemsPerPage,
+    hasNextPage,
+    hasPreviousPage,
+    startIndex,
+    endIndex
+  };
 };
 
 export default librarySlice.reducer;
