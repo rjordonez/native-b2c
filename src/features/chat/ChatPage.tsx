@@ -70,7 +70,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
-      {activeConversation || (location.state as any)?.startPractice ? (
+      {activeConversation ? (
         <>
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">
