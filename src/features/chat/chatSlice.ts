@@ -61,6 +61,14 @@ const initialState: ChatState = {
   isLoading: false,
   isTyping: false,
   error: null,
+  voiceRecording: {
+    isRecording: false,
+    isPaused: false,
+    audioBlob: null,
+    audioUrl: null,
+    recordingDuration: 0,
+    recordingState: 'idle',
+  },
 };
 
 export const chatSlice = createSlice({
@@ -70,8 +78,8 @@ export const chatSlice = createSlice({
     setActiveConversation: (state, action: PayloadAction<string>) => {
       state.activeConversationId = action.payload;
     },
-    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string }>) => {
-      const { conversationId, content } = action.payload;
+    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string }>) => {
+      const { conversationId, content, audioUrl } = action.payload;
       const conversation = state.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
@@ -80,6 +88,7 @@ export const chatSlice = createSlice({
           content,
           sender: 'user',
           timestamp: new Date(),
+          audioUrl,
         };
         
         conversation.messages.push(userMessage);
@@ -109,6 +118,38 @@ export const chatSlice = createSlice({
     },
     setTyping: (state, action: PayloadAction<boolean>) => {
       state.isTyping = action.payload;
+    },
+    // Voice recording actions
+    startRecording: (state) => {
+      state.voiceRecording.isRecording = true;
+      state.voiceRecording.recordingState = 'recording';
+      state.voiceRecording.recordingDuration = 0;
+    },
+    stopRecording: (state, action: PayloadAction<{ audioBlob: Blob; audioUrl: string; duration: number }>) => {
+      state.voiceRecording.isRecording = false;
+      state.voiceRecording.recordingState = 'recorded';
+      state.voiceRecording.audioBlob = action.payload.audioBlob;
+      state.voiceRecording.audioUrl = action.payload.audioUrl;
+      state.voiceRecording.recordingDuration = action.payload.duration;
+    },
+    playRecording: (state) => {
+      state.voiceRecording.recordingState = 'playing';
+    },
+    pauseRecording: (state) => {
+      state.voiceRecording.recordingState = 'recorded';
+    },
+    clearRecording: (state) => {
+      state.voiceRecording = {
+        isRecording: false,
+        isPaused: false,
+        audioBlob: null,
+        audioUrl: null,
+        recordingDuration: 0,
+        recordingState: 'idle',
+      };
+    },
+    updateRecordingDuration: (state, action: PayloadAction<number>) => {
+      state.voiceRecording.recordingDuration = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -160,6 +201,12 @@ export const {
   deleteConversation,
   clearError,
   setTyping,
+  startRecording,
+  stopRecording,
+  playRecording,
+  pauseRecording,
+  clearRecording,
+  updateRecordingDuration,
 } = chatSlice.actions;
 
 // Selectors
@@ -177,5 +224,12 @@ export const selectActiveConversation = (state: RootState) => {
 export const selectConversationById = (state: RootState, conversationId: string) => {
   return state.chat.conversations.find(c => c.id === conversationId) || null;
 };
+
+// Voice recording selectors
+export const selectVoiceRecording = (state: RootState) => state.chat.voiceRecording;
+export const selectIsRecording = (state: RootState) => state.chat.voiceRecording.isRecording;
+export const selectRecordingState = (state: RootState) => state.chat.voiceRecording.recordingState;
+export const selectAudioUrl = (state: RootState) => state.chat.voiceRecording.audioUrl;
+export const selectRecordingDuration = (state: RootState) => state.chat.voiceRecording.recordingDuration;
 
 export default chatSlice.reducer;
