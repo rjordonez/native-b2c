@@ -10,13 +10,22 @@ import {
 } from './types';
 import { SAMPLE_CONVERSATIONS } from './constants/chatData';
 import { transcriptionApi } from '../../services/transcriptionApi';
+import { fetchTopics } from '../../lib/supabase/topics';
 
 // Async thunks for API calls (future implementation)
 export const sendMessage = createAsyncThunk(
   'chat/sendMessage',
-  async ({ conversationId, content }: SendMessagePayload, { rejectWithValue }) => {
+  async ({ conversationId, content }: SendMessagePayload, { getState, rejectWithValue }) => {
     try {
-      // Simulate API call delay
+      const state = getState() as RootState;
+      
+      // Skip AI response during topic practice sessions (when we have topic practice state)
+      if (state.chat.topicPractice.currentTopic) {
+        console.log('Skipping AI response during topic practice session');
+        return null; // Don't add any AI response
+      }
+      
+      // Simulate API call delay for regular conversations
       await new Promise(resolve => setTimeout(resolve, 1500));
       
       // Simulate AI response (replace with actual API call)
@@ -141,6 +150,207 @@ export const transcribeWithPronunciation = createAsyncThunk(
   }
 );
 
+// Topic practice async thunk
+export const startTopicPractice = createAsyncThunk(
+  'chat/startTopicPractice',
+  async ({ topicName }: { topicName: string }, { rejectWithValue }) => {
+    try {
+      console.log('Starting topic practice for:', topicName);
+      
+      // TEMPORARY: Use mock data instead of Supabase for testing
+      const mockTopics = [
+        {
+          id: 'crime',
+          title: 'Crime',
+          questionsList: [
+            { id: '1', text: 'What types of crime are most common in your country?', type: 'part3' },
+            { id: '2', text: 'How has crime changed in your area over the past few years?', type: 'part3' },
+            { id: '3', text: 'What do you think are the main causes of crime?', type: 'part3' }
+          ]
+        },
+        {
+          id: 'art',
+          title: 'Art',
+          questionsList: [
+            { id: '1', text: 'Do you enjoy looking at art? Why or why not?', type: 'part1' },
+            { id: '2', text: 'What kind of art do you like?', type: 'part1' },
+            { id: '3', text: 'Is art important in your culture?', type: 'part3' }
+          ]
+        },
+        {
+          id: 'culture',
+          title: 'Culture', 
+          questionsList: [
+            { id: '1', text: 'How important is it to preserve traditional culture?', type: 'part3' },
+            { id: '2', text: 'What aspects of your culture are you most proud of?', type: 'part3' },
+            { id: '3', text: 'How has globalization affected your culture?', type: 'part3' }
+          ]
+        }
+      ];
+      
+      // Fetch all topics to find the selected one
+      // const topics = await fetchTopics();
+      const topics = mockTopics;
+      console.log('Using mock topics:', topics);
+      const selectedTopic = topics.find(topic => 
+        topic.title.toLowerCase() === topicName.toLowerCase()
+      );
+      
+      console.log('Selected topic:', selectedTopic);
+      
+      if (!selectedTopic || !selectedTopic.questionsList || selectedTopic.questionsList.length === 0) {
+        throw new Error(`No questions found for topic: ${topicName}`);
+      }
+
+      // Create new conversation
+      const conversation: Conversation = {
+        id: `conv-${Date.now()}`,
+        title: topicName,
+        messages: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      // Get first question
+      const firstQuestion = selectedTopic.questionsList[0];
+      console.log('First question:', firstQuestion);
+      
+      // Generate audio for the first question using TTS
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      console.log('Making TTS request to:', `${API_BASE_URL}/tts/synthesize`);
+      
+      const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: firstQuestion.text,
+          options: {
+            voiceName: 'en-US-Journey-F',
+            speakingRate: 1.0
+          }
+        }),
+      });
+
+      console.log('TTS response status:', ttsResponse.status);
+
+      if (!ttsResponse.ok) {
+        console.error('TTS request failed:', ttsResponse.statusText);
+        throw new Error('Failed to generate audio for question');
+      }
+
+      const ttsResult = await ttsResponse.json();
+      console.log('TTS result:', ttsResult);
+      
+      if (!ttsResult.success) {
+        throw new Error(ttsResult.message || 'TTS generation failed');
+      }
+
+      // Create the question message with audio
+      const questionMessage: Message = {
+        id: `msg-${Date.now()}`,
+        content: firstQuestion.text,
+        sender: 'assistant',
+        timestamp: new Date().toISOString(),
+        isTopicQuestion: true,
+        audioUrl: ttsResult.data.audioUrl,
+      };
+
+      conversation.messages.push(questionMessage);
+      console.log('Created conversation with audio:', conversation);
+
+      return {
+        conversation,
+        topicData: {
+          currentTopic: selectedTopic,
+          currentQuestionIndex: 0,
+          questions: selectedTopic.questionsList
+        }
+      };
+    } catch (error) {
+      console.error('Error in startTopicPractice:', error);
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to start topic practice');
+    }
+  }
+);
+
+// Next topic question async thunk
+export const getNextTopicQuestion = createAsyncThunk(
+  'chat/getNextTopicQuestion',
+  async ({}, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const { topicPractice, activeConversationId } = state.chat;
+      
+      const nextIndex = topicPractice.currentQuestionIndex + 1;
+      
+      if (!topicPractice.questions || nextIndex >= topicPractice.questions.length) {
+        // No more questions - send text message
+        const endMessage: Message = {
+          id: `msg-${Date.now()}`,
+          content: 'There are no more questions.',
+          sender: 'assistant',
+          timestamp: new Date().toISOString(),
+        };
+        
+        return {
+          conversationId: activeConversationId,
+          message: endMessage,
+          isEnd: true
+        };
+      }
+      
+      const nextQuestion = topicPractice.questions[nextIndex];
+      
+      // Generate audio for the next question
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: nextQuestion.text,
+          options: {
+            voiceName: 'en-US-Journey-F',
+            speakingRate: 1.0
+          }
+        }),
+      });
+
+      if (!ttsResponse.ok) {
+        throw new Error('Failed to generate audio for next question');
+      }
+
+      const ttsResult = await ttsResponse.json();
+      
+      if (!ttsResult.success) {
+        throw new Error(ttsResult.message || 'TTS generation failed');
+      }
+
+      // Create the question message
+      const questionMessage: Message = {
+        id: `msg-${Date.now()}`,
+        content: nextQuestion.text,
+        sender: 'assistant',
+        timestamp: new Date().toISOString(),
+        isTopicQuestion: true,
+        audioUrl: ttsResult.data.audioUrl,
+      };
+
+      return {
+        conversationId: activeConversationId,
+        message: questionMessage,
+        questionIndex: nextIndex,
+        isEnd: false
+      };
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to get next question');
+    }
+  }
+);
+
 // Enhanced transcript async thunk
 export const enhanceTranscript = createAsyncThunk(
   'chat/enhanceTranscript',
@@ -200,13 +410,18 @@ const initialState: ChatState = {
     isPressed: false,
     mimeType: null,
   },
+  topicPractice: {
+    currentTopic: null,
+    currentQuestionIndex: 0,
+    questions: [],
+  },
 };
 
 export const chatSlice = createSlice({
   name: 'chat',
   initialState,
   reducers: {
-    setActiveConversation: (state, action: PayloadAction<string>) => {
+    setActiveConversation: (state, action: PayloadAction<string | null>) => {
       state.activeConversationId = action.payload;
     },
     addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string; audioData?: string; messageId?: string }>) => {
@@ -317,6 +532,19 @@ export const chatSlice = createSlice({
         }
       }
     },
+    // Topic practice actions
+    nextTopicQuestion: (state) => {
+      if (state.topicPractice.currentQuestionIndex < state.topicPractice.questions.length - 1) {
+        state.topicPractice.currentQuestionIndex += 1;
+      }
+    },
+    resetTopicPractice: (state) => {
+      state.topicPractice = {
+        currentTopic: null,
+        currentQuestionIndex: 0,
+        questions: [],
+      };
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -329,6 +557,11 @@ export const chatSlice = createSlice({
       .addCase(sendMessage.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isTyping = false;
+        
+        // Skip if no response (topic practice mode)
+        if (!action.payload) {
+          return;
+        }
         
         const { conversationId, message } = action.payload;
         const conversation = state.conversations.find(c => c.id === conversationId);
@@ -358,7 +591,7 @@ export const chatSlice = createSlice({
         state.error = action.payload as string;
       })
       // Transcription
-      .addCase(transcribeAudio.pending, (state, action) => {
+      .addCase(transcribeAudio.pending, (state) => {
         // Loading state is already set by startTranscription action
         state.error = null;
       })
@@ -386,7 +619,7 @@ export const chatSlice = createSlice({
         }
       })
       // Combined transcription + pronunciation
-      .addCase(transcribeWithPronunciation.pending, (state, action) => {
+      .addCase(transcribeWithPronunciation.pending, (state) => {
         // Loading states are already set by startTranscription action
         state.error = null;
       })
@@ -445,6 +678,55 @@ export const chatSlice = createSlice({
         state.isLoading = false;
         state.isTyping = false;
         state.error = action.payload as string;
+      })
+      // Start topic practice
+      .addCase(startTopicPractice.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(startTopicPractice.fulfilled, (state, action) => {
+        state.isLoading = false;
+        
+        const { conversation, topicData } = action.payload;
+        
+        // Add the new conversation
+        state.conversations.unshift(conversation);
+        state.activeConversationId = conversation.id;
+        
+        // Set topic practice state
+        state.topicPractice = topicData;
+      })
+      .addCase(startTopicPractice.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Get next topic question
+      .addCase(getNextTopicQuestion.pending, (state) => {
+        state.isLoading = true;
+        state.isTyping = true;
+        state.error = null;
+      })
+      .addCase(getNextTopicQuestion.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isTyping = false;
+        
+        const { conversationId, message, questionIndex, isEnd } = action.payload;
+        const conversation = state.conversations.find(c => c.id === conversationId);
+        
+        if (conversation) {
+          conversation.messages.push(message);
+          conversation.updatedAt = new Date().toISOString();
+        }
+        
+        // Update question index if not end
+        if (!isEnd && questionIndex !== undefined) {
+          state.topicPractice.currentQuestionIndex = questionIndex;
+        }
+      })
+      .addCase(getNextTopicQuestion.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isTyping = false;
+        state.error = action.payload as string;
       });
   },
 });
@@ -464,6 +746,8 @@ export const {
   updateRecordingDuration,
   setIsPressed,
   startTranscription,
+  nextTopicQuestion,
+  resetTopicPractice,
 } = chatSlice.actions;
 
 // Selectors

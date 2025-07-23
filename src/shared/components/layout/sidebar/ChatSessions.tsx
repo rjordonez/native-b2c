@@ -19,7 +19,8 @@ const ChatSessions: React.FC = () => {
   const isChatPage = location.pathname === '/chat';
 
   const handleCreateConversation = () => {
-    dispatch(createConversation({ title: 'New Conversation' }));
+    // Clear active conversation to show topic selection UI
+    dispatch(setActiveConversation(null));
   };
 
   const formatTimestamp = (date: Date) => {

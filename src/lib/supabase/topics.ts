@@ -1,5 +1,22 @@
 import { supabase } from '../../shared/services/supabase';
-import type { Topic, Question } from '../../features/library/types';
+// Basic types for topics and questions
+export interface Question {
+  id: string;
+  text: string;
+  type: 'part1' | 'part2' | 'part3';
+}
+
+export interface Topic {
+  id: string;
+  title: string;
+  part: 'part1' | 'part3';
+  progress: number;
+  completed: boolean;
+  questions: string;
+  estimatedTime: string;
+  questionsList: Question[];
+  expanded: boolean;
+}
 
 // Database types matching our SQL schema
 export interface DatabaseTopic {

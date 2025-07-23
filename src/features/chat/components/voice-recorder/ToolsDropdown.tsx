@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sliders, Sparkle, ArrowCounterClockwise, TextAa } from 'phosphor-react';
+import { Sliders, Sparkle, ArrowCounterClockwise, TextAa, ArrowRight } from 'phosphor-react';
+import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
+import { getNextTopicQuestion, selectActiveConversation } from '../../chatSlice';
 
 interface ToolsDropdownProps {}
 
 const ToolsDropdown: React.FC<ToolsDropdownProps> = () => {
+  const dispatch = useAppDispatch();
+  const activeConversation = useAppSelector(selectActiveConversation);
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -26,13 +30,30 @@ const ToolsDropdown: React.FC<ToolsDropdownProps> = () => {
   const handleMenuItemClick = (action: string) => {
     console.log(`Tools action: ${action}`);
     setIsOpen(false);
-    // TODO: Implement actual tool actions
+    
+    switch (action) {
+      case 'next-question':
+        dispatch(getNextTopicQuestion({}));
+        break;
+      case 'redo':
+        // TODO: Implement redo functionality
+        break;
+      case 'enhance':
+        // TODO: Implement enhance functionality
+        break;
+      case 'shadow-sentence':
+        // TODO: Implement shadow sentence functionality
+        break;
+      default:
+        console.log(`Action ${action} not implemented`);
+    }
   };
 
   const menuItems = [
     { id: 'enhance', label: 'Enhance', icon: Sparkle },
     { id: 'redo', label: 'Redo', icon: ArrowCounterClockwise },
     { id: 'shadow-sentence', label: 'Shadow Sentence', icon: TextAa },
+    { id: 'next-question', label: 'Next Question', icon: ArrowRight },
   ];
 
   return (

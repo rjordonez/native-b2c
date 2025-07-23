@@ -9,6 +9,7 @@ interface VoiceMessageProps {
   sender: 'user' | 'assistant';
   timestamp: string;
   formatTimestamp: (timestamp: string) => string;
+  isTopicQuestion?: boolean; // For auto-playing topic questions
   transcription?: {
     text: string;
     isLoading: boolean;
@@ -39,6 +40,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   sender,
   timestamp,
   formatTimestamp,
+  isTopicQuestion = false,
   transcription,
   pronunciation,
   onEnhanceTranscript
@@ -132,6 +134,14 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
       wavesurfer.on('ready', () => {
         const duration = wavesurfer.getDuration();
         setTotalDuration(duration);
+        
+        // Auto-play for topic questions
+        if (isTopicQuestion) {
+          console.log('Auto-playing topic question audio');
+          setTimeout(() => {
+            wavesurfer.play();
+          }, 500); // Small delay to ensure audio is fully loaded
+        }
       });
 
     }

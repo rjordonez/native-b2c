@@ -47,3 +47,8 @@ body {
 *:focus:not(:focus-visible) {
   outline: none;
 }
+
+/* Custom cursive font class */
+.font-cursive {
+  font-family: 'Brush Script MT', 'Lucida Handwriting', 'Lucida Sans Unicode', cursive;
+}

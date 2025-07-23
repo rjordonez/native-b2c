@@ -61,6 +61,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               sender={msg.sender}
               timestamp={msg.timestamp}
               formatTimestamp={formatTimestamp}
+              isTopicQuestion={msg.isTopicQuestion}
               transcription={msg.transcription}
               pronunciation={msg.pronunciation}
               onEnhanceTranscript={handleEnhanceTranscript}
