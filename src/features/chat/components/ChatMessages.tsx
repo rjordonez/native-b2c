@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { CircleNotch } from 'phosphor-react';
+import { useAppDispatch } from '../../../store/hooks';
 import { Conversation } from '../types';
+import { enhanceTranscript } from '../chatSlice';
 import VoiceMessage from './VoiceMessage';
 
 
@@ -16,6 +18,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   formatTimestamp,
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const dispatch = useAppDispatch();
+
+  const handleEnhanceTranscript = (transcript: string) => {
+    dispatch(enhanceTranscript({
+      conversationId: activeConversation.id,
+      transcript
+    }));
+  };
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -37,6 +47,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               formatTimestamp={formatTimestamp}
               transcription={msg.transcription}
               pronunciation={msg.pronunciation}
+              onEnhanceTranscript={handleEnhanceTranscript}
             />
           );
         }

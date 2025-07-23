@@ -141,6 +141,48 @@ export const transcribeWithPronunciation = createAsyncThunk(
   }
 );
 
+// Enhanced transcript async thunk
+export const enhanceTranscript = createAsyncThunk(
+  'chat/enhanceTranscript',
+  async ({ conversationId, transcript }: { conversationId: string; transcript: string }, { rejectWithValue }) => {
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      
+      const response = await fetch(`${API_BASE_URL}/enhancement/enhance`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transcript
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Enhancement failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (!result.success) {
+        throw new Error(result.message || 'Enhancement failed');
+      }
+
+      // Create an AI message with the enhanced transcript
+      const enhancedMessage: Message = {
+        id: `msg-${Date.now()}`,
+        content: result.data.enhancedTranscript,
+        sender: 'assistant',
+        timestamp: new Date().toISOString(),
+      };
+
+      return { conversationId, message: enhancedMessage };
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to enhance transcript');
+    }
+  }
+);
+
 const initialState: ChatState = {
   conversations: SAMPLE_CONVERSATIONS,
   activeConversationId: SAMPLE_CONVERSATIONS[0]?.id || null,
@@ -379,6 +421,29 @@ export const chatSlice = createSlice({
             }
           }
         }
+      })
+      // Enhance transcript
+      .addCase(enhanceTranscript.pending, (state) => {
+        state.isLoading = true;
+        state.isTyping = true;
+        state.error = null;
+      })
+      .addCase(enhanceTranscript.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isTyping = false;
+        
+        const { conversationId, message } = action.payload;
+        const conversation = state.conversations.find(c => c.id === conversationId);
+        
+        if (conversation) {
+          conversation.messages.push(message);
+          conversation.updatedAt = new Date().toISOString();
+        }
+      })
+      .addCase(enhanceTranscript.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isTyping = false;
+        state.error = action.payload as string;
       });
   },
 });
