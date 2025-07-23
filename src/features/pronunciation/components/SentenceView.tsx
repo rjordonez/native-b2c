@@ -23,7 +23,7 @@ export const SentenceView: React.FC<SentenceViewProps> = ({
 }) => {
   return (
     <div className="space-y-8">
-      <h2 className="text-xl text-gray-700 font-medium">
+      <h2 className="text-xl text-gray-700 font-medium text-center">
         {isRecording ? 'Recording... Speak now!' : 'Read this sentence:'}
       </h2>
       <div className="flex justify-center">
@@ -34,8 +34,8 @@ export const SentenceView: React.FC<SentenceViewProps> = ({
             phonemes: word.phonemes
           }))}
           showScoring={showResults}
-          className="text-center"
-          wordClassName="text-3xl font-medium"
+          className="text-center justify-center"
+          wordClassName="text-3xl font-medium text-center"
         />
       </div>
       {!showResults && onStart && onStop && (

@@ -11,11 +11,11 @@ export const SCORING_THRESHOLDS = {
 
 // Phoneme color mapping
 export const PHONEME_COLORS = {
-  EXCELLENT: 'text-green-600',  // >= 80
-  GOOD: 'text-yellow-500',      // 60-79
-  FAIR: 'text-orange-500',      // 40-59
-  POOR: 'text-red-500',         // < 40
-  DEFAULT: 'text-gray-900',
+  EXCELLENT: '!text-green-600',  // >= 80
+  GOOD: '!text-yellow-500',      // 60-79
+  FAIR: '!text-orange-500',      // 40-59
+  POOR: '!text-red-500',         // < 40
+  DEFAULT: '!text-gray-900',
 } as const;
 
 // Pronunciation types for shared usage

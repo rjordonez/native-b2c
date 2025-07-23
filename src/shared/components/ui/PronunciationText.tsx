@@ -35,20 +35,23 @@ const estimatePhonemePositions = (word: string, phonemes: Array<{ phoneme: strin
     }));
   }
   
-  return word.split('').map((char, charIndex) => {
+  const result = word.split('').map((char, charIndex) => {
     // Estimate which phoneme this character belongs to
     const phonemeIndex = Math.min(
       Math.floor((charIndex / wordLength) * phonemeCount),
       phonemeCount - 1
     );
     const phoneme = phonemes[phonemeIndex];
+    const color = getPhonemeColor(phoneme?.score || 0);
     
     return {
       char,
       phoneme,
-      color: getPhonemeColor(phoneme?.score || 0)
+      color
     };
   });
+  
+  return result;
 };
 
 const PronunciationWord: React.FC<{
@@ -56,19 +59,14 @@ const PronunciationWord: React.FC<{
   showScoring: boolean;
   className?: string;
 }> = ({ word, showScoring, className = '' }) => {
-  // If scoring is disabled, show normal text
-  if (!showScoring) {
-    return (
-      <span className={cn('transition-all duration-500 text-gray-900', className)}>
-        {word.text}
-      </span>
-    );
-  }
+  // Always show colors if we have score data, regardless of showScoring flag
+  const hasScoreData = word.score !== undefined && word.score !== null;
+  const shouldShowScoring = showScoring || hasScoreData;
 
-  // If no score data available at all, show gray (initial state)
-  if (word.score === undefined || word.score === null) {
+  // If no score data available at all, show normal text
+  if (!hasScoreData) {
     return (
-      <span className={cn('transition-all duration-500 text-gray-900', className)}>
+      <span className={cn('transition-all duration-500', className, '!text-gray-900')}>
         {word.text}
       </span>
     );
@@ -77,7 +75,7 @@ const PronunciationWord: React.FC<{
   // If score is 0, show red
   if (word.score === 0) {
     return (
-      <span className={cn('transition-all duration-500 text-red-500', className)}>
+      <span className={cn('transition-all duration-500', className)} style={{color: 'red'}}>
         {word.text}
       </span>
     );
@@ -86,7 +84,7 @@ const PronunciationWord: React.FC<{
   // If score >= passing threshold, show green (no phoneme breakdown)
   if (word.score >= SCORING_THRESHOLDS.PASSING_SCORE) {
     return (
-      <span className={cn(`transition-all duration-500 ${PHONEME_COLORS.EXCELLENT}`, className)}>
+      <span className={cn('transition-all duration-500', className)} style={{color: 'green'}}>
         {word.text}
       </span>
     );
@@ -96,30 +94,34 @@ const PronunciationWord: React.FC<{
   if (!word.phonemes || word.phonemes.length === 0) {
     // Fallback if no phonemes but score < 80
     return (
-      <span className={cn('transition-all duration-500 text-red-500', className)}>
+      <span className={cn('transition-all duration-500', className)} style={{color: 'red'}}>
         {word.text}
       </span>
     );
-  }
-
-  // Debug log for low-scoring words
-  if (word.score < SCORING_THRESHOLDS.PASSING_SCORE) {
-    console.log(`Rendering phoneme-level coloring for "${word.text}" (score: ${word.score})`, word.phonemes);
   }
 
   const characterPhonemes = estimatePhonemePositions(word.text, word.phonemes);
 
   return (
     <span className={cn('transition-all duration-500', className)}>
-      {characterPhonemes.map((item, index) => (
-        <span
-          key={index}
-          className={item.color}
-          title={item.phoneme ? `${item.phoneme.phoneme}: ${item.phoneme.score}%` : item.char}
-        >
-          {item.char}
-        </span>
-      ))}
+      {characterPhonemes.map((item, index) => {
+        // Convert Tailwind class to inline style
+        let color = 'inherit';
+        if (item.color.includes('green')) color = 'green';
+        else if (item.color.includes('yellow')) color = 'orange';
+        else if (item.color.includes('orange')) color = 'orange';
+        else if (item.color.includes('red')) color = 'red';
+        
+        return (
+          <span
+            key={index}
+            style={{color}}
+            title={item.phoneme ? `${item.phoneme.phoneme}: ${item.phoneme.score}%` : item.char}
+          >
+            {item.char}
+          </span>
+        );
+      })}
     </span>
   );
 };
@@ -131,7 +133,7 @@ export const PronunciationText: React.FC<PronunciationTextProps> = ({
   wordClassName = ''
 }) => {
   return (
-    <div className={cn('flex flex-wrap gap-1', className)}>
+    <div className={cn('flex flex-wrap gap-1 justify-center', className)}>
       {words.map((word, index) => (
         <PronunciationWord
           key={index}
