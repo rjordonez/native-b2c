@@ -4,7 +4,8 @@ export interface Message {
   sender: 'user' | 'assistant';
   timestamp: string; // ISO string for Redux serialization
   isTyping?: boolean;
-  audioUrl?: string; // For voice messages
+  audioUrl?: string; // For voice messages (temporary URL)
+  audioData?: string; // For voice messages (base64 data for persistence)
 }
 
 export interface Conversation {
@@ -18,7 +19,8 @@ export interface Conversation {
 export interface VoiceRecordingState {
   isRecording: boolean;
   isPaused: boolean;
-  audioUrl: string | null; // Store URL instead of Blob for Redux serialization
+  audioUrl: string | null; // Temporary URL for playback during recording
+  audioData: string | null; // Base64 data for persistence
   recordingDuration: number;
   recordingState: 'idle' | 'recording' | 'recorded' | 'playing';
 }
@@ -36,6 +38,7 @@ export interface SendMessagePayload {
   conversationId: string;
   content: string;
   audioUrl?: string;
+  audioData?: string;
 }
 
 export interface CreateConversationPayload {
