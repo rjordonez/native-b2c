@@ -3,6 +3,7 @@ import { CaretDown } from 'phosphor-react';
 import { useAppDispatch } from '../../../store/hooks';
 import { toggleTopicExpansion } from '../librarySlice';
 import { Button } from '../../../shared/components/layout/ui/button';
+import { useTopicPractice } from '../../../shared/hooks/useTopicPractice';
 
 interface Topic {
   id: string;
@@ -23,6 +24,7 @@ interface TopicRowProps {
 
 const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
   const dispatch = useAppDispatch();
+  const { startPractice } = useTopicPractice();
 
   const getPartColor = (part: string) => {
     switch (part) {
@@ -34,7 +36,7 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
 
   const handlePracticeClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // TODO: Add practice functionality
+    startPractice(topic.title);
   };
 
   return (

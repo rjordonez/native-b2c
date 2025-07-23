@@ -157,41 +157,9 @@ export const startTopicPractice = createAsyncThunk(
     try {
       console.log('Starting topic practice for:', topicName);
       
-      // TEMPORARY: Use mock data instead of Supabase for testing
-      const mockTopics = [
-        {
-          id: 'crime',
-          title: 'Crime',
-          questionsList: [
-            { id: '1', text: 'What types of crime are most common in your country?', type: 'part3' },
-            { id: '2', text: 'How has crime changed in your area over the past few years?', type: 'part3' },
-            { id: '3', text: 'What do you think are the main causes of crime?', type: 'part3' }
-          ]
-        },
-        {
-          id: 'art',
-          title: 'Art',
-          questionsList: [
-            { id: '1', text: 'Do you enjoy looking at art? Why or why not?', type: 'part1' },
-            { id: '2', text: 'What kind of art do you like?', type: 'part1' },
-            { id: '3', text: 'Is art important in your culture?', type: 'part3' }
-          ]
-        },
-        {
-          id: 'culture',
-          title: 'Culture', 
-          questionsList: [
-            { id: '1', text: 'How important is it to preserve traditional culture?', type: 'part3' },
-            { id: '2', text: 'What aspects of your culture are you most proud of?', type: 'part3' },
-            { id: '3', text: 'How has globalization affected your culture?', type: 'part3' }
-          ]
-        }
-      ];
-      
-      // Fetch all topics to find the selected one
-      // const topics = await fetchTopics();
-      const topics = mockTopics;
-      console.log('Using mock topics:', topics);
+      // Fetch all topics from Supabase
+      const topics = await fetchTopics();
+      console.log('Using topics from Supabase:', topics);
       const selectedTopic = topics.find(topic => 
         topic.title.toLowerCase() === topicName.toLowerCase()
       );
@@ -266,11 +234,80 @@ export const startTopicPractice = createAsyncThunk(
           currentTopic: selectedTopic,
           currentQuestionIndex: 0,
           questions: selectedTopic.questionsList
-        }
+        },
+        autoPlayMessageId: questionMessage.id // Set this message to autoplay
       };
     } catch (error) {
       console.error('Error in startTopicPractice:', error);
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to start topic practice');
+    }
+  }
+);
+
+// Redo current topic question async thunk
+export const redoTopicQuestion = createAsyncThunk(
+  'chat/redoTopicQuestion',
+  async ({}, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const { topicPractice, activeConversationId } = state.chat;
+      
+      if (!topicPractice.currentTopic || !activeConversationId || !topicPractice.questions) {
+        throw new Error('No active topic practice session');
+      }
+      
+      // Get the current question
+      const currentQuestion = topicPractice.questions[topicPractice.currentQuestionIndex];
+      if (!currentQuestion) {
+        throw new Error('No current question to redo');
+      }
+      
+      console.log('Redoing question:', currentQuestion.text);
+      
+      // Generate audio for the current question
+      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: currentQuestion.text,
+          options: {
+            voiceName: 'en-US-Journey-F',
+            speakingRate: 0.9
+          }
+        }),
+      });
+
+      if (!ttsResponse.ok) {
+        throw new Error('Failed to generate audio for redo question');
+      }
+
+      const ttsResult = await ttsResponse.json();
+      
+      if (!ttsResult.success) {
+        throw new Error(ttsResult.message || 'TTS generation failed');
+      }
+      
+      // Create a new question message (redo)
+      const redoMessage: Message = {
+        id: `msg-${Date.now()}`,
+        content: currentQuestion.text,
+        sender: 'assistant',
+        timestamp: new Date().toISOString(),
+        isTopicQuestion: true,
+        audioUrl: ttsResult.data.audioUrl,
+      };
+      
+      return {
+        conversationId: activeConversationId,
+        message: redoMessage,
+        autoPlayMessageId: redoMessage.id // Set this message to autoplay
+      };
+    } catch (error) {
+      console.error('Redo action error:', error);
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to redo question');
     }
   }
 );
@@ -343,7 +380,8 @@ export const getNextTopicQuestion = createAsyncThunk(
         conversationId: activeConversationId,
         message: questionMessage,
         questionIndex: nextIndex,
-        isEnd: false
+        isEnd: false,
+        autoPlayMessageId: questionMessage.id // Set this message to autoplay
       };
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to get next question');
@@ -415,6 +453,7 @@ const initialState: ChatState = {
     currentQuestionIndex: 0,
     questions: [],
   },
+  autoPlayMessageId: null,
 };
 
 export const chatSlice = createSlice({
@@ -544,6 +583,9 @@ export const chatSlice = createSlice({
         currentQuestionIndex: 0,
         questions: [],
       };
+    },
+    clearAutoPlayMessageId: (state) => {
+      state.autoPlayMessageId = null;
     },
   },
   extraReducers: (builder) => {
@@ -687,7 +729,7 @@ export const chatSlice = createSlice({
       .addCase(startTopicPractice.fulfilled, (state, action) => {
         state.isLoading = false;
         
-        const { conversation, topicData } = action.payload;
+        const { conversation, topicData, autoPlayMessageId } = action.payload;
         
         // Add the new conversation
         state.conversations.unshift(conversation);
@@ -695,9 +737,38 @@ export const chatSlice = createSlice({
         
         // Set topic practice state
         state.topicPractice = topicData;
+        
+        // Set message to autoplay
+        state.autoPlayMessageId = autoPlayMessageId;
       })
       .addCase(startTopicPractice.rejected, (state, action) => {
         state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Redo topic question
+      .addCase(redoTopicQuestion.pending, (state) => {
+        state.isLoading = true;
+        state.isTyping = true;
+        state.error = null;
+      })
+      .addCase(redoTopicQuestion.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isTyping = false;
+        
+        const { conversationId, message, autoPlayMessageId } = action.payload;
+        const conversation = state.conversations.find(c => c.id === conversationId);
+        
+        if (conversation) {
+          conversation.messages.push(message);
+          conversation.updatedAt = new Date().toISOString();
+        }
+        
+        // Set message to autoplay
+        state.autoPlayMessageId = autoPlayMessageId;
+      })
+      .addCase(redoTopicQuestion.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isTyping = false;
         state.error = action.payload as string;
       })
       // Get next topic question
@@ -710,7 +781,7 @@ export const chatSlice = createSlice({
         state.isLoading = false;
         state.isTyping = false;
         
-        const { conversationId, message, questionIndex, isEnd } = action.payload;
+        const { conversationId, message, questionIndex, isEnd, autoPlayMessageId } = action.payload;
         const conversation = state.conversations.find(c => c.id === conversationId);
         
         if (conversation) {
@@ -721,6 +792,11 @@ export const chatSlice = createSlice({
         // Update question index if not end
         if (!isEnd && questionIndex !== undefined) {
           state.topicPractice.currentQuestionIndex = questionIndex;
+        }
+        
+        // Set message to autoplay
+        if (autoPlayMessageId) {
+          state.autoPlayMessageId = autoPlayMessageId;
         }
       })
       .addCase(getNextTopicQuestion.rejected, (state, action) => {
@@ -744,6 +820,7 @@ export const {
   pauseRecording,
   clearRecording,
   updateRecordingDuration,
+  clearAutoPlayMessageId,
   setIsPressed,
   startTranscription,
   nextTopicQuestion,
@@ -775,5 +852,6 @@ export const selectAudioData = (state: RootState) => state.chat.voiceRecording.a
 export const selectRecordingDuration = (state: RootState) => state.chat.voiceRecording.recordingDuration;
 export const selectIsPressed = (state: RootState) => state.chat.voiceRecording.isPressed;
 export const selectMimeType = (state: RootState) => state.chat.voiceRecording.mimeType;
+export const selectAutoPlayMessageId = (state: RootState) => state.chat.autoPlayMessageId;
 
 export default chatSlice.reducer;

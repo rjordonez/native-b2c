@@ -56,6 +56,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
           return (
             <VoiceMessage
               key={msg.id}
+              messageId={msg.id}
               audioUrl={msg.audioUrl}
               audioData={msg.audioData}
               sender={msg.sender}

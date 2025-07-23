@@ -66,6 +66,7 @@ export interface ChatState {
   error: string | null;
   voiceRecording: VoiceRecordingState;
   topicPractice: TopicPracticeState;
+  autoPlayMessageId: string | null; // Message ID that should autoplay once
 }
 
 export interface SendMessagePayload {

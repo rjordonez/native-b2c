@@ -2,8 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
 import { PronunciationText } from '../../../shared/components/ui/PronunciationText';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { selectAutoPlayMessageId, clearAutoPlayMessageId } from '../chatSlice';
 
 interface VoiceMessageProps {
+  messageId: string;
   audioUrl?: string;
   audioData?: string;
   sender: 'user' | 'assistant';
@@ -35,6 +38,7 @@ interface VoiceMessageProps {
 }
 
 const VoiceMessage: React.FC<VoiceMessageProps> = ({
+  messageId,
   audioUrl,
   audioData,
   sender,
@@ -45,6 +49,8 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   pronunciation,
   onEnhanceTranscript
 }) => {
+  const dispatch = useAppDispatch();
+  const autoPlayMessageId = useAppSelector(selectAutoPlayMessageId);
   const waveformRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -135,11 +141,13 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
         const duration = wavesurfer.getDuration();
         setTotalDuration(duration);
         
-        // Auto-play for topic questions
-        if (isTopicQuestion) {
-          console.log('Auto-playing topic question audio');
+        // Auto-play only if this message is marked for autoplay
+        if (autoPlayMessageId === messageId) {
+          console.log('Auto-playing topic question audio for message:', messageId);
           setTimeout(() => {
             wavesurfer.play();
+            // Clear the autoplay flag after playing
+            dispatch(clearAutoPlayMessageId());
           }, 500); // Small delay to ensure audio is fully loaded
         }
       });
@@ -163,6 +171,20 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
       }
     };
   }, [audioData, audioUrl, sender]);
+
+  // Watch for autoplay changes
+  useEffect(() => {
+    if (autoPlayMessageId === messageId && wavesurferRef.current && wavesurferRef.current.isReady) {
+      console.log('Auto-playing topic question audio for message (from effect):', messageId);
+      setTimeout(() => {
+        if (wavesurferRef.current) {
+          wavesurferRef.current.play();
+          // Clear the autoplay flag after playing
+          dispatch(clearAutoPlayMessageId());
+        }
+      }, 500); // Small delay to ensure smooth playback
+    }
+  }, [autoPlayMessageId, messageId, dispatch]);
 
   // Play/pause audio with Wavesurfer
   const handlePlayPause = () => {

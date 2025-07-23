@@ -1,7 +1,7 @@
 import React from 'react';
 import { ArrowCounterClockwise, ArrowRight } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { getNextTopicQuestion } from '../../chatSlice';
+import { getNextTopicQuestion, redoTopicQuestion } from '../../chatSlice';
 
 const ActionButtons: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -13,8 +13,8 @@ const ActionButtons: React.FC = () => {
   }
 
   const handleRedo = () => {
-    console.log('Redo action - TODO: Implement redo functionality');
-    // TODO: Implement redo functionality
+    console.log('Redo button clicked');
+    dispatch(redoTopicQuestion({}));
   };
 
   const handleNextQuestion = () => {
