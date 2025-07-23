@@ -72,11 +72,11 @@ const SidebarLogo: React.FC = () => {
           onClick={handleClick}
           onMouseEnter={(e) => handleMouseEnter(e, 'logo')}
           onMouseLeave={handleMouseLeave}
-          className={`absolute top-0 left-0 w-10 h-10 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-all duration-200 ${
+          className={`absolute top-0 left-0 w-10 h-10 rounded-md flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-all duration-200 ${
             hoveredItem === 'logo' ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
-          <SplitScreenIcon sx={{ fontSize: 20, transform: 'rotate(90deg)', color: 'black' }} />
+          <SplitScreenIcon sx={{ fontSize: 20, transform: 'rotate(90deg)' }} />
         </button>
 
         {/* Tooltip */}
@@ -105,9 +105,9 @@ const SidebarLogo: React.FC = () => {
           onClick={handleClick}
           onMouseEnter={(e) => handleMouseEnter(e, 'collapse')}
           onMouseLeave={handleMouseLeave}
-          className="w-10 h-10 rounded-md flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
+          className="w-10 h-10 rounded-md flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
         >
-          <SplitScreenIcon sx={{ fontSize: 20, transform: 'rotate(90deg)', color: 'black' }} />
+          <SplitScreenIcon sx={{ fontSize: 20, transform: 'rotate(90deg)' }} />
         </button>
         
         {/* Tooltip */}
