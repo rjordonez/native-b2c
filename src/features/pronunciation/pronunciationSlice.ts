@@ -45,6 +45,25 @@ const pronunciationSlice = createSlice({
       state.error = null;
       state.audioCache = {};
     },
+    openModalWithSentences: (state, action: PayloadAction<string[]>) => {
+      state.isOpen = true;
+      // Convert text sentences to Sentence objects
+      state.sentences = action.payload.map((text, index) => ({
+        id: `enhanced-sentence-${index}`,
+        text: text.trim(),
+        words: text.trim().split(' ').map(word => ({ text: word.replace(/[^\w]/g, '') }))
+      }));
+      state.modalState = { 
+        type: 'sentence', 
+        index: 0, 
+        timerActive: true, 
+        showResults: false,
+        isReady: false
+      };
+      state.isProcessing = false;
+      state.error = null;
+      state.audioCache = {};
+    },
     closeModal: (state) => {
       state.isOpen = false;
       state.sentences = [];
@@ -190,6 +209,7 @@ const pronunciationSlice = createSlice({
 
 export const { 
   openModal, 
+  openModalWithSentences,
   closeModal, 
   updateWordResults, 
   setModalState,

@@ -4,6 +4,7 @@ export interface Message {
   sender: 'user' | 'assistant';
   timestamp: string; // ISO string for Redux serialization
   isTyping?: boolean;
+  isEnhanced?: boolean; // For enhanced transcript messages
   audioUrl?: string; // For voice messages (temporary URL)
   audioData?: string; // For voice messages (base64 data for persistence)
   transcription?: {

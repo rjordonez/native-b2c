@@ -13,6 +13,7 @@ import {
   VoiceRecorder,
   EmptyState
 } from './components';
+import { PronunciationModal } from '../pronunciation/components/PronunciationModal';
 
 const ChatPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -83,6 +84,9 @@ const ChatPage: React.FC = () => {
           isLoading={isLoading}
         />
       )}
+      
+      {/* Pronunciation Modal */}
+      <PronunciationModal />
     </div>
   );
 };
