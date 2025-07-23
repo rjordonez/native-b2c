@@ -69,9 +69,6 @@ const initialState: ChatState = {
     recordingDuration: 0,
     recordingState: 'idle',
     isPressed: false,
-    isWaveformPlaying: false,
-    currentTime: 0,
-    totalDuration: 0,
   },
 };
 
@@ -152,9 +149,6 @@ export const chatSlice = createSlice({
         recordingDuration: 0,
         recordingState: 'idle',
         isPressed: false,
-        isWaveformPlaying: false,
-        currentTime: 0,
-        totalDuration: 0,
       };
     },
     updateRecordingDuration: (state, action: PayloadAction<number>) => {
@@ -163,15 +157,6 @@ export const chatSlice = createSlice({
     // UI state actions
     setIsPressed: (state, action: PayloadAction<boolean>) => {
       state.voiceRecording.isPressed = action.payload;
-    },
-    setIsWaveformPlaying: (state, action: PayloadAction<boolean>) => {
-      state.voiceRecording.isWaveformPlaying = action.payload;
-    },
-    setCurrentTime: (state, action: PayloadAction<number>) => {
-      state.voiceRecording.currentTime = action.payload;
-    },
-    setTotalDuration: (state, action: PayloadAction<number>) => {
-      state.voiceRecording.totalDuration = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -230,9 +215,6 @@ export const {
   clearRecording,
   updateRecordingDuration,
   setIsPressed,
-  setIsWaveformPlaying,
-  setCurrentTime,
-  setTotalDuration,
 } = chatSlice.actions;
 
 // Selectors
@@ -259,8 +241,5 @@ export const selectAudioUrl = (state: RootState) => state.chat.voiceRecording.au
 export const selectAudioData = (state: RootState) => state.chat.voiceRecording.audioData;
 export const selectRecordingDuration = (state: RootState) => state.chat.voiceRecording.recordingDuration;
 export const selectIsPressed = (state: RootState) => state.chat.voiceRecording.isPressed;
-export const selectIsWaveformPlaying = (state: RootState) => state.chat.voiceRecording.isWaveformPlaying;
-export const selectCurrentTime = (state: RootState) => state.chat.voiceRecording.currentTime;
-export const selectTotalDuration = (state: RootState) => state.chat.voiceRecording.totalDuration;
 
 export default chatSlice.reducer;
