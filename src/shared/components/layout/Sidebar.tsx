@@ -1,10 +1,11 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Gear, DotsThree, SignOut, Plus } from 'phosphor-react';
+import SplitScreenIcon from '@mui/icons-material/SplitScreen';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { signOut } from '../../../features/auth/authSlice';
 import { ROUTES } from '../../../constants/routes';
-import { selectUserDropdownOpen, setUserDropdownOpen, toggleUserDropdown } from '../../../store/slices/navigationSlice';
+import { selectUserDropdownOpen, setUserDropdownOpen, toggleUserDropdown, selectSidebarCollapsed, toggleSidebarCollapse } from '../../../store/slices/navigationSlice';
 import { 
   selectConversations, 
   selectActiveConversation, 
@@ -16,6 +17,7 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
   const dropdownOpen = useAppSelector(selectUserDropdownOpen);
+  const sidebarCollapsed = useAppSelector(selectSidebarCollapsed);
   const user = useAppSelector((state) => state.auth.user);
   const userInfoRef = useRef<HTMLDivElement>(null);
   
@@ -81,29 +83,58 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="w-64 bg-white border-r border-gray-100 flex flex-col h-full">
-      {/* Logo at the top */}
-      <div className="flex items-center h-20 px-6 pt-4 pb-2">
-        <img src="/native-logo.png" alt="Native Logo" className="h-7 w-auto" />
+    <div className={`${sidebarCollapsed ? 'w-16' : 'w-64'} bg-white border-r border-gray-100 flex flex-col h-full transition-all duration-300 ease-out relative`}>
+      {/* Logo/Collapse Button at the top */}
+      <div className={`flex items-center h-20 ${sidebarCollapsed ? 'px-2 justify-center' : 'px-6 justify-between'} pt-4 pb-2 relative overflow-hidden`}>
+        {sidebarCollapsed ? (
+          // Square N logo for collapsed state - click to expand
+          <button 
+            onClick={() => dispatch(toggleSidebarCollapse())}
+            className="w-10 h-10 rounded-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+            style={gradientStyle}
+            title="Expand sidebar"
+          >
+            <span className="text-white text-lg font-bold">N</span>
+          </button>
+        ) : (
+          <>
+            <img src="/native-logo.png" alt="Native Logo" className="h-7 w-auto" />
+            {/* Collapse button */}
+            <div className="relative">
+              <button
+                onClick={() => dispatch(toggleSidebarCollapse())}
+                className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-50 transition-colors"
+                title="Close sidebar"
+              >
+                <SplitScreenIcon sx={{ fontSize: 20, transform: 'rotate(90deg)' }} />
+              </button>
+            </div>
+          </>
+        )}
       </div>
       {/* Navigation and settings at the top */}
       <div className="flex-1 flex flex-col">
-        <nav className="px-4 py-6 overflow-y-auto">
+        <nav className={`py-6 overflow-y-auto ${sidebarCollapsed ? 'px-2' : 'px-4'}`}>
           <ul className="space-y-1">
             {ROUTES.map((route) => {
               const IconComponent = route.icon;
               return (
-                <li key={route.path}>
+                <li key={route.path} className="relative">
                   <Link
                     to={route.path}
-                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                    className={`flex items-center ${
+                      sidebarCollapsed 
+                        ? 'justify-center px-2 py-3' 
+                        : 'px-4 py-3'
+                    } text-sm font-medium rounded-lg transition-colors ${
                       isActive(route.path)
                         ? 'bg-gray-100 text-black'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-black'
                     }`}
+                    title={sidebarCollapsed ? route.name : undefined}
                   >
-                    <IconComponent size={20} className="mr-3" />
-                    {route.name}
+                    <IconComponent size={20} className={sidebarCollapsed ? '' : 'mr-3'} />
+                    {!sidebarCollapsed && route.name}
                   </Link>
                 </li>
               );
@@ -111,12 +142,13 @@ const Sidebar: React.FC = () => {
           </ul>
         </nav>
 
-        {/* Chat Sessions - Show when on chat page */}
-        <div className={`px-4 pb-4 transform transition-all duration-300 ease-out ${
-          isChatPage 
-            ? 'opacity-100 translate-y-0 max-h-96' 
-            : 'opacity-0 -translate-y-4 max-h-0 overflow-hidden'
-        }`}>
+        {/* Chat Sessions - Show when on chat page and not collapsed */}
+        {!sidebarCollapsed && (
+          <div className={`px-4 pb-4 transform transition-all duration-300 ease-out ${
+            isChatPage 
+              ? 'opacity-100 translate-y-0 max-h-96' 
+              : 'opacity-0 -translate-y-4 max-h-0 overflow-hidden'
+          }`}>
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-medium text-gray-700">Sessions</h3>
             <button
@@ -166,6 +198,7 @@ const Sidebar: React.FC = () => {
             ))}
           </div>
         </div>
+        )}
       </div>
       {/* User info at the bottom */}
       <div
@@ -173,28 +206,53 @@ const Sidebar: React.FC = () => {
         className="relative mb-4"
       >
         <button
-          onClick={() => dispatch(toggleUserDropdown())}
-          className="h-16 px-6 border-t border-gray-100 w-full focus:outline-none"
+          onClick={() => {
+            if (sidebarCollapsed) {
+              // If collapsed, expand sidebar first then open dropdown
+              dispatch(toggleSidebarCollapse());
+              setTimeout(() => {
+                dispatch(setUserDropdownOpen(true));
+              }, 300); // Wait for sidebar animation
+            } else {
+              dispatch(toggleUserDropdown());
+            }
+          }}
+          className={`h-16 border-t border-gray-100 w-full focus:outline-none ${
+            sidebarCollapsed ? 'px-2' : 'px-6'
+          }`}
         >
-          <div className="flex items-center justify-between gap-3 px-2 py-1 rounded-lg transition-colors hover:bg-gray-100 hover:ring-2 hover:ring-primary/30 hover:shadow-md">
-            <div className="flex items-center gap-3">
+          {sidebarCollapsed ? (
+            // Collapsed state - just the avatar
+            <div className="flex items-center justify-center py-2">
               <div className="w-8 h-8 rounded-full flex items-center justify-center" style={gradientStyle}>
                 <span className="text-white text-sm font-medium">
                   {getInitials(user?.user_metadata?.full_name, user?.email)}
                 </span>
               </div>
-              <span className="bg-white rounded-lg px-2 py-1 text-xs font-medium text-gray-900 shadow border border-gray-200">
-                {getDisplayName(user?.user_metadata?.full_name, user?.email)}
-              </span>
             </div>
-            <DotsThree size={22} weight="bold" className="text-gray-400" />
-          </div>
+          ) : (
+            // Expanded state - full layout
+            <div className="flex items-center justify-between gap-3 px-2 py-1 rounded-lg transition-colors hover:bg-gray-100 hover:ring-2 hover:ring-primary/30 hover:shadow-md">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={gradientStyle}>
+                  <span className="text-white text-sm font-medium">
+                    {getInitials(user?.user_metadata?.full_name, user?.email)}
+                  </span>
+                </div>
+                <span className="bg-white rounded-lg px-2 py-1 text-xs font-medium text-gray-900 shadow border border-gray-200">
+                  {getDisplayName(user?.user_metadata?.full_name, user?.email)}
+                </span>
+              </div>
+              <DotsThree size={22} weight="bold" className="text-gray-400" />
+            </div>
+          )}
         </button>
-        <div className={`absolute left-6 right-6 bottom-16 mb-2 bg-white rounded-lg shadow-lg border border-gray-100 z-10 transform transition-all duration-200 ease-out ${
-          dropdownOpen 
-            ? 'opacity-100 translate-y-0 scale-100' 
-            : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
-        }`}>
+        {!sidebarCollapsed && (
+          <div className={`absolute left-6 right-6 bottom-16 mb-2 bg-white rounded-lg shadow-lg border border-gray-100 z-10 transform transition-all duration-200 ease-out ${
+            dropdownOpen 
+              ? 'opacity-100 translate-y-0 scale-100' 
+              : 'opacity-0 translate-y-2 scale-95 pointer-events-none'
+          }`}>
             <Link
               to="/settings"
               className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors rounded-t-lg"
@@ -210,6 +268,7 @@ const Sidebar: React.FC = () => {
               <SignOut size={16} className="mr-2" /> Sign out
             </button>
         </div>
+        )}
       </div>
     </div>
   );

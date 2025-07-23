@@ -38,9 +38,9 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
   };
 
   return (
-    <div className="transform transition-all duration-200 ease-out">
+    <div>
       <div 
-        className={`grid grid-cols-12 items-center gap-4 px-3 py-2 rounded-lg text-sm cursor-pointer transition-all duration-200 ease-out ${
+        className={`grid grid-cols-12 items-center gap-4 px-3 py-2 border-b border-gray-100 text-sm cursor-pointer transition-all duration-200 ease-out ${
           topic.expanded
             ? 'bg-gray-100 text-black shadow-sm'
             : 'text-gray-600 hover:bg-gray-50 hover:text-black'
