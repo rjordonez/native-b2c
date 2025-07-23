@@ -3,6 +3,7 @@ import { CircleNotch } from 'phosphor-react';
 import { Conversation } from '../types';
 import VoiceMessage from './VoiceMessage';
 
+
 interface ChatMessagesProps {
   activeConversation: Conversation;
   isTyping: boolean;
@@ -34,6 +35,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               sender={msg.sender}
               timestamp={msg.timestamp}
               formatTimestamp={formatTimestamp}
+              transcription={msg.transcription}
             />
           );
         }

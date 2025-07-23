@@ -8,8 +8,8 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "backend": "cd backend && npm install && node index.js",
-    "dev:full": "concurrently \"npm run dev\" \"npm run backend\""
+    "backend": "cd backend && npm install && npm run dev",
+    "dev:full": "concurrently \"npm run dev\" \"npm run backend\" --names \"frontend,backend\" --prefix-colors \"cyan,yellow\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -22,6 +22,7 @@
     "@reduxjs/toolkit": "^2.8.2",
     "@supabase/supabase-js": "^2.52.0",
     "@types/react-router-dom": "^5.3.3",
+    "axios": "^1.11.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "motion": "^12.23.6",

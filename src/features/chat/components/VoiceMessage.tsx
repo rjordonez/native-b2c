@@ -8,6 +8,11 @@ interface VoiceMessageProps {
   sender: 'user' | 'assistant';
   timestamp: string;
   formatTimestamp: (timestamp: string) => string;
+  transcription?: {
+    text: string;
+    isLoading: boolean;
+    confidence?: number;
+  };
 }
 
 const VoiceMessage: React.FC<VoiceMessageProps> = ({
@@ -15,7 +20,8 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   audioData,
   sender,
   timestamp,
-  formatTimestamp
+  formatTimestamp,
+  transcription
 }) => {
   const waveformRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
@@ -177,6 +183,36 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Transcription Section */}
+        {transcription && (
+          <div className={`mt-2 max-w-xs lg:max-w-md ${sender === 'user' ? 'text-right' : 'text-left'}`}>
+            {transcription.isLoading ? (
+              <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                </div>
+                <span className="text-sm text-gray-500">Transcribing audio...</span>
+              </div>
+            ) : (
+              <div className="px-3 py-2 bg-gray-50 rounded-lg border border-gray-100">
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {transcription.text}
+                </p>
+                {transcription.confidence && (
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+                    <span className="text-xs text-gray-500">Transcription</span>
+                    <span className="text-xs text-gray-400">
+                      {Math.round(transcription.confidence * 100)}% confidence
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
         
         {/* Timestamp */}
         <span className="text-xs text-gray-500 mt-1 px-1">

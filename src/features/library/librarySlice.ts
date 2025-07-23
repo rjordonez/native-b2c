@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../../store/types';
 import { LibraryState, Topic, TopicProgressPayload, FilterUpdatePayload } from './types';
 import { fetchTopics, updateTopicProgress as updateTopicProgressAPI, toggleTopicCompletion as toggleTopicCompletionAPI } from '../../lib/supabase/topics';
@@ -190,51 +190,61 @@ export const selectLoading = (state: RootState) => state.library.loading;
 export const selectError = (state: RootState) => state.library.error;
 export const selectFixedHeight = (state: RootState) => state.library.fixedHeight;
 
-export const selectFilteredTopics = (state: RootState) => {
-  const { topics, filters, searchQuery } = state.library;
-  
-  return topics.filter(topic => {
-    const matchesPart = filters.part === 'all' || topic.part === filters.part;
-    const matchesCompleted = filters.completed === null || topic.completed === filters.completed;
-    const matchesSearch = searchQuery === '' || 
-      topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      topic.questions.toLowerCase().includes(searchQuery.toLowerCase());
+// Memoized selector for filtered topics - prevents expensive recalculations
+export const selectFilteredTopics = createSelector(
+  [(state: RootState) => state.library.topics,
+   (state: RootState) => state.library.filters,
+   (state: RootState) => state.library.searchQuery],
+  (topics, filters, searchQuery) => {
+    return topics.filter(topic => {
+      const matchesPart = filters.part === 'all' || topic.part === filters.part;
+      const matchesCompleted = filters.completed === null || topic.completed === filters.completed;
+      const matchesSearch = searchQuery === '' || 
+        topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        topic.questions.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      return matchesPart && matchesCompleted && matchesSearch;
+    });
+  }
+);
+
+// Memoized selector for paginated topics
+export const selectPaginatedTopics = createSelector(
+  [selectFilteredTopics,
+   (state: RootState) => state.library.pagination.currentPage,
+   (state: RootState) => state.library.pagination.itemsPerPage],
+  (filteredTopics, currentPage, itemsPerPage) => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
     
-    return matchesPart && matchesCompleted && matchesSearch;
-  });
-};
+    return filteredTopics.slice(startIndex, endIndex);
+  }
+);
 
-export const selectPaginatedTopics = (state: RootState) => {
-  const filteredTopics = selectFilteredTopics(state);
-  const { currentPage, itemsPerPage } = state.library.pagination;
-  
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  
-  return filteredTopics.slice(startIndex, endIndex);
-};
-
-export const selectPaginationInfo = (state: RootState) => {
-  const filteredTopics = selectFilteredTopics(state);
-  const { currentPage, itemsPerPage } = state.library.pagination;
-  
-  const totalItems = filteredTopics.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const hasNextPage = currentPage < totalPages;
-  const hasPreviousPage = currentPage > 1;
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
-  const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
-  
-  return {
-    currentPage,
-    totalPages,
-    totalItems,
-    itemsPerPage,
-    hasNextPage,
-    hasPreviousPage,
-    startIndex,
-    endIndex
-  };
-};
+// Memoized selector for pagination info
+export const selectPaginationInfo = createSelector(
+  [selectFilteredTopics,
+   (state: RootState) => state.library.pagination.currentPage,
+   (state: RootState) => state.library.pagination.itemsPerPage],
+  (filteredTopics, currentPage, itemsPerPage) => {
+    const totalItems = filteredTopics.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const hasNextPage = currentPage < totalPages;
+    const hasPreviousPage = currentPage > 1;
+    const startIndex = (currentPage - 1) * itemsPerPage + 1;
+    const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
+    
+    return {
+      currentPage,
+      totalPages,
+      totalItems,
+      itemsPerPage,
+      hasNextPage,
+      hasPreviousPage,
+      startIndex,
+      endIndex
+    };
+  }
+);
 
 export default librarySlice.reducer;

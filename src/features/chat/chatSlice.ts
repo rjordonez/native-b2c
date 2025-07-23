@@ -9,6 +9,7 @@ import {
   UpdateConversationPayload 
 } from './types';
 import { SAMPLE_CONVERSATIONS } from './constants/chatData';
+import { transcriptionApi } from '../../services/transcriptionApi';
 
 // Async thunks for API calls (future implementation)
 export const sendMessage = createAsyncThunk(
@@ -55,6 +56,47 @@ export const createConversation = createAsyncThunk(
   }
 );
 
+// Transcription async thunk
+export const transcribeAudio = createAsyncThunk(
+  'chat/transcribeAudio',
+  async ({ messageId, audioData, contentType }: { 
+    messageId: string; 
+    audioData: string; 
+    contentType?: string; 
+  }, { rejectWithValue }) => {
+    try {
+      console.log(`Starting transcription for message ${messageId}`);
+      
+      const result = await transcriptionApi.transcribeBase64Audio(
+        audioData,
+        contentType || 'audio/wav',
+        {
+          speechModel: 'universal',
+          punctuate: true,
+          formatText: true
+        }
+      );
+      
+      return {
+        messageId,
+        transcription: {
+          text: result.text,
+          confidence: result.confidence,
+          transcriptId: result.id,
+          isLoading: false,
+          error: undefined
+        }
+      };
+    } catch (error) {
+      console.error(`Transcription failed for message ${messageId}:`, error);
+      return rejectWithValue({
+        messageId,
+        error: error instanceof Error ? error.message : 'Transcription failed'
+      });
+    }
+  }
+);
+
 const initialState: ChatState = {
   conversations: SAMPLE_CONVERSATIONS,
   activeConversationId: SAMPLE_CONVERSATIONS[0]?.id || null,
@@ -79,13 +121,13 @@ export const chatSlice = createSlice({
     setActiveConversation: (state, action: PayloadAction<string>) => {
       state.activeConversationId = action.payload;
     },
-    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string; audioData?: string }>) => {
-      const { conversationId, content, audioUrl, audioData } = action.payload;
+    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string; audioData?: string; messageId?: string }>) => {
+      const { conversationId, content, audioUrl, audioData, messageId } = action.payload;
       const conversation = state.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
         const userMessage: Message = {
-          id: `msg-${Date.now()}-user`,
+          id: messageId || `msg-${Date.now()}-user`,
           content,
           sender: 'user',
           timestamp: new Date().toISOString(),
@@ -158,6 +200,21 @@ export const chatSlice = createSlice({
     setIsPressed: (state, action: PayloadAction<boolean>) => {
       state.voiceRecording.isPressed = action.payload;
     },
+    // Transcription actions
+    startTranscription: (state, action: PayloadAction<{ messageId: string }>) => {
+      const conversation = state.conversations.find(c => c.id === state.activeConversationId);
+      if (conversation) {
+        const message = conversation.messages.find(m => m.id === action.payload.messageId);
+        if (message) {
+          message.transcription = {
+            text: '',
+            isLoading: true,
+            confidence: 0,
+            error: undefined
+          };
+        }
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -197,6 +254,34 @@ export const chatSlice = createSlice({
       .addCase(createConversation.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      // Transcription
+      .addCase(transcribeAudio.pending, (state, action) => {
+        // Loading state is already set by startTranscription action
+        state.error = null;
+      })
+      .addCase(transcribeAudio.fulfilled, (state, action) => {
+        const conversation = state.conversations.find(c => c.id === state.activeConversationId);
+        if (conversation) {
+          const message = conversation.messages.find(m => m.id === action.payload.messageId);
+          if (message) {
+            message.transcription = action.payload.transcription;
+          }
+        }
+      })
+      .addCase(transcribeAudio.rejected, (state, action) => {
+        const payload = action.payload as { messageId: string; error: string };
+        const conversation = state.conversations.find(c => c.id === state.activeConversationId);
+        if (conversation) {
+          const message = conversation.messages.find(m => m.id === payload.messageId);
+          if (message && message.transcription) {
+            message.transcription = {
+              ...message.transcription,
+              isLoading: false,
+              error: payload.error
+            };
+          }
+        }
       });
   },
 });
@@ -215,6 +300,7 @@ export const {
   clearRecording,
   updateRecordingDuration,
   setIsPressed,
+  startTranscription,
 } = chatSlice.actions;
 
 // Selectors
