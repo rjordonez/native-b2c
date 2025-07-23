@@ -161,9 +161,15 @@ src/
 - Motion for animations
 
 ### Backend
-- Express.js server for API proxy
-- CORS support for cross-origin requests
-- Axios for external API calls
+- **Express.js** with professional API structure
+- **Azure Speech Services** integration for pronunciation analysis
+- **AssemblyAI** integration for speech-to-text transcription
+- **Winston** structured logging system
+- **Helmet.js** security middleware
+- **Rate limiting** and request validation
+- **Multer** for file upload handling
+- **CORS** support for cross-origin requests
+- **Comprehensive error handling** with user-friendly messages
 
 ## Development Commands
 
@@ -174,10 +180,59 @@ src/
 - `npm run preview` - Preview production build
 
 ### Backend
-- `npm run backend` - Start backend server (port 3001)
-- `npm run dev:full` - Start both frontend and backend concurrently
-- Backend provides:
-  - `/proxy` - External API proxy for submissions
+- `npm run dev` - Start backend development server with auto-reload (port 3001)
+- `npm start` - Start backend production server
+- `npm run lint` - Run ESLint validation
+- `npm run lint:fix` - Fix ESLint issues automatically
+- `npm test` - Run backend tests
+- `npm run test:watch` - Run tests in watch mode
+
+### Full Stack Development
+- **Frontend**: Run `npm run dev` in root directory
+- **Backend**: Run `npm run dev` in backend directory
+- **Concurrent**: Use concurrently to run both servers
+
+## Backend API Endpoints
+
+### Pronunciation Analysis
+- **POST** `/api/pronunciation/assess` - Analyze uploaded audio file pronunciation
+  - Body: `multipart/form-data` with `audio` file and `referenceText`
+  - Returns: Pronunciation scores, word-level analysis, and phoneme scores
+- **POST** `/api/pronunciation/assess-base64` - Analyze base64 audio data
+  - Body: `{ audioData, referenceText, contentType }`
+  - Returns: Same pronunciation analysis results
+
+### Speech-to-Text Transcription
+- **POST** `/api/transcription/transcribe` - Transcribe uploaded audio file to text
+  - Body: `multipart/form-data` with `audio` file and optional transcription settings
+  - Returns: Transcribed text, confidence scores, and word timestamps
+- **POST** `/api/transcription/transcribe-url` - Transcribe audio from URL
+  - Body: `{ audioUrl, speechModel, autoDetectLanguage, speakerLabels, ... }`
+  - Returns: Transcription results with metadata
+- **POST** `/api/transcription/transcribe-base64` - Transcribe base64 audio data
+  - Body: `{ audioData, contentType, transcriptionOptions }`
+  - Returns: Transcription results with processing info
+- **GET** `/api/transcription/status/:id` - Get transcription status by ID
+  - Returns: Current status and results if completed
+
+### Proxy Services  
+- **POST** `/api/proxy/submit` - Proxy external API submissions
+  - Body: `{ audio_urls, submission_url }`
+  - Forwards requests to external submission API
+
+### Health & Monitoring
+- **GET** `/health` - General service health check
+- **GET** `/api/pronunciation/health` - Pronunciation service health
+- **GET** `/api/transcription/health` - Transcription service health
+- **GET** `/api/proxy/health` - Proxy service health
+- **GET** `/api/` - API information and available endpoints
+
+### Security Features
+- **Rate Limiting**: 100 requests per 15 minutes per IP
+- **File Upload Limits**: 50MB maximum file size
+- **CORS Protection**: Configurable allowed origins
+- **Request Validation**: Input sanitization and validation
+- **Error Sanitization**: Safe error messages in production
 
 ## File Structure
 ```
@@ -199,19 +254,100 @@ src/
 │   │   └── cn.ts             # Class name utility
 │   └── main.tsx              # Entry point (TypeScript)
 ├── backend/                   # Backend Express server
-│   ├── index.js              # Main server file
-│   ├── package.json          # Backend dependencies
-│   └── node_modules/         # Backend dependencies
-├── .env.example              # Environment variables template
+│   ├── src/                  # Source code
+│   │   ├── app.js           # Express app configuration
+│   │   ├── server.js        # Server entry point
+│   │   ├── config/
+│   │   │   └── config.js    # Configuration management
+│   │   ├── middleware/
+│   │   │   └── errorHandler.js # Global error handling
+│   │   ├── routes/
+│   │   │   ├── index.js     # Route definitions
+│   │   │   ├── pronunciation.js # Pronunciation endpoints
+│   │   │   └── proxy.js     # Proxy endpoints
+│   │   ├── services/
+│   │   │   └── pronunciationService.js # Azure Speech integration
+│   │   └── utils/
+│   │       └── logger.js    # Logging utility
+│   ├── .env                 # Environment variables
+│   ├── .env.example         # Environment template
+│   ├── package.json         # Backend dependencies and scripts
+│   ├── README.md           # Backend documentation
+│   └── node_modules/        # Backend dependencies
+├── .env.example              # Frontend environment template
 └── tsconfig.json             # TypeScript configuration
 ```
 
-## API Endpoints
+## Backend Environment Setup
 
-### Proxy Endpoints  
-- **POST** `/proxy` - Proxy external API submissions
-  - Body: `{ audio_urls, submission_url }`
-  - Forwards requests to external submission API
+### Required Environment Variables
+```bash
+# Copy template and configure
+cp backend/.env.example backend/.env
+
+# Required: Azure Speech Service API key (for pronunciation analysis)
+AZURE_SPEECH_KEY=your_azure_speech_key_here
+AZURE_SPEECH_REGION=eastus
+
+# Required: AssemblyAI API key (for speech-to-text transcription)
+ASSEMBLYAI_API_KEY=your_assemblyai_api_key_here
+
+# Optional: Server configuration
+PORT=3001
+NODE_ENV=development
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+```
+
+### Service Setup
+
+#### Azure Speech Services Setup (for pronunciation analysis)
+1. Create Azure Cognitive Services Speech resource
+2. Copy API key and region from Azure portal
+3. Add to backend/.env file
+4. Test with `/api/pronunciation/health` endpoint
+
+#### AssemblyAI Setup (for speech-to-text transcription)
+1. Sign up for AssemblyAI account at https://www.assemblyai.com/
+2. Copy API key from dashboard
+3. Add `ASSEMBLYAI_API_KEY` to backend/.env file
+4. Test with `/api/transcription/health` endpoint
+
+## Backend Best Practices Implemented
+
+### Architecture & Structure
+- **Separation of Concerns**: Routes, services, middleware, and utilities properly separated
+- **Configuration Management**: Centralized config with environment validation
+- **Professional Project Structure**: Follows Node.js/Express best practices
+- **Modular Design**: Easy to extend with new services and endpoints
+
+### Security & Performance
+- **Security Headers**: Helmet.js protection against common vulnerabilities
+- **Rate Limiting**: 100 requests per 15 minutes to prevent abuse
+- **CORS Protection**: Configurable allowed origins
+- **Input Validation**: Request validation and sanitization
+- **File Upload Security**: Size limits and MIME type validation
+- **Error Sanitization**: Development vs production error messages
+
+### Logging & Monitoring
+- **Structured Logging**: Winston logger with different levels
+- **Request Tracking**: Unique request IDs for tracing
+- **Health Checks**: Service-specific health monitoring
+- **Performance Metrics**: Request timing and processing duration
+- **Error Tracking**: Comprehensive error logging with context
+
+### Development Experience
+- **Hot Reload**: Nodemon for development server auto-restart
+- **Environment Templates**: .env.example for easy setup
+- **NPM Scripts**: Comprehensive script collection for all tasks
+- **Documentation**: Detailed README and API documentation
+- **Code Quality**: ESLint configuration and testing setup
+
+### Error Handling
+- **Global Error Handler**: Centralized error processing
+- **Service-Specific Errors**: Azure Speech API error handling
+- **User-Friendly Messages**: Clear error messages for different scenarios
+- **Graceful Degradation**: Proper fallbacks for service failures
+- **Request Validation**: Input validation with meaningful error responses
 
 ## Database Schema
 

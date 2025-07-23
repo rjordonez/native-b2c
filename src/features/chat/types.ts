@@ -6,6 +6,13 @@ export interface Message {
   isTyping?: boolean;
   audioUrl?: string; // For voice messages (temporary URL)
   audioData?: string; // For voice messages (base64 data for persistence)
+  transcription?: {
+    text: string;
+    isLoading: boolean;
+    confidence?: number;
+    error?: string;
+    transcriptId?: string;
+  };
 }
 
 export interface Conversation {

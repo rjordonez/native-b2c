@@ -6,9 +6,10 @@ import {
   selectAudioUrl,
   selectAudioData,
   selectActiveConversationId,
-  selectRecordingState,
   addUserMessage,
-  sendMessage
+  sendMessage,
+  startTranscription,
+  transcribeAudio
 } from '../../chatSlice';
 
 interface WaveformPlayerProps {
@@ -20,8 +21,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
   const audioUrl = useAppSelector(selectAudioUrl);
   const audioData = useAppSelector(selectAudioData);
   const activeConversationId = useAppSelector(selectActiveConversationId);
-  const recordingState = useAppSelector(selectRecordingState);
-
+  
   const waveformRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
   const isCleaningUpRef = useRef(false);
@@ -140,11 +140,23 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
       return;
     }
 
-    // Add voice message to chat (only use audioData for persistence)
+    // Generate unique message ID for tracking transcription
+    const messageId = `msg-${Date.now()}-user`;
+
+    // Add voice message to chat with the generated ID
     dispatch(addUserMessage({
       conversationId: activeConversationId,
       content: 'Voice message',
-      audioData: audioData || undefined
+      audioData: audioData || undefined,
+      messageId
+    }));
+
+    // Start transcription process immediately
+    dispatch(startTranscription({ messageId }));
+    dispatch(transcribeAudio({
+      messageId,
+      audioData: audioData,
+      contentType: 'audio/webm'
     }));
 
     // Send to AI (simulate)
