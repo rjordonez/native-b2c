@@ -67,6 +67,8 @@ export interface ChatState {
   voiceRecording: VoiceRecordingState;
   topicPractice: TopicPracticeState;
   autoPlayMessageId: string | null; // Message ID that should autoplay once
+  ttsSpeed: number;
+  ttsVoice: string;
 }
 
 export interface SendMessagePayload {

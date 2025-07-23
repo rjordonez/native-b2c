@@ -153,7 +153,7 @@ export const transcribeWithPronunciation = createAsyncThunk(
 // Topic practice async thunk
 export const startTopicPractice = createAsyncThunk(
   'chat/startTopicPractice',
-  async ({ topicName }: { topicName: string }, { rejectWithValue }) => {
+  async ({ topicName }: { topicName: string }, { getState, rejectWithValue }) => {
     try {
       console.log('Starting topic practice for:', topicName);
       
@@ -187,6 +187,11 @@ export const startTopicPractice = createAsyncThunk(
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
       console.log('Making TTS request to:', `${API_BASE_URL}/tts/synthesize`);
       
+      // Get current TTS settings from state
+      const state = getState() as RootState;
+      const ttsSpeed = state.chat.ttsSpeed;
+      const ttsVoice = state.chat.ttsVoice;
+      
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
@@ -195,8 +200,8 @@ export const startTopicPractice = createAsyncThunk(
         body: JSON.stringify({
           text: firstQuestion.text,
           options: {
-            voiceName: 'en-US-Journey-F',
-            speakingRate: 1.0
+            voiceName: ttsVoice,
+            speakingRate: ttsSpeed
           }
         }),
       });
@@ -266,6 +271,11 @@ export const redoTopicQuestion = createAsyncThunk(
       
       // Generate audio for the current question
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      
+      // Get current TTS settings from state
+      const ttsSpeed = state.chat.ttsSpeed;
+      const ttsVoice = state.chat.ttsVoice;
+      
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
@@ -274,8 +284,8 @@ export const redoTopicQuestion = createAsyncThunk(
         body: JSON.stringify({
           text: currentQuestion.text,
           options: {
-            voiceName: 'en-US-Journey-F',
-            speakingRate: 0.9
+            voiceName: ttsVoice,
+            speakingRate: ttsSpeed
           }
         }),
       });
@@ -342,6 +352,11 @@ export const getNextTopicQuestion = createAsyncThunk(
       
       // Generate audio for the next question
       const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      
+      // Get current TTS settings from state
+      const ttsSpeed = state.chat.ttsSpeed;
+      const ttsVoice = state.chat.ttsVoice;
+      
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
@@ -350,8 +365,8 @@ export const getNextTopicQuestion = createAsyncThunk(
         body: JSON.stringify({
           text: nextQuestion.text,
           options: {
-            voiceName: 'en-US-Journey-F',
-            speakingRate: 1.0
+            voiceName: ttsVoice,
+            speakingRate: ttsSpeed
           }
         }),
       });
@@ -454,6 +469,8 @@ const initialState: ChatState = {
     questions: [],
   },
   autoPlayMessageId: null,
+  ttsSpeed: 1.0,
+  ttsVoice: 'en-US-Journey-F',
 };
 
 export const chatSlice = createSlice({
@@ -504,6 +521,12 @@ export const chatSlice = createSlice({
     },
     setTyping: (state, action: PayloadAction<boolean>) => {
       state.isTyping = action.payload;
+    },
+    setTtsSpeed: (state, action: PayloadAction<number>) => {
+      state.ttsSpeed = action.payload;
+    },
+    setTtsVoice: (state, action: PayloadAction<string>) => {
+      state.ttsVoice = action.payload;
     },
     // Voice recording actions
     startRecording: (state) => {
@@ -814,6 +837,8 @@ export const {
   deleteConversation,
   clearError,
   setTyping,
+  setTtsSpeed,
+  setTtsVoice,
   startRecording,
   stopRecording,
   playRecording,
@@ -833,6 +858,8 @@ export const selectActiveConversationId = (state: RootState) => state.chat.activ
 export const selectIsLoading = (state: RootState) => state.chat.isLoading;
 export const selectIsTyping = (state: RootState) => state.chat.isTyping;
 export const selectError = (state: RootState) => state.chat.error;
+export const selectTtsSpeed = (state: RootState) => state.chat.ttsSpeed;
+export const selectTtsVoice = (state: RootState) => state.chat.ttsVoice;
 
 export const selectActiveConversation = (state: RootState) => {
   const { conversations, activeConversationId } = state.chat;
