@@ -6,6 +6,8 @@ interface NavigationState {
   sidebarOpen: boolean;
   sidebarCollapsed: boolean;
   userDropdownOpen: boolean;
+  hoveredItem: string | null;
+  tooltipPosition: { top: number; left: number } | null;
 }
 
 const initialState: NavigationState = {
@@ -13,6 +15,8 @@ const initialState: NavigationState = {
   sidebarOpen: true,
   sidebarCollapsed: false,
   userDropdownOpen: false,
+  hoveredItem: null,
+  tooltipPosition: null,
 };
 
 export const navigationSlice = createSlice({
@@ -40,14 +44,32 @@ export const navigationSlice = createSlice({
     setSidebarCollapsed: (state, action: PayloadAction<boolean>) => {
       state.sidebarCollapsed = action.payload;
     },
+    setHoveredItem: (state, action: PayloadAction<string | null>) => {
+      state.hoveredItem = action.payload;
+    },
+    setTooltipPosition: (state, action: PayloadAction<{ top: number; left: number } | null>) => {
+      state.tooltipPosition = action.payload;
+    },
   },
 });
 
-export const { setCurrentPage, toggleSidebar, setSidebarOpen, setUserDropdownOpen, toggleUserDropdown, toggleSidebarCollapse, setSidebarCollapsed } = navigationSlice.actions;
+export const { 
+  setCurrentPage, 
+  toggleSidebar, 
+  setSidebarOpen, 
+  setUserDropdownOpen, 
+  toggleUserDropdown, 
+  toggleSidebarCollapse, 
+  setSidebarCollapsed,
+  setHoveredItem,
+  setTooltipPosition
+} = navigationSlice.actions;
 
 export const selectCurrentPage = (state: RootState) => state.navigation.currentPage;
 export const selectSidebarOpen = (state: RootState) => state.navigation.sidebarOpen;
 export const selectSidebarCollapsed = (state: RootState) => state.navigation.sidebarCollapsed;
 export const selectUserDropdownOpen = (state: RootState) => state.navigation.userDropdownOpen;
+export const selectHoveredItem = (state: RootState) => state.navigation.hoveredItem;
+export const selectTooltipPosition = (state: RootState) => state.navigation.tooltipPosition;
 
 export default navigationSlice.reducer;
