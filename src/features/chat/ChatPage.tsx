@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import {
   selectActiveConversation,
@@ -18,6 +19,7 @@ import { PronunciationModal } from '../pronunciation/components/PronunciationMod
 
 const ChatPage: React.FC = () => {
   const dispatch = useAppDispatch();
+  const location = useLocation();
   const activeConversation = useAppSelector(selectActiveConversation);
   const isLoading = useAppSelector(selectIsLoading);
   const isTyping = useAppSelector(selectIsTyping);
@@ -34,6 +36,18 @@ const ChatPage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [error, dispatch]);
+
+  // Handle navigation from library with topic practice
+  useEffect(() => {
+    const state = location.state as { startPractice?: string } | null;
+    if (state?.startPractice) {
+      console.log('Starting practice from navigation state:', state.startPractice);
+      dispatch(startTopicPractice({ topicName: state.startPractice }));
+      
+      // Clear the navigation state to prevent re-triggering
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, dispatch]);
 
   const handleCreateConversation = () => {
     dispatch(createConversation({ title: 'New Conversation' }));
@@ -56,7 +70,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
-      {activeConversation ? (
+      {activeConversation || (location.state as any)?.startPractice ? (
         <>
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">

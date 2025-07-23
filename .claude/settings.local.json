@@ -14,7 +14,8 @@
       "Bash(ls:*)",
       "Bash(npm uninstall:*)",
       "Bash(npm run dev:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(npm run lint)"
     ],
     "deny": []
   }
