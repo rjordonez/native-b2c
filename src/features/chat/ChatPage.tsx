@@ -1,18 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import {
   selectActiveConversation,
   selectIsLoading,
   selectIsTyping,
   selectError,
-  addUserMessage,
-  sendMessage,
   createConversation,
   clearError
 } from './chatSlice';
 import {
   ChatMessages,
-  MessageInput,
+  VoiceRecorder,
   EmptyState
 } from './components';
 
@@ -23,8 +21,6 @@ const ChatPage: React.FC = () => {
   const isTyping = useAppSelector(selectIsTyping);
   const error = useAppSelector(selectError);
 
-  const [message, setMessage] = useState('');
-
   // Clear errors after 5 seconds
   useEffect(() => {
     if (error) {
@@ -34,32 +30,6 @@ const ChatPage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [error, dispatch]);
-
-  const handleSendMessage = async () => {
-    if (!message.trim() || !activeConversation || isLoading) return;
-
-    const content = message.trim();
-    setMessage('');
-
-    // Add user message immediately
-    dispatch(addUserMessage({ 
-      conversationId: activeConversation.id, 
-      content 
-    }));
-
-    // Send to AI
-    dispatch(sendMessage({ 
-      conversationId: activeConversation.id, 
-      content 
-    }));
-  };
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSendMessage();
-    }
-  };
 
   const handleCreateConversation = () => {
     dispatch(createConversation({ title: 'New Conversation' }));
@@ -103,13 +73,9 @@ const ChatPage: React.FC = () => {
             formatTimestamp={formatTimestamp}
           />
 
-          <MessageInput
-            message={message}
-            isLoading={isLoading}
-            onMessageChange={setMessage}
-            onSendMessage={handleSendMessage}
-            onKeyPress={handleKeyPress}
-          />
+          <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0 flex justify-center">
+            <VoiceRecorder />
+          </div>
         </>
       ) : (
         <EmptyState

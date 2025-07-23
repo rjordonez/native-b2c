@@ -10,7 +10,9 @@
       "Bash(npm run build:*)",
       "Bash(curl:*)",
       "Bash(grep:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(npm uninstall:*)"
     ],
     "deny": []
   }
