@@ -69,6 +69,7 @@ export interface ChatState {
   autoPlayMessageId: string | null; // Message ID that should autoplay once
   ttsSpeed: number;
   ttsVoice: string;
+  currentlyPlayingMessageId: string | null; // Track which message is currently playing
 }
 
 export interface SendMessagePayload {

@@ -65,7 +65,8 @@ router.post('/synthesize', ttsLimit, [
       requestId,
       textLength: text.length,
       languageCode: languageCode || 'en-US',
-      voiceName: voiceName || 'en-US-Journey-F'
+      voiceName: voiceName || 'en-US-Journey-F',
+      speakingRate: speakingRate || 1.0
     });
 
     // Convert text to speech
