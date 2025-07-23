@@ -87,7 +87,7 @@ const TopicList: React.FC = () => {
       <div className="bg-white rounded-xl border border-gray-200 p-4">
         <div 
           ref={containerRef}
-          className="overflow-y-auto overflow-x-hidden space-y-1"
+          className="overflow-y-auto overflow-x-hidden"
           style={{
             height: fixedHeight !== null ? `${fixedHeight}px` : '480px',
             transition: fixedHeight !== null ? 'height 0.3s ease-out' : 'none'
