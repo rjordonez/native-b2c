@@ -5,15 +5,17 @@ import settingsReducer from '../features/settings/settingsSlice';
 import libraryReducer from '../features/library/librarySlice';
 import chatReducer from '../features/chat/chatSlice';
 import authReducer from '../features/auth/authSlice';
+import pronunciationReducer from '../features/pronunciation/pronunciationSlice';
 
 const store = configureStore({
   reducer: {
     navigation: navigationReducer,
     dashboard: dashboardReducer,
-  settings: settingsReducer,
+    settings: settingsReducer,
     library: libraryReducer,
     chat: chatReducer,
     auth: authReducer,
+    pronunciation: pronunciationReducer,
   },
 });
 

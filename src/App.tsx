@@ -10,6 +10,7 @@ import ChatPage from './features/chat/ChatPage';
 import SettingsPage from './features/settings/SettingsPage';
 import AuthPage from './features/auth/AuthPage';
 import OnboardingPage from './features/auth/components/OnboardingPage';
+import { PronunciationPage } from './features/pronunciation/PronunciationPage';
 import './styles/App.css';
 import BlockSpinner from './shared/components/layout/BlockSpinner';
 
@@ -39,6 +40,7 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route path="/" element={<LibraryPage />} />
         <Route path="/chat" element={<ChatPage />} />
+        <Route path="/pronunciation" element={<PronunciationPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

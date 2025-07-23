@@ -214,10 +214,9 @@ class PronunciationService {
         
         logger.debug(`Processing word ${index + 1}: ${word} (score: ${score}, error: ${errorType})`);
         
-        // Skip omitted words
+        // Include omitted words with 0 score
         if (errorType === 'Omission' && score === 0) {
-          logger.debug(`Skipping omitted word: ${word}`);
-          return;
+          logger.debug(`Including omitted word: ${word} with score 0`);
         }
         
         // Process phonemes
@@ -236,7 +235,9 @@ class PronunciationService {
           word,
           score,
           phonemes,
-          errorType
+          errorType,
+          offset: wordData.Offset,
+          duration: wordData.Duration
         });
         
         // Mark as weak word if score is below threshold
