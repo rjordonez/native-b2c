@@ -23,6 +23,10 @@ export interface VoiceRecordingState {
   audioData: string | null; // Base64 data for persistence
   recordingDuration: number;
   recordingState: 'idle' | 'recording' | 'recorded' | 'playing';
+  isPressed: boolean;
+  isWaveformPlaying: boolean;
+  currentTime: number;
+  totalDuration: number;
 }
 
 export interface ChatState {

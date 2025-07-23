@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { X, ArrowRight, Play, Pause } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
@@ -8,12 +8,20 @@ import {
   selectAudioData,
   selectRecordingDuration,
   selectActiveConversationId,
+  selectIsPressed,
+  selectIsWaveformPlaying,
+  selectCurrentTime,
+  selectTotalDuration,
   startRecording,
   stopRecording,
   playRecording,
   pauseRecording,
   clearRecording,
   updateRecordingDuration,
+  setIsPressed,
+  setIsWaveformPlaying,
+  setCurrentTime,
+  setTotalDuration,
   addUserMessage,
   sendMessage
 } from '../chatSlice';
@@ -25,16 +33,16 @@ const VoiceRecorder: React.FC = () => {
   const audioData = useAppSelector(selectAudioData);
   const recordingDuration = useAppSelector(selectRecordingDuration);
   const activeConversationId = useAppSelector(selectActiveConversationId);
+  const isPressed = useAppSelector(selectIsPressed);
+  const isWaveformPlaying = useAppSelector(selectIsWaveformPlaying);
+  const currentTime = useAppSelector(selectCurrentTime);
+  const totalDuration = useAppSelector(selectTotalDuration);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const waveformRef = useRef<HTMLDivElement | null>(null);
   const wavesurferRef = useRef<WaveSurfer | null>(null);
-  const [isPressed, setIsPressed] = useState(false);
-  const [isWaveformPlaying, setIsWaveformPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [totalDuration, setTotalDuration] = useState(0);
 
   // Format duration for display
   const formatDuration = (seconds: number) => {
@@ -90,7 +98,7 @@ const VoiceRecorder: React.FC = () => {
   const handleMouseDown = async () => {
     if (recordingState !== 'idle') return;
     
-    setIsPressed(true);
+    dispatch(setIsPressed(true));
     const success = await initializeRecorder();
     
     if (success && mediaRecorderRef.current) {
@@ -110,7 +118,7 @@ const VoiceRecorder: React.FC = () => {
   const handleMouseUp = () => {
     if (recordingState !== 'recording') return;
     
-    setIsPressed(false);
+    dispatch(setIsPressed(false));
     
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
@@ -177,29 +185,29 @@ const VoiceRecorder: React.FC = () => {
 
       // Handle play/pause events
       wavesurfer.on('play', () => {
-        setIsWaveformPlaying(true);
+        dispatch(setIsWaveformPlaying(true));
         dispatch(playRecording());
       });
 
       wavesurfer.on('pause', () => {
-        setIsWaveformPlaying(false);
+        dispatch(setIsWaveformPlaying(false));
         dispatch(pauseRecording());
       });
 
       wavesurfer.on('finish', () => {
-        setIsWaveformPlaying(false);
+        dispatch(setIsWaveformPlaying(false));
         dispatch(pauseRecording());
-        setCurrentTime(0);
+        dispatch(setCurrentTime(0));
       });
 
       // Track current time during playback
       wavesurfer.on('timeupdate', (time) => {
-        setCurrentTime(time);
+        dispatch(setCurrentTime(time));
       });
 
       // Get total duration when ready
       wavesurfer.on('ready', () => {
-        setTotalDuration(wavesurfer.getDuration());
+        dispatch(setTotalDuration(wavesurfer.getDuration()));
       });
     }
 
@@ -227,9 +235,6 @@ const VoiceRecorder: React.FC = () => {
       wavesurferRef.current.destroy();
       wavesurferRef.current = null;
     }
-    setIsWaveformPlaying(false);
-    setCurrentTime(0);
-    setTotalDuration(0);
     dispatch(clearRecording());
   };
 
@@ -259,9 +264,6 @@ const VoiceRecorder: React.FC = () => {
       wavesurferRef.current.destroy();
       wavesurferRef.current = null;
     }
-    setIsWaveformPlaying(false);
-    setCurrentTime(0);
-    setTotalDuration(0);
     dispatch(clearRecording());
   };
 

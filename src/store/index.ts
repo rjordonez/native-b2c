@@ -10,7 +10,7 @@ const store = configureStore({
   reducer: {
     navigation: navigationReducer,
     dashboard: dashboardReducer,
-    settings: settingsReducer,
+  settings: settingsReducer,
     library: libraryReducer,
     chat: chatReducer,
     auth: authReducer,
