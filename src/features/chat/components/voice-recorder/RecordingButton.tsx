@@ -28,10 +28,11 @@ const RecordingButton: React.FC<RecordingButtonProps> = ({
           isPressed ? 'bg-gray-100' : 'hover:bg-gray-50'
         }`}
       >
-        <span className="inline-block px-2 py-1 mr-2 text-xs font-semibold uppercase bg-gray-100 border border-gray-400 rounded">
+        <span className="text-sm text-gray-600">Hold </span>
+        <span className="inline-block px-2 py-1 mx-1 text-xs font-semibold uppercase bg-gray-100 border border-gray-400 rounded">
           SPACE
         </span>
-        <span className="text-sm text-gray-600">Press and hold to talk</span>
+        <span className="text-sm text-gray-600"> to record</span>
       </button>
     </div>
   );

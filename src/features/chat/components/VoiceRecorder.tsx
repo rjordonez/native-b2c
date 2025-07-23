@@ -10,7 +10,7 @@ import {
   updateRecordingDuration,
   setIsPressed
 } from '../chatSlice';
-import { RecordingButton, RecordingIndicator, WaveformPlayer } from './voice-recorder';
+import { RecordingButton, RecordingIndicator, WaveformPlayer, ActionButtons } from './voice-recorder';
 import ToolsDropdown from './voice-recorder/ToolsDropdown';
 
 const VoiceRecorder: React.FC = () => {
@@ -180,7 +180,10 @@ const VoiceRecorder: React.FC = () => {
   if (recordingState === 'idle') {
     return (
       <div className="flex flex-col items-center gap-4">
-        <ToolsDropdown />
+        <div className="flex items-center gap-3">
+          <ToolsDropdown />
+          <ActionButtons />
+        </div>
         <RecordingButton
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
@@ -196,7 +199,10 @@ const VoiceRecorder: React.FC = () => {
   if (recordingState === 'recorded' || recordingState === 'playing') {
     return (
       <div className="flex flex-col items-center gap-4">
-        <ToolsDropdown />
+        <div className="flex items-center gap-3">
+          <ToolsDropdown />
+          <ActionButtons />
+        </div>
         <WaveformPlayer onClear={handleClear} />
       </div>
     );

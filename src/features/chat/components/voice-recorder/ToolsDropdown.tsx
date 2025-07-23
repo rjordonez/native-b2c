@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sliders, Sparkle, ArrowCounterClockwise, TextAa, ArrowRight } from 'phosphor-react';
+import { Sliders, Sparkle, TextAa } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { getNextTopicQuestion, selectActiveConversation } from '../../chatSlice';
+import { selectActiveConversation } from '../../chatSlice';
 
 interface ToolsDropdownProps {}
 
@@ -32,12 +32,6 @@ const ToolsDropdown: React.FC<ToolsDropdownProps> = () => {
     setIsOpen(false);
     
     switch (action) {
-      case 'next-question':
-        dispatch(getNextTopicQuestion({}));
-        break;
-      case 'redo':
-        // TODO: Implement redo functionality
-        break;
       case 'enhance':
         // TODO: Implement enhance functionality
         break;
@@ -51,9 +45,7 @@ const ToolsDropdown: React.FC<ToolsDropdownProps> = () => {
 
   const menuItems = [
     { id: 'enhance', label: 'Enhance', icon: Sparkle },
-    { id: 'redo', label: 'Redo', icon: ArrowCounterClockwise },
     { id: 'shadow-sentence', label: 'Shadow Sentence', icon: TextAa },
-    { id: 'next-question', label: 'Next Question', icon: ArrowRight },
   ];
 
   return (
