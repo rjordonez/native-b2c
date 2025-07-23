@@ -24,8 +24,12 @@ export type ModalState =
   | { type: 'word'; sentenceIndex: number; wordIndex: number; incorrectWords: Word[]; timerActive: boolean; showResults: boolean; currentScore?: number; isReady: boolean }
   | { type: 'complete' };
 
-// Redux state - minimal
+// Redux state - complete
 export interface PronunciationState {
   isOpen: boolean;
   sentences: Sentence[];
+  modalState: ModalState;
+  isProcessing: boolean;
+  error: string | null;
+  audioCache: Record<string | number, string>;
 }

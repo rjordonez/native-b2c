@@ -10,8 +10,8 @@ interface UseCountdownTimerProps {
 export const useCountdownTimer = ({ duration, onComplete, enabled, onStart }: UseCountdownTimerProps) => {
   const [progress, setProgress] = useState(100);
   const [isVisible, setIsVisible] = useState(true);
-  const intervalRef = useRef<NodeJS.Timeout>();
-  const startTimeRef = useRef<number>();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const startTimeRef = useRef<number | undefined>(undefined);
   const onStartCalledRef = useRef(false);
 
   const reset = useCallback(() => {
@@ -21,7 +21,7 @@ export const useCountdownTimer = ({ duration, onComplete, enabled, onStart }: Us
     onStartCalledRef.current = false;
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
-      intervalRef.current = undefined;
+      intervalRef.current = null;
     }
   }, []);
 
@@ -46,8 +46,8 @@ export const useCountdownTimer = ({ duration, onComplete, enabled, onStart }: Us
       setProgress(newProgress);
       
       if (newProgress === 0) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = undefined;
+        clearInterval(intervalRef.current!);
+        intervalRef.current = null;
         setIsVisible(false); // Hide the progress bar
         onComplete();
       }
@@ -56,7 +56,7 @@ export const useCountdownTimer = ({ duration, onComplete, enabled, onStart }: Us
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
-        intervalRef.current = undefined;
+        intervalRef.current = null;
       }
     };
   }, [enabled, duration, onComplete, onStart]);

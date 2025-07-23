@@ -1,6 +1,7 @@
 import React from 'react';
 import { Word } from '../types';
 import { cn } from '../../../utils/cn';
+import { SCORING_THRESHOLDS, PHONEME_COLORS } from '../constants';
 
 interface PhonemeWordProps {
   word: Word;
@@ -9,11 +10,11 @@ interface PhonemeWordProps {
 }
 
 // Helper function to get color based on phoneme score
-const getPhonemeColor = (score: number) => {
-  if (score >= 80) return 'text-green-600';
-  if (score >= 60) return 'text-yellow-500';
-  if (score >= 40) return 'text-orange-500';
-  return 'text-red-500';
+const getPhonemeColor = (score: number): string => {
+  if (score >= SCORING_THRESHOLDS.GOOD_SCORE) return PHONEME_COLORS.EXCELLENT;
+  if (score >= SCORING_THRESHOLDS.FAIR_SCORE) return PHONEME_COLORS.GOOD;
+  if (score >= SCORING_THRESHOLDS.POOR_SCORE) return PHONEME_COLORS.FAIR;
+  return PHONEME_COLORS.POOR;
 };
 
 // Helper function to estimate character positions for phonemes
@@ -70,10 +71,10 @@ export const PhonemeWord: React.FC<PhonemeWordProps> = ({
     );
   }
 
-  // If score >= 80, show green (no phoneme breakdown)
-  if (word.score >= 80) {
+  // If score >= passing threshold, show green (no phoneme breakdown)
+  if (word.score >= SCORING_THRESHOLDS.PASSING_SCORE) {
     return (
-      <span className={cn(className, 'transition-all duration-500 text-green-600')}>
+      <span className={cn(className, `transition-all duration-500 ${PHONEME_COLORS.EXCELLENT}`)}>
         {word.text}
       </span>
     );
