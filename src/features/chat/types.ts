@@ -67,6 +67,7 @@ export interface ChatState {
   voiceRecording: VoiceRecordingState;
   topicPractice: TopicPracticeState;
   ttsSpeed: number;
+  ttsVoice: string;
 }
 
 export interface SendMessagePayload {
