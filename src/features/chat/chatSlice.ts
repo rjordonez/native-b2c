@@ -192,6 +192,8 @@ export const startTopicPractice = createAsyncThunk(
       const ttsSpeed = state.chat.ttsSpeed;
       const ttsVoice = state.chat.ttsVoice;
       
+      console.log('Using TTS settings - Voice:', ttsVoice, 'Speed:', ttsSpeed);
+      
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
@@ -199,10 +201,8 @@ export const startTopicPractice = createAsyncThunk(
         },
         body: JSON.stringify({
           text: firstQuestion.text,
-          options: {
-            voiceName: ttsVoice,
-            speakingRate: ttsSpeed
-          }
+          voiceName: ttsVoice,
+          speakingRate: ttsSpeed
         }),
       });
 
@@ -276,6 +276,8 @@ export const redoTopicQuestion = createAsyncThunk(
       const ttsSpeed = state.chat.ttsSpeed;
       const ttsVoice = state.chat.ttsVoice;
       
+      console.log('Using TTS settings for redo - Voice:', ttsVoice, 'Speed:', ttsSpeed);
+      
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
@@ -283,10 +285,8 @@ export const redoTopicQuestion = createAsyncThunk(
         },
         body: JSON.stringify({
           text: currentQuestion.text,
-          options: {
-            voiceName: ttsVoice,
-            speakingRate: ttsSpeed
-          }
+          voiceName: ttsVoice,
+          speakingRate: ttsSpeed
         }),
       });
 
@@ -357,6 +357,8 @@ export const getNextTopicQuestion = createAsyncThunk(
       const ttsSpeed = state.chat.ttsSpeed;
       const ttsVoice = state.chat.ttsVoice;
       
+      console.log('Using TTS settings for next question - Voice:', ttsVoice, 'Speed:', ttsSpeed);
+      
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
@@ -364,10 +366,8 @@ export const getNextTopicQuestion = createAsyncThunk(
         },
         body: JSON.stringify({
           text: nextQuestion.text,
-          options: {
-            voiceName: ttsVoice,
-            speakingRate: ttsSpeed
-          }
+          voiceName: ttsVoice,
+          speakingRate: ttsSpeed
         }),
       });
 
@@ -471,6 +471,7 @@ const initialState: ChatState = {
   autoPlayMessageId: null,
   ttsSpeed: 1.0,
   ttsVoice: 'en-US-Journey-F',
+  currentlyPlayingMessageId: null,
 };
 
 export const chatSlice = createSlice({
@@ -609,6 +610,9 @@ export const chatSlice = createSlice({
     },
     clearAutoPlayMessageId: (state) => {
       state.autoPlayMessageId = null;
+    },
+    setCurrentlyPlayingMessageId: (state, action: PayloadAction<string | null>) => {
+      state.currentlyPlayingMessageId = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -846,6 +850,7 @@ export const {
   clearRecording,
   updateRecordingDuration,
   clearAutoPlayMessageId,
+  setCurrentlyPlayingMessageId,
   setIsPressed,
   startTranscription,
   nextTopicQuestion,
@@ -880,5 +885,6 @@ export const selectRecordingDuration = (state: RootState) => state.chat.voiceRec
 export const selectIsPressed = (state: RootState) => state.chat.voiceRecording.isPressed;
 export const selectMimeType = (state: RootState) => state.chat.voiceRecording.mimeType;
 export const selectAutoPlayMessageId = (state: RootState) => state.chat.autoPlayMessageId;
+export const selectCurrentlyPlayingMessageId = (state: RootState) => state.chat.currentlyPlayingMessageId;
 
 export default chatSlice.reducer;

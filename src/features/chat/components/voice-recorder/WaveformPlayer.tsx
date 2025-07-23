@@ -33,7 +33,6 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const [, forceUpdate] = useState({});
-  const [playbackRate, setPlaybackRate] = useState(1.0);
 
   // Format duration for display
   const formatDuration = (seconds: number) => {
@@ -112,13 +111,6 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
     wavesurferRef.current.playPause();
   };
 
-  // Handle playback rate change
-  const handlePlaybackRateChange = (rate: number) => {
-    setPlaybackRate(rate);
-    if (wavesurferRef.current) {
-      wavesurferRef.current.setPlaybackRate(rate);
-    }
-  };
 
   // Clear recording and reset
   const handleClear = () => {
@@ -230,19 +222,6 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
       <span className="text-xs text-gray-500 mx-2">
         {formatDuration(currentTime)} / {formatDuration(totalDuration)}
       </span>
-
-      {/* Playback Speed */}
-      <select
-        value={playbackRate}
-        onChange={(e) => handlePlaybackRateChange(parseFloat(e.target.value))}
-        className="text-xs px-1 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-300 focus:outline-none"
-      >
-        <option value="0.5">0.5x</option>
-        <option value="0.75">0.75x</option>
-        <option value="1">1x</option>
-        <option value="1.25">1.25x</option>
-        <option value="1.5">1.5x</option>
-      </select>
 
       {/* Action buttons */}
       <div className="flex items-center gap-2">
