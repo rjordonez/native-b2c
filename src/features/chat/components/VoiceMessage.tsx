@@ -56,6 +56,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
+  const [playbackRate, setPlaybackRate] = useState(1.0);
 
   // Format duration for display
   const formatDuration = (seconds: number) => {
@@ -193,6 +194,14 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
     wavesurferRef.current.playPause();
   };
 
+  // Handle playback rate change
+  const handlePlaybackRateChange = (rate: number) => {
+    setPlaybackRate(rate);
+    if (wavesurferRef.current) {
+      wavesurferRef.current.setPlaybackRate(rate);
+    }
+  };
+
   return (
     <div className={`flex items-start gap-3 ${sender === 'user' ? 'justify-end' : 'justify-start'}`}>
       <div className={`flex flex-col max-w-xs lg:max-w-md ${sender === 'user' ? 'items-end' : 'items-start'}`}>
@@ -233,6 +242,23 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
             <span className={`text-xs ${sender === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
               {formatDuration(currentTime)} / {formatDuration(totalDuration)}
             </span>
+
+            {/* Playback Speed */}
+            <select
+              value={playbackRate}
+              onChange={(e) => handlePlaybackRateChange(parseFloat(e.target.value))}
+              className={`text-xs px-1 py-0.5 rounded ${
+                sender === 'user'
+                  ? 'bg-blue-400 text-white border-blue-300'
+                  : 'bg-gray-200 text-gray-700 border-gray-300'
+              } border focus:outline-none`}
+            >
+              <option value="0.5">0.5x</option>
+              <option value="0.75">0.75x</option>
+              <option value="1">1x</option>
+              <option value="1.25">1.25x</option>
+              <option value="1.5">1.5x</option>
+            </select>
           </div>
         </div>
 

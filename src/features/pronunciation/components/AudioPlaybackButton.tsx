@@ -7,13 +7,15 @@ interface AudioPlaybackButtonProps {
   startTime?: number;
   endTime?: number;
   label?: string;
+  playbackRate?: number;
 }
 
 export const AudioPlaybackButton: React.FC<AudioPlaybackButtonProps> = ({
   audioUrl,
   startTime,
   endTime,
-  label = 'You'
+  label = 'You',
+  playbackRate = 0.75
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -23,7 +25,7 @@ export const AudioPlaybackButton: React.FC<AudioPlaybackButtonProps> = ({
 
     if (!audioRef.current) {
       audioRef.current = new Audio(audioUrl);
-      audioRef.current.playbackRate = 0.75; // Slow down playback to 0.75x
+      audioRef.current.playbackRate = playbackRate; // Use configurable playback rate
       
       audioRef.current.addEventListener('ended', () => {
         setIsPlaying(false);
