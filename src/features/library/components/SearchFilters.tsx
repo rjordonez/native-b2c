@@ -46,19 +46,6 @@ const SearchFilters: React.FC = () => {
               <option value="part3">Part 3</option>
             </select>
 
-            <select
-              value={filters.completed === null ? 'all' : filters.completed ? 'completed' : 'incomplete'}
-              onChange={(e) => {
-                const value = e.target.value === 'all' ? null : e.target.value === 'completed';
-                dispatch(updateFilters({ completed: value }));
-              }}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm"
-              aria-label="Filter by completion status"
-            >
-              <option value="all">Status</option>
-              <option value="completed">Completed</option>
-              <option value="incomplete">Incomplete</option>
-            </select>
 
             <Button variant="secondary" size="sm" onClick={() => dispatch(resetFilters())}>
               Clear
