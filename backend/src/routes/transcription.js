@@ -1,8 +1,10 @@
 const express = require('express');
 const multer = require('multer');
 const TranscriptionService = require('../services/transcriptionService');
+const PronunciationService = require('../services/pronunciationService');
 const logger = require('../utils/logger');
 const config = require('../config/config');
+
 
 const router = express.Router();
 
@@ -28,8 +30,185 @@ const upload = multer({
   }
 });
 
-// Initialize transcription service
+// Initialize services
 const transcriptionService = new TranscriptionService();
+const pronunciationService = new PronunciationService();
+
+/**
+ * POST /api/transcription/transcribe-with-pronunciation
+ * Transcribe and analyze pronunciation for chat messages
+ */
+router.post('/transcribe-with-pronunciation', upload.single('audio'), async (req, res, next) => {
+  const requestId = Math.random().toString(36).substring(7);
+  
+  logger.info(`[${requestId}] Combined transcription + pronunciation request received`);
+  
+  try {
+    // Validate request
+    if (!req.file) {
+      logger.warn(`[${requestId}] No audio file provided`);
+      return res.status(400).json({
+        success: false,
+        error: 'Audio file is required'
+      });
+    }
+    
+    const audioBuffer = req.file.buffer;
+    const contentType = req.file.mimetype;
+    
+    // Parse transcription options from request body
+    const transcriptionOptions = {
+      speechModel: req.body.speechModel || 'universal',
+      autoDetectLanguage: req.body.autoDetectLanguage === 'true',
+      punctuate: req.body.punctuate !== 'false', // Default true
+      formatText: req.body.formatText !== 'false', // Default true
+      speakerLabels: req.body.speakerLabels === 'true',
+      autoChapters: req.body.autoChapters === 'true',
+      sentimentAnalysis: req.body.sentimentAnalysis === 'true',
+      entityDetection: req.body.entityDetection === 'true',
+      dualChannel: req.body.dualChannel === 'true'
+    };
+    
+    logger.info(`[${requestId}] Processing combined request:`, {
+      audioSize: audioBuffer.length,
+      contentType,
+      fileName: req.file.originalname,
+      transcriptionOptions
+    });
+    
+    // Step 1: Upload audio to AssemblyAI and transcribe (this works perfectly)
+    const startTime = Date.now();
+    const audioUrl = await transcriptionService.uploadAudio(audioBuffer);
+    const uploadTime = Date.now() - startTime;
+    
+    logger.info(`[${requestId}] Audio uploaded in ${uploadTime}ms, starting transcription...`);
+    
+    const transcriptionStartTime = Date.now();
+    const transcriptionResult = await transcriptionService.transcribeAudio(audioUrl, transcriptionOptions);
+    const transcriptionTime = Date.now() - transcriptionStartTime;
+    
+    logger.info(`[${requestId}] Transcription completed in ${transcriptionTime}ms, starting pronunciation analysis...`);
+    
+    // Step 2: Run pronunciation analysis using the transcribed text
+    let pronunciationResult = null;
+    let pronunciationError = null;
+    
+    if (transcriptionResult.text && transcriptionResult.text.trim().length > 0) {
+      try {
+        const pronunciationStartTime = Date.now();
+        const referenceText = transcriptionResult.text.trim();
+        
+        logger.info(`[${requestId}] Using reference text for pronunciation: "${referenceText}"`);
+        
+        // Only proceed if we actually converted to WAV format
+        const azureContentType = contentType === 'audio/wav' ? 'audio/wav' : null;
+        
+        if (azureContentType) {
+          logger.info(`[${requestId}] Audio format is WAV, proceeding with Azure pronunciation assessment`);
+          
+          const rawPronunciationResult = await pronunciationService.assessPronunciation(
+            audioBuffer, 
+            referenceText, 
+            azureContentType
+          );
+          const pronunciationTime = Date.now() - pronunciationStartTime;
+          
+          // Transform the pronunciation result to match chat message format
+          pronunciationResult = {
+            words: rawPronunciationResult.wordScores.map(wordScore => ({
+              text: wordScore.word,
+              score: wordScore.score,
+              phonemes: wordScore.phonemes || []
+            })),
+            overallScore: rawPronunciationResult.overallScore || 0,
+            accuracy: rawPronunciationResult.overallScore || 0,
+            fluency: rawPronunciationResult.overallScore || 0,
+            completeness: rawPronunciationResult.overallScore || 0,
+            isLoading: false,
+            azureRawResponse: rawPronunciationResult
+          };
+          
+          logger.info(`[${requestId}] Pronunciation analysis completed in ${pronunciationTime}ms`);
+        } else {
+          logger.warn(`[${requestId}] Audio format is not WAV (${contentType}), skipping pronunciation assessment`);
+          pronunciationResult = {
+            words: [],
+            overallScore: 0,
+            accuracy: 0,
+            fluency: 0,
+            completeness: 0,
+            isLoading: false,
+            error: 'Pronunciation assessment requires WAV format'
+          };
+        }
+      } catch (error) {
+        logger.error(`[${requestId}] Pronunciation analysis failed:`, {
+          error: error.message,
+          stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        });
+        
+        pronunciationError = error.message;
+        pronunciationResult = {
+          words: [],
+          overallScore: 0,
+          accuracy: 0,
+          fluency: 0,
+          completeness: 0,
+          isLoading: false,
+          error: pronunciationError
+        };
+      }
+    } else {
+      logger.warn(`[${requestId}] No transcribed text available for pronunciation analysis`);
+      pronunciationResult = {
+        words: [],
+        overallScore: 0,
+        accuracy: 0,
+        fluency: 0,
+        completeness: 0,
+        isLoading: false,
+        error: 'No transcribed text available'
+      };
+    }
+    
+    const totalProcessingTime = Date.now() - startTime;
+    
+    logger.info(`[${requestId}] Combined processing completed in ${totalProcessingTime}ms`);
+    
+    // Return combined results
+    res.json({
+      success: true,
+      data: {
+        transcription: {
+          ...transcriptionResult,
+          isLoading: false
+        },
+        pronunciation: pronunciationResult,
+        metadata: {
+          requestId,
+          totalProcessingTimeMs: totalProcessingTime,
+          uploadTimeMs: uploadTime,
+          transcriptionTimeMs: transcriptionTime,
+          audioInfo: {
+            size: audioBuffer.length,
+            type: contentType,
+            filename: req.file?.originalname || 'audio'
+          },
+          transcriptionOptions,
+          pronunciationError
+        }
+      }
+    });
+    
+  } catch (error) {
+    logger.error(`[${requestId}] Combined transcription + pronunciation failed:`, {
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+    
+    next(error);
+  }
+});
 
 /**
  * POST /api/transcription/transcribe

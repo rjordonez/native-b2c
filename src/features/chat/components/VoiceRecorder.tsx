@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { audioBufferToWav } from '../../../utils/audioUtils';
 import {
   selectRecordingState,
   selectRecordingDuration,
@@ -25,6 +26,8 @@ const VoiceRecorder: React.FC = () => {
   const initializeRecorder = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // Record as WebM (will convert to WAV for pronunciation)
       const mediaRecorder = new MediaRecorder(stream);
       
       mediaRecorderRef.current = mediaRecorder;
@@ -37,21 +40,55 @@ const VoiceRecorder: React.FC = () => {
       };
 
       mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        const audioUrl = URL.createObjectURL(audioBlob);
+        const webmBlob = new Blob(chunksRef.current, { type: 'audio/webm' });
         
-        // Convert blob to base64 for persistent storage
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64Data = reader.result as string;
+        try {
+          // Convert WebM to WAV for Azure pronunciation assessment
+          const arrayBuffer = await webmBlob.arrayBuffer();
           
-          dispatch(stopRecording({
-            audioUrl,
-            audioData: base64Data, // Store base64 data for persistence
-            duration: recordingDuration
-          }));
-        };
-        reader.readAsDataURL(audioBlob);
+          // Create audio context for conversion
+          const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+          const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+          const wavBlob = await audioBufferToWav(audioBuffer);
+          
+          // Create audio URL for playback (use original WebM for better browser compatibility)
+          const audioUrl = URL.createObjectURL(webmBlob);
+          
+          // Convert WAV blob to base64 for API
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64Data = reader.result as string;
+            
+            dispatch(stopRecording({
+              audioUrl,
+              audioData: base64Data, // WAV base64 data for API
+              duration: recordingDuration,
+              mimeType: 'audio/wav' // Now it's actually WAV
+            }));
+          };
+          reader.readAsDataURL(wavBlob);
+          
+          // Clean up audio context
+          audioContext.close();
+          
+        } catch (conversionError) {
+          console.error('WAV conversion failed, falling back to WebM:', conversionError);
+          // Fallback to WebM if conversion fails
+          const audioUrl = URL.createObjectURL(webmBlob);
+          
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const base64Data = reader.result as string;
+            
+            dispatch(stopRecording({
+              audioUrl,
+              audioData: base64Data,
+              duration: recordingDuration,
+              mimeType: 'audio/webm' // Fallback to WebM
+            }));
+          };
+          reader.readAsDataURL(webmBlob);
+        }
 
         // Stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());

@@ -6,10 +6,12 @@ import {
   selectAudioUrl,
   selectAudioData,
   selectActiveConversationId,
+  selectMimeType,
   addUserMessage,
   sendMessage,
   startTranscription,
-  transcribeAudio
+  transcribeAudio,
+  transcribeWithPronunciation
 } from '../../chatSlice';
 
 interface WaveformPlayerProps {
@@ -20,6 +22,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
   const dispatch = useAppDispatch();
   const audioUrl = useAppSelector(selectAudioUrl);
   const audioData = useAppSelector(selectAudioData);
+  const mimeType = useAppSelector(selectMimeType);
   const activeConversationId = useAppSelector(selectActiveConversationId);
   
   const waveformRef = useRef<HTMLDivElement | null>(null);
@@ -151,12 +154,12 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
       messageId
     }));
 
-    // Start transcription process immediately
+    // Start transcription + pronunciation analysis process immediately
     dispatch(startTranscription({ messageId }));
-    dispatch(transcribeAudio({
+    dispatch(transcribeWithPronunciation({
       messageId,
       audioData: audioData,
-      contentType: 'audio/webm'
+      contentType: mimeType || 'audio/webm' // Use actual MIME type from recording
     }));
 
     // Send to AI (simulate)

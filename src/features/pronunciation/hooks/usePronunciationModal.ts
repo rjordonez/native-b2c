@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { closeModal, updateWordResults } from '../pronunciationSlice';
 import { ModalState } from '../types';
 import { pronunciationService } from '../services/pronunciationService';
-import { SCORING_THRESHOLDS } from '../constants';
+import { SCORING_THRESHOLDS } from '../../../shared/constants/pronunciation';
 
 export const usePronunciationModal = () => {
   const dispatch = useAppDispatch();

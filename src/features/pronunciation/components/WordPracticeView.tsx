@@ -1,7 +1,7 @@
 import React from 'react';
 import { Word } from '../types';
 import { AudioPlaybackButton } from './AudioPlaybackButton';
-import { PhonemeWord } from './PhonemeWord';
+import { PronunciationText } from '../../../shared/components/ui/PronunciationText';
 import { RecordingButton } from './RecordingButton';
 
 interface WordPracticeViewProps {
@@ -37,10 +37,15 @@ export const WordPracticeView: React.FC<WordPracticeViewProps> = ({
           : 'Practice this word:'}
       </h2>
       <div className="relative">
-        <PhonemeWord 
-          word={word}
-          showResults={showResults}
-          className="text-4xl font-bold"
+        <PronunciationText 
+          words={[{
+            text: word.text,
+            score: word.score,
+            phonemes: word.phonemes
+          }]}
+          showScoring={showResults}
+          className="text-center"
+          wordClassName="text-4xl font-bold"
         />
       </div>
       {!showResults && onStart && onStop && (

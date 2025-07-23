@@ -29,6 +29,28 @@ export interface TranscriptionResult {
   };
 }
 
+export interface PronunciationResult {
+  words: Array<{
+    text: string;
+    score?: number;
+    phonemes?: Array<{
+      phoneme: string;
+      score: number;
+    }>;
+  }>;
+  overallScore: number;
+  accuracy: number;
+  fluency: number;
+  completeness: number;
+  isLoading: boolean;
+  error?: string;
+}
+
+export interface CombinedResult {
+  transcription: TranscriptionResult;
+  pronunciation: PronunciationResult;
+}
+
 export interface TranscriptionOptions {
   speechModel?: string;
   autoDetectLanguage?: boolean;
@@ -190,6 +212,96 @@ class TranscriptionApiService {
       }
       
       throw new Error(`Failed to get transcription status: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Transcribe audio with pronunciation analysis (base64 data)
+   */
+  async transcribeWithPronunciation(
+    audioData: string,
+    contentType: string = 'audio/wav',
+    options: TranscriptionOptions = {}
+  ): Promise<CombinedResult> {
+    try {
+      console.log('🎤🗣️ Sending combined transcription + pronunciation request to backend...');
+      console.log('Request details:', {
+        audioDataLength: audioData.length,
+        contentType,
+        options
+      });
+
+      // Convert base64 to Blob for multipart upload
+      const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      const audioBlob = new Blob([byteArray], { type: contentType });
+      const audioFile = new File([audioBlob], 'audio.wav', { type: contentType });
+
+      const formData = new FormData();
+      formData.append('audio', audioFile);
+      
+      // Add options as form fields
+      Object.entries(options).forEach(([key, value]) => {
+        if (value !== undefined) {
+          formData.append(key, String(value));
+        }
+      });
+
+      const response = await axios.post(`${API_BASE_URL}/transcription/transcribe-with-pronunciation`, formData, {
+        timeout: 120000, // 2 minute timeout for combined processing
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      if (response.data.success) {
+        console.log('✅ Combined transcription + pronunciation completed successfully:', {
+          text: response.data.data.transcription.text.substring(0, 100) + '...',
+          transcriptionConfidence: response.data.data.transcription.confidence,
+          pronunciationScore: response.data.data.pronunciation.overallScore,
+          processingTime: response.data.data.metadata.totalProcessingTimeMs
+        });
+        
+        // Log raw Azure response in development
+        if (process.env.NODE_ENV === 'development' && response.data.data.pronunciation.azureRawResponse) {
+          console.log('🔍 Raw Azure pronunciation response:', response.data.data.pronunciation.azureRawResponse);
+        }
+        
+        return response.data.data;
+      } else {
+        throw new Error(response.data.error || 'Combined analysis failed');
+      }
+    } catch (error) {
+      console.error('❌ Combined transcription + pronunciation API error:', error);
+      
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED') {
+          throw new Error('Analysis timeout - please try again');
+        }
+        
+        if (error.response?.data?.error) {
+          throw new Error(error.response.data.error);
+        }
+        
+        if (error.response?.status === 503) {
+          throw new Error('Analysis service temporarily unavailable');
+        }
+        
+        if (error.response?.status >= 500) {
+          throw new Error('Server error - please try again later');
+        }
+        
+        throw new Error(`Network error: ${error.message}`);
+      }
+      
+      throw new Error(`Combined analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

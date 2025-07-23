@@ -13,6 +13,22 @@ export interface Message {
     error?: string;
     transcriptId?: string;
   };
+  pronunciation?: {
+    words: Array<{
+      text: string;
+      score?: number;
+      phonemes?: Array<{
+        phoneme: string;
+        score: number;
+      }>;
+    }>;
+    overallScore: number;
+    accuracy: number;
+    fluency: number;
+    completeness: number;
+    isLoading: boolean;
+    error?: string;
+  };
 }
 
 export interface Conversation {
@@ -31,6 +47,7 @@ export interface VoiceRecordingState {
   recordingDuration: number;
   recordingState: 'idle' | 'recording' | 'recorded' | 'playing';
   isPressed: boolean;
+  mimeType: string | null; // MIME type used for recording
 }
 
 export interface ChatState {

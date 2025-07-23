@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { PronunciationState, Sentence, Word, ModalState } from './types';
-import { PRACTICE_SENTENCES, SCORING_THRESHOLDS } from './constants';
+import { SCORING_THRESHOLDS } from '../../shared/constants/pronunciation';
+import { PRACTICE_SENTENCES } from './constants';
 
 // Mock data generator
 const generateMockSentences = (): Sentence[] => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Word } from '../types';
 import { cn } from '../../../utils/cn';
-import { PhonemeWord } from './PhonemeWord';
+import { PronunciationText } from '../../../shared/components/ui/PronunciationText';
 import { RecordingButton } from './RecordingButton';
 
 interface SentenceViewProps {
@@ -26,16 +26,17 @@ export const SentenceView: React.FC<SentenceViewProps> = ({
       <h2 className="text-xl text-gray-700 font-medium">
         {isRecording ? 'Recording... Speak now!' : 'Read this sentence:'}
       </h2>
-      <div className="flex flex-wrap justify-center gap-3">
-        {words.map((word, index) => (
-          <div key={index} className="flex flex-col items-center gap-1">
-            <PhonemeWord 
-              word={word}
-              showResults={showResults}
-              className="text-3xl font-medium"
-            />
-          </div>
-        ))}
+      <div className="flex justify-center">
+        <PronunciationText 
+          words={words.map(word => ({
+            text: word.text,
+            score: word.score,
+            phonemes: word.phonemes
+          }))}
+          showScoring={showResults}
+          className="text-center"
+          wordClassName="text-3xl font-medium"
+        />
       </div>
       {!showResults && onStart && onStop && (
         <div className="flex justify-center mt-8">

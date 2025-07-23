@@ -36,6 +36,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               timestamp={msg.timestamp}
               formatTimestamp={formatTimestamp}
               transcription={msg.transcription}
+              pronunciation={msg.pronunciation}
             />
           );
         }
