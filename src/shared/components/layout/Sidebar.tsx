@@ -1,10 +1,7 @@
 import React from 'react';
 import { useAppSelector } from '../../../store/hooks';
 import { selectSidebarCollapsed } from '../../../store/slices/navigationSlice';
-import SidebarLogo from './sidebar/SidebarLogo';
-import SidebarNavigation from './sidebar/SidebarNavigation';
-import ChatSessions from './sidebar/ChatSessions';
-import UserProfile from './sidebar/UserProfile';
+import { SidebarLogo, SidebarNavigation, ChatSessions, UserProfile } from './sidebar/index';
 
 const Sidebar: React.FC = () => {
   const sidebarCollapsed = useAppSelector(selectSidebarCollapsed);
