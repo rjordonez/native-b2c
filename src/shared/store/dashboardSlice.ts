@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../store/types';
-import { HomeState, Task } from './types';
+import { HomeState, Task } from './dashboardTypes';
 import { DASHBOARD_CONFIG, PRACTICE_ACTIVITY_DATES } from './constants/dashboardData';
 
 const initialState: HomeState = {
@@ -15,8 +15,8 @@ const initialState: HomeState = {
   ],
 };
 
-export const homeSlice = createSlice({
-  name: 'home',
+export const dashboardSlice = createSlice({
+  name: 'dashboard',
   initialState,
   reducers: {
     incrementVisitCount: (state) => {
@@ -46,16 +46,16 @@ export const {
   toggleTask, 
   addPracticeActivity, 
   setTestDate 
-} = homeSlice.actions;
+} = dashboardSlice.actions;
 
 // Selectors
-export const selectWelcomeMessage = (state: RootState) => state.home.welcomeMessage;
-export const selectVisitCount = (state: RootState) => state.home.visitCount;
-export const selectTestDate = (state: RootState) => new Date(state.home.testDate);
+export const selectWelcomeMessage = (state: RootState) => state.dashboard.welcomeMessage;
+export const selectVisitCount = (state: RootState) => state.dashboard.visitCount;
+export const selectTestDate = (state: RootState) => new Date(state.dashboard.testDate);
 export const selectPracticeActivityDates = (state: RootState) => 
-  state.home.practiceActivityDates.map(date => new Date(date));
-export const selectTasks = (state: RootState) => state.home.tasks;
+  state.dashboard.practiceActivityDates.map(date => new Date(date));
+export const selectTasks = (state: RootState) => state.dashboard.tasks;
 export const selectCompletedTasksCount = (state: RootState) => 
-  state.home.tasks.filter(task => task.completed).length;
+  state.dashboard.tasks.filter(task => task.completed).length;
 
-export default homeSlice.reducer;
+export default dashboardSlice.reducer;

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import GitHubCalendar from 'react-github-calendar';
-import { Card, CardHeader, CardTitle, CardContent } from '../../../shared/components/layout/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '../layout/ui/card';
 
 interface GitHubCardProps {
   testDate: Date;

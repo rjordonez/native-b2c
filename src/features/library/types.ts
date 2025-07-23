@@ -7,24 +7,26 @@ export interface Question {
 export interface Topic {
   id: string;
   title: string;
-  category: 'speaking' | 'writing' | 'reading' | 'listening';
-  difficulty: 'easy' | 'medium' | 'hard';
+  part: 'part1' | 'part3';
   progress: number;
   completed: boolean;
-  description: string;
+  questions: string;
   estimatedTime: string;
-  questions: Question[];
+  questionsList: Question[];
   expanded: boolean;
 }
 
 export interface LibraryState {
   topics: Topic[];
   filters: {
-    category: string;
-    difficulty: string;
+    part: string;
     completed: boolean | null;
   };
   searchQuery: string;
+  pagination: {
+    currentPage: number;
+    itemsPerPage: number;
+  };
 }
 
 export interface TopicProgressPayload {
@@ -33,7 +35,6 @@ export interface TopicProgressPayload {
 }
 
 export interface FilterUpdatePayload {
-  category?: string;
-  difficulty?: string;
+  part?: string;
   completed?: boolean | null;
 }
