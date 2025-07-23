@@ -5,6 +5,7 @@ export interface Message {
   timestamp: string; // ISO string for Redux serialization
   isTyping?: boolean;
   isEnhanced?: boolean; // For enhanced transcript messages
+  isTopicQuestion?: boolean; // For topic practice audio questions
   audioUrl?: string; // For voice messages (temporary URL)
   audioData?: string; // For voice messages (base64 data for persistence)
   transcription?: {
@@ -51,6 +52,12 @@ export interface VoiceRecordingState {
   mimeType: string | null; // MIME type used for recording
 }
 
+export interface TopicPracticeState {
+  currentTopic: any | null; // Topic from supabase service
+  currentQuestionIndex: number;
+  questions: any[]; // Question[] from supabase service
+}
+
 export interface ChatState {
   conversations: Conversation[];
   activeConversationId: string | null;
@@ -58,6 +65,7 @@ export interface ChatState {
   isTyping: boolean;
   error: string | null;
   voiceRecording: VoiceRecordingState;
+  topicPractice: TopicPracticeState;
 }
 
 export interface SendMessagePayload {

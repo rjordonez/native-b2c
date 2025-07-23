@@ -6,7 +6,8 @@ import {
   selectIsTyping,
   selectError,
   createConversation,
-  clearError
+  clearError,
+  startTopicPractice
 } from './chatSlice';
 import {
   ChatMessages,
@@ -21,6 +22,8 @@ const ChatPage: React.FC = () => {
   const isLoading = useAppSelector(selectIsLoading);
   const isTyping = useAppSelector(selectIsTyping);
   const error = useAppSelector(selectError);
+  
+  console.log('ChatPage render - activeConversation:', activeConversation);
 
   // Clear errors after 5 seconds
   useEffect(() => {
@@ -34,6 +37,12 @@ const ChatPage: React.FC = () => {
 
   const handleCreateConversation = () => {
     dispatch(createConversation({ title: 'New Conversation' }));
+  };
+
+  const handleTopicSelect = (topic: string) => {
+    console.log('Topic selected:', topic);
+    // Start topic practice which creates conversation and sends first question
+    dispatch(startTopicPractice({ topicName: topic }));
   };
 
   const formatTimestamp = (timestamp: string) => {
@@ -81,6 +90,7 @@ const ChatPage: React.FC = () => {
       ) : (
         <EmptyState
           onCreateConversation={handleCreateConversation}
+          onTopicSelect={handleTopicSelect}
           isLoading={isLoading}
         />
       )}

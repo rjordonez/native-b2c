@@ -26,6 +26,7 @@
     "npm": ">=8.0.0"
   },
   "dependencies": {
+    "@google-cloud/text-to-speech": "^6.2.0",
     "assemblyai": "^4.4.5",
     "axios": "^1.9.0",
     "cors": "^2.8.5",
