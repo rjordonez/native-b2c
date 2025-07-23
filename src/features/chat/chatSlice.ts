@@ -23,7 +23,7 @@ export const sendMessage = createAsyncThunk(
         id: `msg-${Date.now()}`,
         content: `Thank you for your message: "${content}". This is a simulated AI response. In a real implementation, this would be connected to an AI service.`,
         sender: 'assistant',
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
       };
       
       return { conversationId, message: aiResponse };
@@ -44,8 +44,8 @@ export const createConversation = createAsyncThunk(
         id: `conv-${Date.now()}`,
         title,
         messages: [],
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
       
       return newConversation;
@@ -64,7 +64,6 @@ const initialState: ChatState = {
   voiceRecording: {
     isRecording: false,
     isPaused: false,
-    audioBlob: null,
     audioUrl: null,
     recordingDuration: 0,
     recordingState: 'idle',
@@ -87,7 +86,7 @@ export const chatSlice = createSlice({
           id: `msg-${Date.now()}-user`,
           content,
           sender: 'user',
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
           audioUrl,
         };
         
@@ -101,7 +100,7 @@ export const chatSlice = createSlice({
       
       if (conversation && title) {
         conversation.title = title;
-        conversation.updatedAt = new Date();
+        conversation.updatedAt = new Date().toISOString();
       }
     },
     deleteConversation: (state, action: PayloadAction<string>) => {
@@ -125,10 +124,9 @@ export const chatSlice = createSlice({
       state.voiceRecording.recordingState = 'recording';
       state.voiceRecording.recordingDuration = 0;
     },
-    stopRecording: (state, action: PayloadAction<{ audioBlob: Blob; audioUrl: string; duration: number }>) => {
+    stopRecording: (state, action: PayloadAction<{ audioUrl: string; duration: number }>) => {
       state.voiceRecording.isRecording = false;
       state.voiceRecording.recordingState = 'recorded';
-      state.voiceRecording.audioBlob = action.payload.audioBlob;
       state.voiceRecording.audioUrl = action.payload.audioUrl;
       state.voiceRecording.recordingDuration = action.payload.duration;
     },
@@ -142,7 +140,6 @@ export const chatSlice = createSlice({
       state.voiceRecording = {
         isRecording: false,
         isPaused: false,
-        audioBlob: null,
         audioUrl: null,
         recordingDuration: 0,
         recordingState: 'idle',
@@ -169,7 +166,7 @@ export const chatSlice = createSlice({
         
         if (conversation) {
           conversation.messages.push(message);
-          conversation.updatedAt = new Date();
+          conversation.updatedAt = new Date().toISOString();
         }
       })
       .addCase(sendMessage.rejected, (state, action) => {
