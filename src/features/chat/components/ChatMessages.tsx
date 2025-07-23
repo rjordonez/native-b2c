@@ -3,6 +3,7 @@ import { CircleNotch } from 'phosphor-react';
 import { useAppDispatch } from '../../../store/hooks';
 import { Conversation } from '../types';
 import { enhanceTranscript } from '../chatSlice';
+import { openModalWithSentences } from '../../pronunciation/pronunciationSlice';
 import VoiceMessage from './VoiceMessage';
 
 
@@ -25,6 +26,21 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       conversationId: activeConversation.id,
       transcript
     }));
+  };
+
+  const handleShadowSentence = (enhancedText: string) => {
+    console.log('Shadow sentence clicked with text:', enhancedText);
+    
+    // Parse enhanced text into sentences
+    const sentences = enhancedText
+      .split(/[.!?]+/)
+      .map(sentence => sentence.trim())
+      .filter(sentence => sentence.length > 0)
+      .map(sentence => sentence.replace(/^[^a-zA-Z0-9]*/, '').replace(/[^a-zA-Z0-9]*$/, ''));
+    
+    console.log('Parsed sentences:', sentences);
+    
+    dispatch(openModalWithSentences(sentences));
   };
 
   // Auto-scroll to bottom when new messages arrive
@@ -60,13 +76,27 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
           >
             <div className={`flex flex-col max-w-xs lg:max-w-md ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
               <div
-                className={`px-4 py-3 rounded-2xl ${
+                className={`px-3 py-2 rounded-2xl ${
                   msg.sender === 'user'
                     ? 'bg-blue-500 text-white rounded-br-sm'
-                    : 'bg-gray-100 text-gray-900 rounded-bl-sm'
+                    : msg.isEnhanced ? 'bg-gray-50 border border-gray-100 text-gray-900 rounded-bl-sm' : 'bg-gray-100 text-gray-900 rounded-bl-sm'
                 }`}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                <div className="text-sm leading-relaxed">
+                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                </div>
+                
+                {/* Shadow sentence button for enhanced messages */}
+                {msg.isEnhanced && msg.sender === 'assistant' && (
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
+                    <button
+                      onClick={() => handleShadowSentence(msg.content)}
+                      className="text-xs text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                    >
+                      Shadow sentence
+                    </button>
+                  </div>
+                )}
               </div>
               <span className="text-xs text-gray-500 mt-1 px-1">
                 {formatTimestamp(msg.timestamp)}

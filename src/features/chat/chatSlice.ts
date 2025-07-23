@@ -174,6 +174,7 @@ export const enhanceTranscript = createAsyncThunk(
         content: result.data.enhancedTranscript,
         sender: 'assistant',
         timestamp: new Date().toISOString(),
+        isEnhanced: true,
       };
 
       return { conversationId, message: enhancedMessage };
