@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../../store/types';
 import { HomeState, Task } from './dashboardTypes';
 import { DASHBOARD_CONFIG, PRACTICE_ACTIVITY_DATES } from './constants/dashboardData';
@@ -51,11 +51,24 @@ export const {
 // Selectors
 export const selectWelcomeMessage = (state: RootState) => state.dashboard.welcomeMessage;
 export const selectVisitCount = (state: RootState) => state.dashboard.visitCount;
-export const selectTestDate = (state: RootState) => new Date(state.dashboard.testDate);
-export const selectPracticeActivityDates = (state: RootState) => 
-  state.dashboard.practiceActivityDates.map(date => new Date(date));
+export const selectTestDateString = (state: RootState) => state.dashboard.testDate;
+export const selectPracticeActivityDateStrings = (state: RootState) => state.dashboard.practiceActivityDates;
 export const selectTasks = (state: RootState) => state.dashboard.tasks;
-export const selectCompletedTasksCount = (state: RootState) => 
-  state.dashboard.tasks.filter(task => task.completed).length;
+
+// Memoized selectors for date objects
+export const selectTestDate = createSelector(
+  [selectTestDateString],
+  (dateString) => new Date(dateString)
+);
+
+export const selectPracticeActivityDates = createSelector(
+  [selectPracticeActivityDateStrings],
+  (dateStrings) => dateStrings.map(date => new Date(date))
+);
+
+export const selectCompletedTasksCount = createSelector(
+  [selectTasks],
+  (tasks) => tasks.filter(task => task.completed).length
+);
 
 export default dashboardSlice.reducer;

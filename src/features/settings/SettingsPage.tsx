@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import { User, CreditCard, Camera } from 'phosphor-react';
-import { selectProfile, selectBilling, updateProfile, updateBilling } from './settingsSlice';
+import { selectProfile, selectBilling, updateProfile, updateBilling, fetchUserProfile } from './settingsSlice';
 import { Button } from '../../shared/components/layout/ui/button';
+import AvatarUploadModal from './components/AvatarUploadModal';
+import { generateDefaultAvatar } from '../../lib/supabase/avatars';
 
 const SettingsPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const profile = useAppSelector(selectProfile);
   const billing = useAppSelector(selectBilling);
+  const user = useAppSelector(state => state.auth.user);
   
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState(profile.name);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+
+  // Fetch user profile on mount
+  useEffect(() => {
+    if (user) {
+      dispatch(fetchUserProfile(user.id));
+    }
+  }, [dispatch, user]);
 
   const handleNameSave = () => {
     dispatch(updateProfile({ name: tempName }));
@@ -50,17 +61,20 @@ const SettingsPage: React.FC = () => {
           <div className="flex items-center gap-6">
             <div className="relative">
               <img
-                src={profile.profilePicture}
+                src={profile.avatarUrl || generateDefaultAvatar(user?.email || 'user', profile.name)}
                 alt="Profile"
                 className="w-20 h-20 rounded-full object-cover"
               />
-              <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700">
+              <button 
+                onClick={() => setShowAvatarModal(true)}
+                className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white hover:bg-blue-700"
+              >
                 <Camera size={16} />
               </button>
             </div>
             <div>
               <h3 className="font-medium text-gray-900">Profile Picture</h3>
-              <p className="text-sm text-gray-500">JPG, GIF or PNG. 1MB max.</p>
+              <p className="text-sm text-gray-500">JPG, PNG or WebP. Max 5MB.</p>
             </div>
           </div>
 
@@ -150,6 +164,16 @@ const SettingsPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Avatar Upload Modal */}
+      <AvatarUploadModal
+        isOpen={showAvatarModal}
+        onClose={() => setShowAvatarModal(false)}
+        currentAvatarUrl={profile.avatarUrl}
+        onAvatarUpdate={(newAvatarUrl) => {
+          dispatch(updateProfile({ avatarUrl: newAvatarUrl }));
+        }}
+      />
     </div>
   );
 };
