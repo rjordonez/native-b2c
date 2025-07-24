@@ -5,14 +5,16 @@ import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import {
   selectAudioUrl,
   selectAudioData,
-  selectActiveConversationId,
   selectMimeType,
-  addUserMessage,
-  sendMessage,
   startTranscription,
   transcribeAudio,
   transcribeWithPronunciation
-} from '../../chatSlice';
+} from '../../store/voiceRecordingSlice';
+import {
+  selectActiveConversationId,
+  addUserMessage,
+  sendMessage
+} from '../../store/conversationSlice';
 
 interface WaveformPlayerProps {
   onClear: () => void;

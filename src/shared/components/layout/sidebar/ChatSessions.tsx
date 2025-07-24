@@ -8,7 +8,7 @@ import {
   selectActiveConversation, 
   setActiveConversation,
   createConversation 
-} from '../../../../features/chat/chatSlice';
+} from '../../../../features/chat/store/conversationSlice';
 
 const ChatSessions: React.FC = () => {
   const location = useLocation();

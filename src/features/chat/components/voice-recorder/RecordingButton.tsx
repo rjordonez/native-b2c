@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppSelector, useAppDispatch } from '../../../../store/hooks';
-import { selectIsPressed } from '../../chatSlice';
+import { selectIsPressed } from '../../store/voiceRecordingSlice';
 
 interface RecordingButtonProps {
   onMouseDown: () => void;

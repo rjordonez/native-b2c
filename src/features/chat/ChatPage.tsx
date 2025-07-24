@@ -6,9 +6,9 @@ import {
   selectIsTyping,
   selectError,
   createConversation,
-  clearError,
-  startTopicPractice
-} from './chatSlice';
+  clearError
+} from './store/conversationSlice';
+import { startTopicPractice } from './store/topicPracticeSlice';
 import {
   ChatMessages,
   VoiceRecorder,

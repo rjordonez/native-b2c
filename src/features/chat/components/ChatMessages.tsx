@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from 'react';
 import { CircleNotch } from 'phosphor-react';
 import { useAppDispatch } from '../../../store/hooks';
 import { Conversation } from '../types';
-import { enhanceTranscript } from '../chatSlice';
+import { enhanceTranscript } from '../store/topicPracticeSlice';
 import { openModalWithSentences } from '../../pronunciation/pronunciationSlice';
 import VoiceMessage from './VoiceMessage';
 

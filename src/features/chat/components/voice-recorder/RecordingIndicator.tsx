@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAppSelector } from '../../../../store/hooks';
-import { selectRecordingDuration } from '../../chatSlice';
+import { selectRecordingDuration } from '../../store/voiceRecordingSlice';
 
 const RecordingIndicator: React.FC = () => {
   const recordingDuration = useAppSelector(selectRecordingDuration);

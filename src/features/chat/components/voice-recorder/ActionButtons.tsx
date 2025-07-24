@@ -1,11 +1,11 @@
 import React from 'react';
 import { ArrowCounterClockwise, ArrowRight } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { getNextTopicQuestion, redoTopicQuestion } from '../../chatSlice';
+import { getNextTopicQuestion, redoTopicQuestion, selectTopicPractice } from '../../store/topicPracticeSlice';
 
 const ActionButtons: React.FC = () => {
   const dispatch = useAppDispatch();
-  const topicPractice = useAppSelector(state => state.chat.topicPractice);
+  const topicPractice = useAppSelector(selectTopicPractice);
   
   // Only show buttons during topic practice
   if (!topicPractice.currentTopic) {

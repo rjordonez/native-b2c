@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Gear, Play, Pause, CircleNotch } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
-import { selectTtsSpeed, selectTtsVoice, setTtsSpeed, setTtsVoice } from '../chatSlice';
+import { selectTtsSpeed, selectTtsVoice, setTtsSpeed, setTtsVoice } from '../store/audioPlaybackSlice';
 
 interface TtsConfigModalProps {
   isOpen: boolean;

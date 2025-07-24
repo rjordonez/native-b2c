@@ -3,7 +3,7 @@ import { Play, Pause } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
 import { PronunciationText } from '../../../shared/components/ui/PronunciationText';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { selectAutoPlayMessageId, clearAutoPlayMessageId, selectCurrentlyPlayingMessageId, setCurrentlyPlayingMessageId } from '../chatSlice';
+import { selectAutoPlayMessageId, clearAutoPlayMessageId, selectCurrentlyPlayingMessageId, setCurrentlyPlayingMessageId } from '../store/audioPlaybackSlice';
 
 interface VoiceMessageProps {
   messageId: string;

@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch } from '../../store/hooks';
-import { startTopicPractice } from '../../features/chat/chatSlice';
+import { startTopicPractice } from '../../features/chat/store/topicPracticeSlice';
 
 export const useTopicPractice = () => {
   const navigate = useNavigate();

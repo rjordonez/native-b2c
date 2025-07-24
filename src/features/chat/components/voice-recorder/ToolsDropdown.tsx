@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sliders, Sparkle, TextAa } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { selectActiveConversation } from '../../chatSlice';
+import { selectActiveConversation } from '../../store/conversationSlice';
 
 interface ToolsDropdownProps {}
 

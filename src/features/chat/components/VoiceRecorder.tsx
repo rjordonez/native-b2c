@@ -9,7 +9,7 @@ import {
   clearRecording,
   updateRecordingDuration,
   setIsPressed
-} from '../chatSlice';
+} from '../store/voiceRecordingSlice';
 import { RecordingButton, RecordingIndicator, WaveformPlayer, ActionButtons } from './voice-recorder';
 import ToolsDropdown from './voice-recorder/ToolsDropdown';
 
