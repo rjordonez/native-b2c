@@ -11,6 +11,7 @@ import SettingsPage from './features/settings/SettingsPage';
 import AuthPage from './features/auth/AuthPage';
 import OnboardingPage from './features/auth/components/OnboardingPage';
 import LandingPage from './features/landing/LandingPage';
+import PrivacyPage from './features/landing/PrivacyPage';
 import { LanguageProvider } from './features/landing/contexts/LanguageContext';
 import './styles/App.css';
 import BlockSpinner from './shared/components/layout/BlockSpinner';
@@ -36,6 +37,7 @@ const AppRoutes: React.FC = () => {
           <LandingPage />
         </LanguageProvider>
       } />
+      <Route path="/privacy" element={<PrivacyPage />} />
       
       {/* Protected routes */}
       {!user ? (

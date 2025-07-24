@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Logo from './Logo';
 import { Instagram } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -43,7 +44,7 @@ const Footer = () => {
                   element.scrollIntoView({ behavior: 'smooth' });
                 }
               }}>{t('footer.features')}</a></li>
-              <li><a href="#practice" className="text-muted-foreground hover:text-foreground transition-colors">{t('footer.practice')}</a></li>
+              <li><Link to="/" className="text-muted-foreground hover:text-foreground transition-colors">{t('footer.practice')}</Link></li>
               
               <li><a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors" onClick={(e) => {
                 e.preventDefault();
@@ -69,7 +70,7 @@ const Footer = () => {
         <div className="mt-16 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center text-muted-foreground text-sm">
           <div>{t('footer.copyright')}</div>
           <div className="flex gap-6 mt-4 md:mt-0">
-            <a href="#" className="hover:text-foreground transition-colors">{t('footer.privacy')}</a>
+            <Link to="/privacy" className="hover:text-foreground transition-colors">{t('footer.privacy')}</Link>
             <a href="#" className="hover:text-foreground transition-colors">{t('footer.terms')}</a>
             
           </div>

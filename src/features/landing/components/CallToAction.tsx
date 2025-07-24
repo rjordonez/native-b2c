@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import { ArrowRight, Star, Users, Zap } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
@@ -35,11 +36,13 @@ const CallToAction = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-4 justify-center items-center">
-            <Button size="lg" className="group px-8 py-6 text-lg font-bold hover:scale-105 transition-all duration-300
-                hover:shadow-lg hover:shadow-primary/25 rounded-lg">
-              {t('cta.button')}
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-            </Button>
+            <Link to="/">
+              <Button size="lg" className="group px-8 py-6 text-lg font-bold hover:scale-105 transition-all duration-300
+                  hover:shadow-lg hover:shadow-primary/25 rounded-lg">
+                {t('cta.button')}
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
+              </Button>
+            </Link>
             <p className="font-body text-sm text-muted-foreground">
               {t('cta.urgency')}
             </p>
