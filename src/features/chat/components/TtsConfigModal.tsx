@@ -192,7 +192,7 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
               Voice
             </label>
             <select 
-              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               value={previewVoice}
               onChange={(e) => dispatch(setPreviewVoice(e.target.value))}
             >
@@ -217,7 +217,7 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
                 step="0.05"
                 value={previewSpeed}
                 onChange={(e) => dispatch(setPreviewSpeed(parseFloat(e.target.value)))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
               />
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">0.25x</span>
@@ -283,7 +283,7 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
           </button>
           <button
             onClick={handleApply}
-            className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 text-sm bg-primary text-white rounded-md hover:bg-primary/90 transition-colors"
           >
             Apply
           </button>

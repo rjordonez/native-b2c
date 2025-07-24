@@ -74,7 +74,7 @@ const ToolsDropdown: React.FC<ToolsDropdownProps> = () => {
               <button
                 key={item.id}
                 onClick={() => handleMenuItemClick(item.id)}
-                className={`w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors ${
+                className={`w-full flex items-center px-4 py-2 text-sm bg-primary text-white hover:bg-primary/90 transition-colors ${
                   isFirst ? 'rounded-t-lg' : ''
                 } ${isLast ? 'rounded-b-lg' : ''}`}
               >

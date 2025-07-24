@@ -3,6 +3,46 @@
  * Returns a data URL that can be stored directly in the database
  */
 
+/**
+ * Gets the computed primary color from CSS custom properties
+ * @returns The primary color as an HSL string
+ */
+function getPrimaryColor(): string {
+  // Try to get the computed CSS custom property value
+  if (typeof window !== 'undefined' && window.document) {
+    const root = document.documentElement;
+    const primaryHsl = getComputedStyle(root).getPropertyValue('--primary').trim();
+    
+    if (primaryHsl) {
+      // Convert HSL values (e.g., "8 82% 57%") to proper HSL format
+      return `hsl(${primaryHsl})`;
+    }
+  }
+  
+  // Fallback to the default primary color if we can't access CSS
+  return 'hsl(8, 82%, 57%)';
+}
+
+/**
+ * Gets the primary color with specified opacity
+ * @param opacity - Opacity value between 0 and 1
+ * @returns The primary color with opacity as an HSL string
+ */
+function getPrimaryColorWithOpacity(opacity: number): string {
+  if (typeof window !== 'undefined' && window.document) {
+    const root = document.documentElement;
+    const primaryHsl = getComputedStyle(root).getPropertyValue('--primary').trim();
+    
+    if (primaryHsl) {
+      // Convert HSL values and add opacity
+      return `hsl(${primaryHsl} / ${opacity})`;
+    }
+  }
+  
+  // Fallback with opacity
+  return `hsl(8, 82%, 57%, ${opacity})`;
+}
+
 // Predefined color palettes for gradients
 const gradientPalettes = [
   ['#667eea', '#764ba2'], // Purple to violet
@@ -45,8 +85,8 @@ function hashCode(str: string): number {
  * @returns Data URL of the SVG gradient avatar
  */
 export function generateGradientAvatar(identifier: string, size: number = 200): string {
-  // Always use the app's primary blue gradient for consistency
-  const palette = ['hsl(221.2, 83.2%, 53.3%)', 'hsl(221.2, 83.2%, 53.3%, 0.6)'];
+  // Always use the app's primary gradient for consistency
+  const palette = [getPrimaryColor(), getPrimaryColorWithOpacity(0.6)];
   
   // Get hash for gradient direction (still use identifier for variety in direction)
   const hash = hashCode(identifier);
@@ -106,8 +146,8 @@ export function generateGradientAvatarWithInitials(
   fullName: string,
   size: number = 200
 ): string {
-  // Always use the app's primary blue gradient for consistency
-  const palette = ['hsl(221.2, 83.2%, 53.3%)', 'hsl(221.2, 83.2%, 53.3%, 0.6)'];
+  // Always use the app's primary gradient for consistency
+  const palette = [getPrimaryColor(), getPrimaryColorWithOpacity(0.6)];
   
   // Get hash for gradient direction (still use identifier for variety in direction)
   const hash = hashCode(identifier);
