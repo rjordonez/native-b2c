@@ -351,11 +351,11 @@ ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
 
 ## Database Schema
 
-### B2C User Table
-The application supports a dual-project structure with B2C table prefixed with `b2c_` to distinguish from other projects.
+### User Profiles Table
+The application uses a `user_profiles` table to store user profile information.
 
-#### B2C Table:
-- **b2c_user** - User profile information for IELTS students including personal details, target scores, and test preparation data
+#### Table:
+- **user_profiles** - User profile information for IELTS students including personal details, target scores, and test preparation data
 
 #### Table Fields:
 - `id` - UUID primary key
@@ -381,5 +381,5 @@ The application supports a dual-project structure with B2C table prefixed with `
 
 #### SQL Script Location:
 - **File**: `/sql/b2c_tables.sql`
-- **Purpose**: Database schema for B2C user table in IELTS application
-- **Usage**: Run this script in Supabase or PostgreSQL to create the B2C user table
+- **Purpose**: Database schema for user_profiles table in IELTS application
+- **Usage**: Run this script in Supabase or PostgreSQL to create the user_profiles table

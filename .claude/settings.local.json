@@ -19,8 +19,13 @@
       "Bash(git checkout:*)",
       "Bash(git pull:*)",
       "Bash(sed:*)",
-      "Bash(git ls-tree:*)"
+      "Bash(git ls-tree:*)",
+      "mcp__supabase__execute_sql"
     ],
     "deny": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "supabase"
+  ]
 }
