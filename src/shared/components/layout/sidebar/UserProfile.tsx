@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Gear, DotsThree, SignOut } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { signOut } from '../../../../features/auth/authSlice';
+import { selectProfile } from '../../../../features/settings/settingsSlice';
 import { 
   selectUserDropdownOpen, 
   setUserDropdownOpen, 
@@ -16,9 +17,10 @@ const UserProfile: React.FC = () => {
   const dropdownOpen = useAppSelector(selectUserDropdownOpen);
   const sidebarCollapsed = useAppSelector(selectSidebarCollapsed);
   const user = useAppSelector((state) => state.auth.user);
+  const profile = useAppSelector(selectProfile);
   const userInfoRef = useRef<HTMLDivElement>(null);
 
-  // Use primary color for gradient (from CSS variable)
+  // Fallback gradient style for when no avatar is available
   const gradientStyle = {
     background: 'linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.6))',
   };
@@ -33,8 +35,16 @@ const UserProfile: React.FC = () => {
     return 'U';
   };
   
-  const getDisplayName = (name?: string, email?: string) => {
-    return name || email || 'User';
+  const getDisplayName = () => {
+    // Only show profile name if it's not the default 'User'
+    if (profile.name && profile.name !== 'User') {
+      return profile.name;
+    }
+    // Fallback to email without domain
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'User';
   };
 
   const handleSignOut = async () => {
@@ -82,23 +92,39 @@ const UserProfile: React.FC = () => {
         {sidebarCollapsed ? (
           // Collapsed state - just the avatar
           <div className="flex items-center justify-center py-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center" style={gradientStyle}>
-              <span className="text-white text-sm font-medium">
-                {getInitials(user?.user_metadata?.full_name, user?.email)}
-              </span>
-            </div>
+            {profile.avatarUrl ? (
+              <img 
+                src={profile.avatarUrl} 
+                alt={profile.name || 'User'} 
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={gradientStyle}>
+                <span className="text-white text-sm font-medium">
+                  {getInitials(profile.name, user?.email)}
+                </span>
+              </div>
+            )}
           </div>
         ) : (
           // Expanded state - full layout
           <div className="flex items-center justify-between gap-3 px-2 py-1 rounded-lg transition-colors hover:bg-gray-100 hover:ring-2 hover:ring-primary/30 hover:shadow-md">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center" style={gradientStyle}>
-                <span className="text-white text-sm font-medium">
-                  {getInitials(user?.user_metadata?.full_name, user?.email)}
-                </span>
-              </div>
+              {profile.avatarUrl ? (
+                <img 
+                  src={profile.avatarUrl} 
+                  alt={profile.name || 'User'} 
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full flex items-center justify-center" style={gradientStyle}>
+                  <span className="text-white text-sm font-medium">
+                    {getInitials(profile.name, user?.email)}
+                  </span>
+                </div>
+              )}
               <span className="bg-white rounded-lg px-2 py-1 text-xs font-medium text-gray-900 shadow border border-gray-200">
-                {getDisplayName(user?.user_metadata?.full_name, user?.email)}
+                {getDisplayName()}
               </span>
             </div>
             <DotsThree size={22} weight="bold" className="text-gray-400" />
