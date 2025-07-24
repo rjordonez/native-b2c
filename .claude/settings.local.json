@@ -17,7 +17,8 @@
       "mcp__ide__getDiagnostics",
       "Bash(npm run lint)",
       "Bash(git checkout:*)",
-      "Bash(git pull:*)"
+      "Bash(git pull:*)",
+      "Bash(sed:*)"
     ],
     "deny": []
   }
