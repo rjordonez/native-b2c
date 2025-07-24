@@ -1,5 +1,4 @@
 import React from 'react';
-import Header from './components/Header';
 import Footer from './components/Footer';
 import { LanguageProvider } from './contexts/LanguageContext';
 
@@ -7,9 +6,16 @@ const PrivacyPage = () => {
   return (
     <LanguageProvider>
       <div className="min-h-screen flex flex-col bg-gray-50">
-        <Header />
         <main className="flex-1 py-16">
           <div className="container mx-auto px-4 max-w-4xl">
+            <button
+              onClick={() => window.location.href = '/'}
+              className="mb-8 inline-flex items-center text-gray-500 hover:text-primary transition-colors text-base font-medium focus:outline-none"
+              style={{ background: 'none', border: 'none', padding: 0, boxShadow: 'none', cursor: 'pointer' }}
+              aria-label="Back to Home"
+            >
+              ← Back to Home
+            </button>
             <div className="bg-white rounded-lg shadow-sm p-8 md:p-12">
               {/* Header */}
               <div className="text-center mb-12">
@@ -334,7 +340,6 @@ const PrivacyPage = () => {
             </div>
           </div>
         </main>
-        <Footer />
       </div>
     </LanguageProvider>
   );
