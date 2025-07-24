@@ -1,0 +1,12 @@
+# Ignore backend node_modules
+backend/node_modules
+backend/.env
+backend/test-vercel-env.js
+
+# Ignore root .env files
+.env
+.env.local
+.env.development
+
+# Keep only .env.production for frontend
+!.env.production

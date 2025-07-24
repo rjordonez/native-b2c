@@ -1,4 +1,12 @@
-require('dotenv').config();
+// Load environment variables
+const path = require('path');
+
+// In development, load from backend/.env
+// In production, Vercel provides them automatically
+if (process.env.NODE_ENV !== 'production') {
+  const backendEnvPath = path.join(__dirname, '../../.env');
+  require('dotenv').config({ path: backendEnvPath });
+}
 
 const config = {
   // Server configuration
@@ -47,14 +55,6 @@ const config = {
   }
 };
 
-// Validate required environment variables
-const requiredEnvVars = ['AZURE_SPEECH_KEY', 'ASSEMBLYAI_API_KEY'];
-const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
-
-if (missingEnvVars.length > 0) {
-  console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
-  console.error('Please check your .env file and ensure all required variables are set.');
-  process.exit(1);
-}
+// No validation - let services handle missing keys individually
 
 module.exports = config;

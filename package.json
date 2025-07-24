@@ -9,7 +9,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "backend": "cd backend && npm install && npm run dev",
-    "dev:full": "concurrently \"npm run dev\" \"npm run backend\" --names \"frontend,backend\" --prefix-colors \"cyan,yellow\""
+    "dev:full": "concurrently \"npm run dev\" \"npm run backend\" --names \"frontend,backend\" --prefix-colors \"cyan,yellow\"",
+    "vercel-build": "npm run build",
+    "postinstall": "cd backend && npm install"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

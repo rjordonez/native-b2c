@@ -7,7 +7,8 @@ class PronunciationService {
     this.azureSpeechRegion = config.azure.speechRegion;
     
     if (!this.azureSpeechKey) {
-      throw new Error('Azure Speech API key is required but not provided');
+      console.warn('⚠️ Azure Speech API key is not configured - pronunciation features disabled');
+      this.disabled = true;
     }
   }
 
@@ -18,6 +19,10 @@ class PronunciationService {
    * @returns {Promise<Object>} Combined transcription and pronunciation results
    */
   async transcribeAndAssess(audioBuffer, contentType = 'audio/wav') {
+    if (this.disabled) {
+      throw new Error('Pronunciation service is disabled - Azure Speech API key not configured');
+    }
+    
     logger.info('=== TRANSCRIPTION + PRONUNCIATION ASSESSMENT STARTED ===');
     logger.info('Assessment parameters:', {
       audioSize: audioBuffer.length,

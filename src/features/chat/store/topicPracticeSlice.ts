@@ -45,7 +45,7 @@ export const startTopicPractice = createAsyncThunk<
       console.log('First question:', firstQuestion);
       
       // Generate audio for the first question using TTS
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const { API_BASE_URL } = await import('../../../config/api');
       console.log('Making TTS request to:', `${API_BASE_URL}/tts/synthesize`);
       
       // Get current TTS settings from state
@@ -146,7 +146,7 @@ export const redoTopicQuestion = createAsyncThunk<
       console.log('Redoing question:', currentQuestion.text);
       
       // Generate audio for the current question
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const { API_BASE_URL } = await import('../../../config/api');
       
       // Get current TTS settings from state
       const ttsSpeed = state.audioPlayback.ttsSpeed;
@@ -254,7 +254,7 @@ export const getNextTopicQuestion = createAsyncThunk<
       const nextQuestion = questions[nextIndex];
       
       // Generate audio for the next question
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const { API_BASE_URL } = await import('../../../config/api');
       
       // Get current TTS settings from state
       const ttsSpeed = state.audioPlayback.ttsSpeed;
@@ -329,7 +329,7 @@ export const enhanceTranscript = createAsyncThunk<
     try {
       dispatch(setLoading(true));
       dispatch(setTyping(true));
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+      const { API_BASE_URL } = await import('../../../config/api');
       
       const response = await fetch(`${API_BASE_URL}/enhancement/enhance`, {
         method: 'POST',

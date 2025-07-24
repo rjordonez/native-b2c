@@ -4,6 +4,7 @@ const transcriptionRoutes = require('./transcription');
 const proxyRoutes = require('./proxy');
 const enhancementRoutes = require('./enhancement');
 const ttsRoutes = require('./tts');
+const testRoutes = require('./test');
 
 const router = express.Router();
 
@@ -13,6 +14,7 @@ router.use('/transcription', transcriptionRoutes);
 router.use('/proxy', proxyRoutes);
 router.use('/enhancement', enhancementRoutes);
 router.use('/tts', ttsRoutes);
+router.use('/', testRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {
