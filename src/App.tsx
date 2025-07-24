@@ -32,6 +32,11 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public routes */}
+      <Route path="/" element={
+        <LanguageProvider>
+          <LandingPage />
+        </LanguageProvider>
+      } />
       <Route path="/landing" element={
         <LanguageProvider>
           <LandingPage />
@@ -41,12 +46,12 @@ const AppRoutes: React.FC = () => {
       
       {/* Protected routes */}
       {!user ? (
-        <Route path="*" element={<AuthPage />} />
+        <Route path="/auth" element={<AuthPage />} />
       ) : needsOnboarding ? (
-        <Route path="*" element={<OnboardingPage />} />
+        <Route path="/onboarding" element={<OnboardingPage />} />
       ) : (
         <>
-          <Route path="/" element={
+          <Route path="/library" element={
             <Layout>
               <LibraryPage />
             </Layout>
