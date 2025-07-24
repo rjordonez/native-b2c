@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Gear, Play, Pause, CircleNotch } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
+import { Slider } from '../../../shared/components/layout/ui/slider';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { 
   selectTtsSpeed, 
@@ -210,19 +211,18 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
               Speed
             </label>
             <div className="space-y-2">
-              <input
-                type="range"
-                min="0.25"
-                max="2.0"
-                step="0.05"
-                value={previewSpeed}
-                onChange={(e) => dispatch(setPreviewSpeed(parseFloat(e.target.value)))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+              <Slider
+                value={[previewSpeed]}
+                onValueChange={(value) => dispatch(setPreviewSpeed(value[0]))}
+                min={0.5}
+                max={1.5}
+                step={0.05}
+                className="w-full"
               />
               <div className="flex justify-between items-center">
-                <span className="text-xs text-gray-500">0.25x</span>
+                <span className="text-xs text-gray-500">0.5x</span>
                 <span className="font-medium text-gray-700">{previewSpeed.toFixed(2)}x</span>
-                <span className="text-xs text-gray-500">2.0x</span>
+                <span className="text-xs text-gray-500">1.5x</span>
               </div>
             </div>
           </div>

@@ -123,7 +123,7 @@ const UserProfile: React.FC = () => {
                   </span>
                 </div>
               )}
-              <span className="bg-white rounded-lg px-2 py-1 text-xs font-medium text-gray-900 shadow border border-gray-200">
+              <span className="text-xs font-medium text-gray-900">
                 {getDisplayName()}
               </span>
             </div>
