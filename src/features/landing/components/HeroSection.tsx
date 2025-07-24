@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import TaskBoard from './TaskBoard';
 import { Mic } from 'lucide-react';
@@ -49,9 +50,11 @@ const HeroSection = () => {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-6 items-center">
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 text-base h-12 px-8 transition-all duration-300 min-h-[48px] interactive-button font-bold rounded-lg">
-            {t('hero.cta.primary')}
-          </Button>
+          <Link to="/">
+            <Button className="bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 text-base h-12 px-8 transition-all duration-300 min-h-[48px] interactive-button font-bold rounded-lg">
+              {t('hero.cta.primary')}
+            </Button>
+          </Link>
         </div>
         
         

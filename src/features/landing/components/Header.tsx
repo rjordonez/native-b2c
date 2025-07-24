@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from './ui/button';
 import Logo from './Logo';
 import { Menu, X, Mic, BarChart3, Trophy, Languages } from 'lucide-react';
@@ -20,6 +21,13 @@ const Header = () => {
     if (element) {
       element.scrollIntoView({ behavior: 'smooth' });
     }
+    setMobileMenuOpen(false);
+  };
+
+  const handlePracticeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setActivePage('practice');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setMobileMenuOpen(false);
   };
 
@@ -51,12 +59,12 @@ const Header = () => {
           <div className="rounded-full px-1 py-1 backdrop-blur-md bg-background/80 border border-border shadow-lg">
             <ToggleGroup type="single" value={activePage} onValueChange={(value) => value && setActivePage(value)}>
                 <ToggleGroupItem 
-                value="features"
+                value="practice"
                 className={cn(
                   "px-4 py-2 rounded-full transition-all duration-300 relative nav-link hover:scale-105",
-                  activePage === 'features' ? 'text-accent-foreground bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  activePage === 'practice' ? 'text-accent-foreground bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
-                onClick={handleNavClick('features')}
+                onClick={handlePracticeClick}
               >
                 <Mic size={16} className="inline-block mr-1.5 feature-icon" /> {t('header.practice')}
               </ToggleGroupItem>
@@ -89,11 +97,11 @@ const Header = () => {
           <div className="md:hidden absolute top-20 left-4 right-4 bg-background/95 backdrop-blur-md py-4 px-6 border border-border rounded-2xl shadow-lg z-50">
             <div className="flex flex-col gap-4">
               <a 
-                href="#features" 
+                href="#" 
                 className={`px-3 py-2 text-sm rounded-md transition-colors ${
-                  activePage === 'features' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  activePage === 'practice' ? 'bg-accent text-accent-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 }`}
-                onClick={handleNavClick('features')}
+                onClick={handlePracticeClick}
               >
                 <Mic size={16} className="inline-block mr-1.5" /> {t('header.practice')}
               </a>
@@ -129,6 +137,13 @@ const Header = () => {
                   <span className="text-xs font-medium">{t('header.english')}</span>
                 </div>
               </div>
+              
+              {/* Login button for mobile */}
+              <div className="px-3 py-2">
+                <Link to="/" className="block">
+                  <Button variant="ghost" className="w-full font-body text-muted-foreground hover:text-foreground hover:bg-muted interactive-button">{t('header.login')}</Button>
+                </Link>
+              </div>
             </div>
           </div>
         )}
@@ -145,7 +160,9 @@ const Header = () => {
             <span className="text-sm font-medium text-muted-foreground">{t('header.english')}</span>
           </div>
           <div className="rounded-2xl">
-            <Button variant="ghost" className="font-body text-muted-foreground hover:text-foreground hover:bg-muted interactive-button">{t('header.login')}</Button>
+            <Link to="/">
+              <Button variant="ghost" className="font-body text-muted-foreground hover:text-foreground hover:bg-muted interactive-button">{t('header.login')}</Button>
+            </Link>
           </div>
         </div>
       </header>
