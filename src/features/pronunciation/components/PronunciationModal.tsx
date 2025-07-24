@@ -82,8 +82,8 @@ export const PronunciationModal: React.FC = () => {
       case 'word':
         // Get the word-specific audio recording, fallback to sentence audio
         const wordKey = `${modalState.sentenceIndex}-word-${modalState.wordIndex}`;
-        const wordAudio = audioCache.get(wordKey);
-        const sentenceAudio = audioCache.get(modalState.sentenceIndex);
+        const wordAudio = audioCache[wordKey];
+        const sentenceAudio = audioCache[modalState.sentenceIndex];
         const availableAudio = wordAudio || sentenceAudio;
         
         return (

@@ -1,31 +1,34 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { closeModal, updateWordResults } from '../pronunciationSlice';
-import { ModalState } from '../types';
+import { 
+  closeModal, 
+  updateWordResults, 
+  setModalState, 
+  setProcessing, 
+  setError, 
+  cacheAudio,
+  nextQuestion,
+  updateWordScore,
+  showResults
+} from '../pronunciationSlice';
 import { pronunciationService } from '../services/pronunciationService';
 import { SCORING_THRESHOLDS } from '../../../shared/constants/pronunciation';
 
 export const usePronunciationModal = () => {
   const dispatch = useAppDispatch();
-  const { isOpen, sentences } = useAppSelector(state => state.pronunciation);
   
-  // Local state machine
-  const [modalState, setModalState] = useState<ModalState>({ 
-    type: 'sentence', 
-    index: 0, 
-    timerActive: true, 
-    showResults: false,
-    isReady: false
-  });
+  // Use memoized selectors for better performance
+  const isOpen = useAppSelector(state => state.pronunciation.isOpen);
+  const sentences = useAppSelector(state => state.pronunciation.sentences);
+  const modalState = useAppSelector(state => state.pronunciation.modalState);
+  const isProcessing = useAppSelector(state => state.pronunciation.isProcessing);
+  const error = useAppSelector(state => state.pronunciation.error);
+  const audioCache = useAppSelector(state => state.pronunciation.audioCache);
 
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [audioCache, setAudioCache] = useState<Map<string | number, string>>(new Map());
-
-  // Handle audio recording completion
+  // Handle audio recording completion - memoized with specific dependencies
   const handleRecordingComplete = useCallback(async (audioBlob: Blob, audioUrl: string) => {
-    setIsProcessing(true);
-    setError(null);
+    dispatch(setProcessing(true));
+    dispatch(setError(null));
 
     try {
       if (modalState.type === 'sentence') {
@@ -35,8 +38,8 @@ export const usePronunciationModal = () => {
           currentSentence.text
         );
 
-        // Cache audio for this sentence
-        setAudioCache(prev => new Map(prev).set(modalState.index, audioUrl));
+        // Cache audio for this sentence using Redux action
+        dispatch(cacheAudio({ key: modalState.index, url: audioUrl }));
 
         // Update Redux state with scores
         dispatch(updateWordResults({ 
@@ -44,12 +47,9 @@ export const usePronunciationModal = () => {
           words 
         }));
 
-        // Update local state to show results
-        setModalState(prev => ({
-          ...prev,
-          timerActive: false,
-          showResults: true
-        } as ModalState));
+        // Update modal state to show results using Redux action
+        dispatch(showResults());
+        
       } else if (modalState.type === 'word') {
         // For word practice, assess just the single word
         const word = modalState.incorrectWords[modalState.wordIndex];
@@ -60,167 +60,85 @@ export const usePronunciationModal = () => {
 
         // Cache audio for this word using a composite key
         const wordKey = `${modalState.sentenceIndex}-word-${modalState.wordIndex}`;
-        setAudioCache(prev => new Map(prev).set(wordKey, audioUrl));
+        dispatch(cacheAudio({ key: wordKey, url: audioUrl }));
 
         // Get the score and phonemes for the word
         const assessedWord = result[0];
         const wordScore = assessedWord?.score || 0;
 
-        // Update the word in the incorrectWords array with new assessment data
-        const updatedIncorrectWords = [...modalState.incorrectWords];
-        updatedIncorrectWords[modalState.wordIndex] = {
-          ...word,
+        // Update word score using Redux action
+        dispatch(updateWordScore({
+          sentenceIndex: modalState.sentenceIndex,
+          wordIndex: modalState.wordIndex,
           score: wordScore,
-          phonemes: assessedWord?.phonemes || [],
-          isCorrect: wordScore >= SCORING_THRESHOLDS.PASSING_SCORE
-        };
+          phonemes: assessedWord?.phonemes || []
+        }));
 
-        // Update local state with the score and updated word data
-        setModalState(prev => (prev.type === 'word' ? {
-          ...prev,
-          timerActive: false,
-          showResults: true,
-          currentScore: wordScore,
-          isReady: false,
-          incorrectWords: updatedIncorrectWords
-        } : prev));
+        // Show results
+        dispatch(showResults());
       }
     } catch (err) {
-      setError('Failed to process pronunciation. Please try again.');
+      dispatch(setError('Failed to process pronunciation. Please try again.'));
       console.error('Pronunciation error:', err);
     } finally {
-      setIsProcessing(false);
+      dispatch(setProcessing(false));
     }
-  }, [modalState, sentences, dispatch]);
+  }, [modalState.type, modalState.index, modalState.sentenceIndex, modalState.wordIndex, sentences, dispatch]);
 
-  // Handle start button click
+  // Handle start button click - only dispatch, no local state
   const handleStart = useCallback(() => {
-    setModalState(prev => ({
-      ...prev,
+    dispatch(setModalState({
+      ...modalState,
       isReady: true
-    } as ModalState));
-  }, []);
+    }));
+  }, [modalState, dispatch]);
 
-  // Handle next button click
+  // Handle next button click - use Redux nextQuestion action
   const handleNext = useCallback(() => {
-    setError(null);
-    
-    if (modalState.type === 'sentence') {
-      const currentSentence = sentences[modalState.index];
-      const incorrectWords = currentSentence.words.filter(w => 
-        w.score !== undefined && w.score < SCORING_THRESHOLDS.PASSING_SCORE
-      );
+    dispatch(nextQuestion());
+  }, [dispatch]);
 
-      if (incorrectWords.length > 0) {
-        // Move to word practice
-        setModalState({
-          type: 'word',
-          sentenceIndex: modalState.index,
-          wordIndex: 0,
-          incorrectWords,
-          timerActive: true,
-          showResults: false,
-          isReady: false
-        });
-      } else {
-        // Move to next sentence or complete
-        const nextIndex = modalState.index + 1;
-        if (nextIndex < sentences.length) {
-          setModalState({
-            type: 'sentence',
-            index: nextIndex,
-            timerActive: true,
-            showResults: false,
-            isReady: false
-          });
-        } else {
-          setModalState({ type: 'complete' });
-        }
-      }
-    } else if (modalState.type === 'word') {
-      // Check if the word needs to be retried (score < 80)
-      if (modalState.showResults && modalState.currentScore !== undefined && 
-          modalState.currentScore < SCORING_THRESHOLDS.PASSING_SCORE) {
-        // Retry the same word
-        setModalState({
-          ...modalState,
-          timerActive: true,
-          showResults: false,
-          currentScore: undefined,
-          isReady: false
-        });
-      } else {
-        // Word was correct or hasn't been practiced yet
-        const nextWordIndex = modalState.wordIndex + 1;
-        if (nextWordIndex < modalState.incorrectWords.length) {
-          // Next word
-          setModalState({
-            ...modalState,
-            wordIndex: nextWordIndex,
-            timerActive: true,
-            showResults: false,
-            currentScore: undefined,
-            isReady: false
-          });
-        } else {
-          // Done with words, move to next sentence or complete
-          const nextSentenceIndex = modalState.sentenceIndex + 1;
-          if (nextSentenceIndex < sentences.length) {
-            setModalState({
-              type: 'sentence',
-              index: nextSentenceIndex,
-              timerActive: true,
-              showResults: false,
-              isReady: false
-            });
-          } else {
-            setModalState({ type: 'complete' });
-          }
-        }
-      }
-    }
-  }, [modalState, sentences]);
-
-  // Reset state when modal opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      setModalState({ 
-        type: 'sentence', 
-        index: 0, 
-        timerActive: true, 
-        showResults: false,
-        isReady: false
-      });
-      setError(null);
-    }
-    
-    // Cleanup function for when modal closes
-    return () => {
-      if (!isOpen) {
-        audioCache.forEach(url => URL.revokeObjectURL(url));
-        setAudioCache(new Map());
-      }
-    };
-  }, [isOpen]);
-
+  // Close modal handler
   const closeModalHandler = useCallback(() => {
     dispatch(closeModal());
   }, [dispatch]);
 
+  // No Map conversion needed - use Redux object directly
+
+  // Cleanup audio URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      if (!isOpen) {
+        Object.values(audioCache).forEach(url => {
+          try {
+            URL.revokeObjectURL(url);
+          } catch (error) {
+            // Ignore cleanup errors
+          }
+        });
+      }
+    };
+  }, [isOpen, audioCache]);
+
+  // Memoized action creators
+  const setErrorHandler = useCallback((error: string | null) => {
+    dispatch(setError(error));
+  }, [dispatch]);
+
   return {
-    // State
+    // Redux state (no local state duplication)
     isOpen,
     sentences,
     modalState,
     isProcessing,
     error,
-    audioCache,
+    audioCache, // Use Redux object directly
     
-    // Actions
+    // Memoized actions that dispatch to Redux
     handleRecordingComplete,
     handleStart,
     handleNext,
     closeModal: closeModalHandler,
-    setError,
+    setError: setErrorHandler,
   };
 };

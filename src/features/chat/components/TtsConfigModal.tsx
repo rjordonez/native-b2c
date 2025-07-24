@@ -2,7 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Gear, Play, Pause, CircleNotch } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
-import { selectTtsSpeed, selectTtsVoice, setTtsSpeed, setTtsVoice } from '../store/audioPlaybackSlice';
+import { 
+  selectTtsSpeed, 
+  selectTtsVoice, 
+  selectPreviewSpeed,
+  selectPreviewVoice,
+  selectIsGeneratingPreview,
+  selectPreviewAudioUrl,
+  setPreviewSpeed,
+  setPreviewVoice,
+  initializePreviewSettings,
+  applyPreviewSettings,
+  clearPreview,
+  generateTtsPreview
+} from '../store/audioPlaybackSlice';
 
 interface TtsConfigModalProps {
   isOpen: boolean;
@@ -23,12 +36,14 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
   const ttsSpeed = useAppSelector(selectTtsSpeed);
   const ttsVoice = useAppSelector(selectTtsVoice);
   
-  // Local state for temporary changes
-  const [tempSpeed, setTempSpeed] = useState(ttsSpeed);
-  const [tempVoice, setTempVoice] = useState(ttsVoice);
-  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
+  // Redux state for preview settings
+  const previewSpeed = useAppSelector(selectPreviewSpeed);
+  const previewVoice = useAppSelector(selectPreviewVoice);
+  const isGeneratingPreview = useAppSelector(selectIsGeneratingPreview);
+  const previewAudioUrl = useAppSelector(selectPreviewAudioUrl);
+  
+  // Local state for WaveSurfer UI only
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
-  const [previewAudioUrl, setPreviewAudioUrl] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const waveformRef = useRef<HTMLDivElement | null>(null);
@@ -43,22 +58,21 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
   
-  // Reset local state when modal opens
+  // Initialize preview settings when modal opens
   useEffect(() => {
     if (isOpen) {
-      setTempSpeed(ttsSpeed);
-      setTempVoice(ttsVoice);
+      dispatch(initializePreviewSettings());
       // Clean up any existing wavesurfer
       if (wavesurferRef.current) {
         wavesurferRef.current.destroy();
         wavesurferRef.current = null;
       }
-      setPreviewAudioUrl(null);
+      dispatch(clearPreview());
       setIsPlayingPreview(false);
       setCurrentTime(0);
       setTotalDuration(0);
     }
-  }, [isOpen, ttsSpeed, ttsVoice]);
+  }, [isOpen, dispatch]);
 
   // Clear preview when settings change
   useEffect(() => {
@@ -66,15 +80,14 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
       wavesurferRef.current.destroy();
       wavesurferRef.current = null;
     }
-    setPreviewAudioUrl(null);
+    dispatch(clearPreview());
     setIsPlayingPreview(false);
     setCurrentTime(0);
     setTotalDuration(0);
-  }, [tempSpeed, tempVoice]);
+  }, [previewSpeed, previewVoice, dispatch]);
 
   const handleApply = () => {
-    dispatch(setTtsSpeed(tempSpeed));
-    dispatch(setTtsVoice(tempVoice));
+    dispatch(applyPreviewSettings());
     onClose();
   };
 
@@ -85,94 +98,67 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
       wavesurferRef.current = null;
     }
     // Reset to original values
-    setTempSpeed(ttsSpeed);
-    setTempVoice(ttsVoice);
+    dispatch(initializePreviewSettings());
+    dispatch(clearPreview());
     onClose();
   };
 
   const generatePreview = async () => {
-    setIsGeneratingPreview(true);
-    
-    try {
-      const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
-      const response = await fetch(`${API_BASE_URL}/tts/synthesize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          text: sampleText,
-          voiceName: tempVoice,
-          speakingRate: tempSpeed
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to generate preview');
-      }
-
-      const result = await response.json();
+    const result = await dispatch(generateTtsPreview({ text: sampleText }));
       
-      if (result.success && result.data.audioUrl && waveformRef.current) {
-        setPreviewAudioUrl(result.data.audioUrl);
-        
-        // Destroy any existing wavesurfer instance
-        if (wavesurferRef.current) {
-          wavesurferRef.current.destroy();
-        }
-        
-        // Create new wavesurfer instance
-        const wavesurfer = WaveSurfer.create({
-          container: waveformRef.current,
-          waveColor: '#9ca3af',
-          progressColor: '#6b7280',
-          height: 24,
-          barWidth: 1,
-          barGap: 1,
-          barRadius: 1,
-          normalize: true,
-          backend: 'WebAudio',
-        });
-        
-        wavesurferRef.current = wavesurfer;
-        
-        // Set up event handlers
-        wavesurfer.on('ready', () => {
-          const duration = wavesurfer.getDuration();
-          setTotalDuration(duration);
-          wavesurfer.play();
-          setIsPlayingPreview(true);
-        });
-        
-        wavesurfer.on('play', () => {
-          setIsPlayingPreview(true);
-        });
-        
-        wavesurfer.on('pause', () => {
-          setIsPlayingPreview(false);
-        });
-        
-        wavesurfer.on('finish', () => {
-          setIsPlayingPreview(false);
-          setCurrentTime(0);
-        });
-        
-        wavesurfer.on('timeupdate', (time) => {
-          setCurrentTime(time);
-        });
-        
-        wavesurfer.on('error', (error) => {
-          setIsPlayingPreview(false);
-          console.error('Failed to play preview audio:', error);
-        });
-        
-        // Load the audio
-        wavesurfer.load(result.data.audioUrl);
+    if (generateTtsPreview.fulfilled.match(result) && result.payload && 'audioUrl' in result.payload && waveformRef.current) {
+      // Destroy any existing wavesurfer instance
+      if (wavesurferRef.current) {
+        wavesurferRef.current.destroy();
       }
-    } catch (error) {
-      console.error('Failed to generate preview:', error);
-    } finally {
-      setIsGeneratingPreview(false);
+      
+      // Create new wavesurfer instance
+      const wavesurfer = WaveSurfer.create({
+        container: waveformRef.current,
+        waveColor: '#9ca3af',
+        progressColor: '#6b7280',
+        height: 24,
+        barWidth: 1,
+        barGap: 1,
+        barRadius: 1,
+        normalize: true,
+        backend: 'WebAudio',
+      });
+      
+      wavesurferRef.current = wavesurfer;
+      
+      // Set up event handlers
+      wavesurfer.on('ready', () => {
+        const duration = wavesurfer.getDuration();
+        setTotalDuration(duration);
+        wavesurfer.play();
+        setIsPlayingPreview(true);
+      });
+      
+      wavesurfer.on('play', () => {
+        setIsPlayingPreview(true);
+      });
+      
+      wavesurfer.on('pause', () => {
+        setIsPlayingPreview(false);
+      });
+      
+      wavesurfer.on('finish', () => {
+        setIsPlayingPreview(false);
+        setCurrentTime(0);
+      });
+      
+      wavesurfer.on('timeupdate', (time) => {
+        setCurrentTime(time);
+      });
+      
+      wavesurfer.on('error', (error) => {
+        setIsPlayingPreview(false);
+        console.error('Failed to play preview audio:', error);
+      });
+      
+      // Load the audio
+      wavesurfer.load(result.payload.audioUrl);
     }
   };
 
@@ -224,12 +210,12 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Voice
             </label>
-            <select
-              value={tempVoice}
-              onChange={(e) => setTempVoice(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            <select 
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={previewVoice}
+              onChange={(e) => dispatch(setPreviewVoice(e.target.value))}
             >
-              {voiceOptions.map(option => (
+              {voiceOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -237,58 +223,67 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
             </select>
           </div>
           
-          {/* Speed Selection */}
+          {/* Speed Control */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Speaking Rate
+              Speed
             </label>
             <div className="space-y-2">
               <input
                 type="range"
-                min="0.5"
-                max="1.5"
+                min="0.25"
+                max="2.0"
                 step="0.05"
-                value={tempSpeed}
-                onChange={(e) => setTempSpeed(parseFloat(e.target.value))}
-                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                value={previewSpeed}
+                onChange={(e) => dispatch(setPreviewSpeed(parseFloat(e.target.value)))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:bg-blue-500 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-4 [&::-moz-range-thumb]:h-4 [&::-moz-range-thumb]:bg-blue-500 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
               />
-              <div className="flex justify-between text-xs text-gray-500">
-                <span>0.5x</span>
-                <span className="font-medium text-gray-700">{tempSpeed.toFixed(2)}x</span>
-                <span>1.5x</span>
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">0.25x</span>
+                <span className="font-medium text-gray-700">{previewSpeed.toFixed(2)}x</span>
+                <span className="text-xs text-gray-500">2.0x</span>
               </div>
             </div>
           </div>
           
           {/* Preview Section */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Preview
-            </label>
+          <div className="border-t pt-4">
+            <div className="mb-2">
+              <span className="text-sm font-medium text-gray-700">Preview</span>
+            </div>
             
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              {/* Play/Pause button */}
+            <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+              {/* Play/Pause Button */}
               <button
                 onClick={togglePreviewPlayback}
                 disabled={isGeneratingPreview}
-                className="flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isGeneratingPreview ? (
-                  <CircleNotch size={14} className="animate-spin" />
+                  <CircleNotch size={14} weight="fill" className="animate-spin" />
                 ) : isPlayingPreview ? (
                   <Pause size={14} weight="fill" />
                 ) : (
                   <Play size={14} weight="fill" />
                 )}
               </button>
-              
-              {/* Waveform container */}
-              <div 
-                ref={waveformRef} 
-                className="flex-1"
-                style={{ minHeight: '32px' }}
-              />
-              
+
+              {/* Waveform */}
+              <div className="flex items-center flex-1">
+                {previewAudioUrl ? (
+                  <div 
+                    ref={waveformRef}
+                    className="w-full h-6"
+                  />
+                ) : (
+                  <div className="w-full h-6 bg-gray-100 rounded flex items-center justify-center">
+                    <span className="text-xs text-gray-400">
+                      {isGeneratingPreview ? 'Generating...' : 'Click play to preview'}
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* Duration */}
               <span className="text-xs text-gray-500 flex-shrink-0">
                 {formatDuration(currentTime)} / {formatDuration(totalDuration)}
@@ -297,7 +292,7 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
           </div>
         </div>
         
-        {/* Footer with Apply button */}
+        {/* Action Buttons */}
         <div className="p-4 border-t border-gray-200 flex justify-end gap-2">
           <button
             onClick={handleCancel}
