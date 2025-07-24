@@ -140,7 +140,7 @@ const Header = () => {
               
               {/* Login button for mobile */}
               <div className="px-3 py-2">
-                <Link to="/" className="block">
+                <Link to="/auth" className="block">
                   <Button variant="ghost" className="w-full font-body text-muted-foreground hover:text-foreground hover:bg-muted interactive-button">{t('header.login')}</Button>
                 </Link>
               </div>
@@ -160,7 +160,7 @@ const Header = () => {
             <span className="text-sm font-medium text-muted-foreground">{t('header.english')}</span>
           </div>
           <div className="rounded-2xl">
-            <Link to="/">
+            <Link to="/auth">
               <Button variant="ghost" className="font-body text-muted-foreground hover:text-foreground hover:bg-muted interactive-button">{t('header.login')}</Button>
             </Link>
           </div>

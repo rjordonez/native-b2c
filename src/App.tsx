@@ -46,7 +46,10 @@ const AppRoutes: React.FC = () => {
       
       {/* Protected routes */}
       {!user ? (
-        <Route path="/auth" element={<AuthPage />} />
+        <>
+          <Route path="/auth" element={<AuthPage />} />
+          <Route path="*" element={<AuthPage />} />
+        </>
       ) : needsOnboarding ? (
         <Route path="/onboarding" element={<OnboardingPage />} />
       ) : (
@@ -66,7 +69,7 @@ const AppRoutes: React.FC = () => {
               <SettingsPage />
             </Layout>
           } />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/library" replace />} />
         </>
       )}
     </Routes>

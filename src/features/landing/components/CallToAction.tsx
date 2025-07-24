@@ -36,7 +36,7 @@ const CallToAction = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col gap-4 justify-center items-center">
-            <Link to="/">
+            <Link to="/auth">
               <Button size="lg" className="group px-8 py-6 text-lg font-bold hover:scale-105 transition-all duration-300
                   hover:shadow-lg hover:shadow-primary/25 rounded-lg">
                 {t('cta.button')}
