@@ -1,6 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause } from 'phosphor-react';
 import { Button } from '../../../shared/components/layout/ui/button';
+import { useAppSelector, useAppDispatch } from '../../../store/hooks';
+import { setCurrentlyPlayingMessageId, selectCurrentlyPlayingMessageId } from '../../chat/store/audioPlaybackSlice';
 
 interface AudioPlaybackButtonProps {
   audioUrl: string;
@@ -17,8 +19,22 @@ export const AudioPlaybackButton: React.FC<AudioPlaybackButtonProps> = ({
   label = 'You',
   playbackRate = 0.75
 }) => {
-  const [isPlaying, setIsPlaying] = useState(false);
+  const dispatch = useAppDispatch();
+  const currentlyPlayingMessageId = useAppSelector(selectCurrentlyPlayingMessageId);
+  
+  // Create unique ID for this audio instance
+  const audioId = `pronunciation-${audioUrl}-${startTime || 0}-${endTime || 0}`;
+  const isPlaying = currentlyPlayingMessageId === audioId;
+  
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Auto-pause when another audio starts playing globally
+  useEffect(() => {
+    if (currentlyPlayingMessageId && currentlyPlayingMessageId !== audioId && audioRef.current) {
+      console.log(`Pausing pronunciation audio ${audioId} because ${currentlyPlayingMessageId} started playing`);
+      audioRef.current.pause();
+    }
+  }, [currentlyPlayingMessageId, audioId]);
 
   const handlePlayPause = () => {
     if (!audioUrl) return;
@@ -28,26 +44,26 @@ export const AudioPlaybackButton: React.FC<AudioPlaybackButtonProps> = ({
       audioRef.current.playbackRate = playbackRate; // Use configurable playback rate
       
       audioRef.current.addEventListener('ended', () => {
-        setIsPlaying(false);
+        dispatch(setCurrentlyPlayingMessageId(null));
       });
 
       audioRef.current.addEventListener('timeupdate', () => {
         if (endTime && audioRef.current && audioRef.current.currentTime >= endTime) {
           audioRef.current.pause();
-          setIsPlaying(false);
+          dispatch(setCurrentlyPlayingMessageId(null));
         }
       });
     }
 
     if (isPlaying) {
       audioRef.current.pause();
-      setIsPlaying(false);
+      dispatch(setCurrentlyPlayingMessageId(null));
     } else {
       if (startTime !== undefined) {
         audioRef.current.currentTime = startTime;
       }
       audioRef.current.play();
-      setIsPlaying(true);
+      dispatch(setCurrentlyPlayingMessageId(audioId));
     }
   };
 
