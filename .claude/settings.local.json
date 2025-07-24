@@ -18,7 +18,8 @@
       "Bash(npm run lint)",
       "Bash(git checkout:*)",
       "Bash(git pull:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": []
   }
