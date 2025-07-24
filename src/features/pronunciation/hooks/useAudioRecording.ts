@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { audioBufferToWav, RECORDING_CONSTRAINTS } from '@/shared/utils/audio';
 
 interface UseAudioRecordingProps {
   onRecordingComplete: (audioBlob: Blob, audioUrl: string) => void;
@@ -18,15 +19,7 @@ export const useAudioRecording = ({ onRecordingComplete }: UseAudioRecordingProp
       setError(null);
       audioChunksRef.current = [];
 
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          channelCount: 1,
-          sampleRate: 16000,
-          sampleSize: 16,
-          echoCancellation: true,
-          noiseSuppression: true,
-        } 
-      });
+      const stream = await navigator.mediaDevices.getUserMedia(RECORDING_CONSTRAINTS);
 
       // Create AudioContext for WAV conversion
       audioContextRef.current = new AudioContext({ sampleRate: 16000 });
@@ -104,60 +97,3 @@ export const useAudioRecording = ({ onRecordingComplete }: UseAudioRecordingProp
   };
 };
 
-// Convert AudioBuffer to WAV Blob
-function audioBufferToWav(buffer: AudioBuffer): Promise<Blob> {
-  return new Promise((resolve) => {
-    const length = buffer.length * buffer.numberOfChannels * 2 + 44;
-    const arrayBuffer = new ArrayBuffer(length);
-    const view = new DataView(arrayBuffer);
-    const channels: Float32Array[] = [];
-    let offset = 0;
-    let pos = 0;
-
-    // Write WAV header
-    const setUint16 = (data: number) => {
-      view.setUint16(pos, data, true);
-      pos += 2;
-    };
-
-    const setUint32 = (data: number) => {
-      view.setUint32(pos, data, true);
-      pos += 4;
-    };
-
-    // RIFF identifier
-    setUint32(0x46464952); // "RIFF"
-    setUint32(length - 8); // file length - 8
-    setUint32(0x45564157); // "WAVE"
-
-    // fmt sub-chunk
-    setUint32(0x20746d66); // "fmt "
-    setUint32(16); // subchunk size
-    setUint16(1); // PCM
-    setUint16(buffer.numberOfChannels);
-    setUint32(buffer.sampleRate);
-    setUint32(buffer.sampleRate * 2 * buffer.numberOfChannels); // byte rate
-    setUint16(buffer.numberOfChannels * 2); // block align
-    setUint16(16); // bits per sample
-
-    // data sub-chunk
-    setUint32(0x61746164); // "data"
-    setUint32(length - pos - 4); // subchunk size
-
-    // Write interleaved data
-    for (let i = 0; i < buffer.numberOfChannels; i++) {
-      channels.push(buffer.getChannelData(i));
-    }
-
-    while (pos < length) {
-      for (let i = 0; i < buffer.numberOfChannels; i++) {
-        const sample = Math.max(-1, Math.min(1, channels[i][offset]));
-        view.setInt16(pos, sample * 0x7FFF, true);
-        pos += 2;
-      }
-      offset++;
-    }
-
-    resolve(new Blob([arrayBuffer], { type: 'audio/wav' }));
-  });
-}

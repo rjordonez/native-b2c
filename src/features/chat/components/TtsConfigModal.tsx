@@ -16,6 +16,7 @@ import {
   clearPreview,
   generateTtsPreview
 } from '../store/audioPlaybackSlice';
+import { formatDuration, createWaveSurfer, cleanupWaveSurfer, setupWaveSurferEvents } from '@/shared/utils/audio';
 
 interface TtsConfigModalProps {
   isOpen: boolean;
@@ -51,12 +52,6 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
   
   const sampleText = "Hello! This is a preview of the selected voice.";
   
-  // Format duration for display
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
   
   // Initialize preview settings when modal opens
   useEffect(() => {
@@ -113,43 +108,29 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
       }
       
       // Create new wavesurfer instance
-      const wavesurfer = WaveSurfer.create({
+      const wavesurfer = createWaveSurfer({
         container: waveformRef.current,
-        waveColor: '#9ca3af',
-        progressColor: '#6b7280',
+        type: 'tts_preview',
         height: 24,
-        barWidth: 1,
-        barGap: 1,
-        barRadius: 1,
-        normalize: true,
-        backend: 'WebAudio',
       });
       
       wavesurferRef.current = wavesurfer;
       
-      // Set up event handlers
-      wavesurfer.on('ready', () => {
-        const duration = wavesurfer.getDuration();
-        setTotalDuration(duration);
-        wavesurfer.play();
-        setIsPlayingPreview(true);
-      });
-      
-      wavesurfer.on('play', () => {
-        setIsPlayingPreview(true);
-      });
-      
-      wavesurfer.on('pause', () => {
-        setIsPlayingPreview(false);
-      });
-      
-      wavesurfer.on('finish', () => {
-        setIsPlayingPreview(false);
-        setCurrentTime(0);
-      });
-      
-      wavesurfer.on('timeupdate', (time) => {
-        setCurrentTime(time);
+      // Setup common WaveSurfer events
+      setupWaveSurferEvents(wavesurfer, {
+        onReady: () => {
+          const duration = wavesurfer.getDuration();
+          setTotalDuration(duration);
+          wavesurfer.play();
+          setIsPlayingPreview(true);
+        },
+        onPlay: () => setIsPlayingPreview(true),
+        onPause: () => setIsPlayingPreview(false),
+        onFinish: () => {
+          setIsPlayingPreview(false);
+          setCurrentTime(0);
+        },
+        onTimeUpdate: (time: number) => setCurrentTime(time),
       });
       
       wavesurfer.on('error', (error) => {

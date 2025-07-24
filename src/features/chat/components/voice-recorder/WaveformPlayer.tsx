@@ -15,6 +15,7 @@ import {
   addUserMessage,
   sendMessage
 } from '../../store/conversationSlice';
+import { formatDuration, createWaveSurfer, cleanupWaveSurfer, setupWaveSurferEvents } from '@/shared/utils/audio';
 
 interface WaveformPlayerProps {
   onClear: () => void;
@@ -36,73 +37,35 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
   const [totalDuration, setTotalDuration] = useState(0);
   const [, forceUpdate] = useState({});
 
-  // Format duration for display
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   // Initialize Wavesurfer when audioUrl is available
   useEffect(() => {
     if (audioUrl && waveformRef.current && !wavesurferRef.current) {
-      const wavesurfer = WaveSurfer.create({
+      const wavesurfer = createWaveSurfer({
         container: waveformRef.current,
-        waveColor: '#d1d5db',
-        progressColor: '#4F46E5',
+        type: 'recording',
         height: 32,
-        barWidth: 1,
-        barGap: 1,
-        barRadius: 1,
       });
 
       wavesurfer.load(audioUrl);
       wavesurferRef.current = wavesurfer;
 
-      // Handle play/pause events
-      wavesurfer.on('play', () => {
-        forceUpdate({}); // Trigger re-render for play button
-      });
-
-      wavesurfer.on('pause', () => {
-        forceUpdate({}); // Trigger re-render for play button
-      });
-
-      wavesurfer.on('finish', () => {
-        setCurrentTime(0);
-        forceUpdate({}); // Trigger re-render for play button
-      });
-
-      // Track current time during playback
-      wavesurfer.on('timeupdate', (time) => {
-        setCurrentTime(time);
-      });
-
-      // Get total duration when ready
-      wavesurfer.on('ready', () => {
-        setTotalDuration(wavesurfer.getDuration());
+      // Setup common WaveSurfer events
+      setupWaveSurferEvents(wavesurfer, {
+        onPlay: () => forceUpdate({}),
+        onPause: () => forceUpdate({}),
+        onFinish: () => {
+          setCurrentTime(0);
+          forceUpdate({});
+        },
+        onTimeUpdate: (time: number) => setCurrentTime(time),
+        onReady: () => setTotalDuration(wavesurfer.getDuration()),
       });
     }
 
     return () => {
-      if (wavesurferRef.current && !isCleaningUpRef.current) {
-        isCleaningUpRef.current = true;
-        const instance = wavesurferRef.current;
-        wavesurferRef.current = null;
-        
-        // Use setTimeout to avoid blocking and handle async cleanup
-        setTimeout(() => {
-          try {
-            if (instance && typeof instance.destroy === 'function') {
-              instance.destroy();
-            }
-          } catch (error) {
-            // Silently ignore cleanup errors - they're expected in dev mode
-          } finally {
-            isCleaningUpRef.current = false;
-          }
-        }, 0);
-      }
+      cleanupWaveSurfer(wavesurferRef.current, isCleaningUpRef);
+      wavesurferRef.current = null;
     };
   }, [audioUrl, dispatch]);
 

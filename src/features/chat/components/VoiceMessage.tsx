@@ -4,6 +4,7 @@ import WaveSurfer from 'wavesurfer.js';
 import { PronunciationText } from '../../../shared/components/ui/PronunciationText';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectAutoPlayMessageId, clearAutoPlayMessageId, selectCurrentlyPlayingMessageId, setCurrentlyPlayingMessageId } from '../store/audioPlaybackSlice';
+import { formatDuration, createWaveSurfer, cleanupWaveSurfer, setupWaveSurferEvents } from '@/shared/utils/audio';
 
 interface VoiceMessageProps {
   messageId: string;
@@ -58,12 +59,6 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   const [currentTime, setCurrentTime] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
 
-  // Format duration for display
-  const formatDuration = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
 
   // Initialize Wavesurfer when component mounts
   useEffect(() => {
@@ -82,14 +77,10 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
     
     if (audioSource && waveformRef.current) {
       
-      const wavesurfer = WaveSurfer.create({
+      const wavesurfer = createWaveSurfer({
         container: waveformRef.current,
-        waveColor: sender === 'user' ? '#ffffff' : '#e5e7eb',
-        progressColor: sender === 'user' ? '#d1d5db' : '#6B7280',
+        type: sender === 'user' ? 'chat_user' : 'chat_assistant',
         height: 24,
-        barWidth: 1,
-        barGap: 1,
-        barRadius: 1,
       });
 
       // Add error handling
@@ -159,19 +150,8 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
 
     return () => {
       // Cleanup function - will run when component unmounts or dependencies change
-      if (wavesurferRef.current) {
-        const instance = wavesurferRef.current;
-        wavesurferRef.current = null; // Clear reference first
-        
-        // Cleanup asynchronously to avoid blocking
-        setTimeout(() => {
-          try {
-            instance.destroy();
-          } catch (error) {
-            // Ignore AbortError and other cleanup errors
-          }
-        }, 0);
-      }
+      cleanupWaveSurfer(wavesurferRef.current);
+      wavesurferRef.current = null;
     };
   }, [audioData, audioUrl, sender]);
 
