@@ -1,35 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* 3D Transform utilities for flip cards */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
 @layer base {
   :root {
+    /* Native Speaking Brand Colors - Updated Design */
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 245 55% 29%; /* #282969 - Native Speaking Navy */
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 245 55% 29%; /* #282969 - Native Speaking Navy */
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222.2 84% 4.9%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 245 55% 29%; /* #282969 - Native Speaking Navy */
+    --primary: 8 82% 57%; /* #EF5136 - Native Speaking Orange */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 245 55% 29%; /* #282969 - Native Speaking Navy */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 8 82% 57%; /* Primary orange for focus rings */
+    --radius: 0.75rem;
+    
+    /* Hero gradient */
+    --hero-gradient: linear-gradient(180deg, #FFFFFF 0%, #FFF4F2 100%);
+  }
+
+  * {
+    border-color: hsl(var(--border));
   }
 }
 
 body {
   margin: 0;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'Poppins', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -51,4 +78,201 @@ body {
 /* Custom cursive font class */
 .font-cursive {
   font-family: 'Brush Script MT', 'Lucida Handwriting', 'Lucida Sans Unicode', cursive;
+}
+
+/* Native Speaking specific styles */
+.cosmic-gradient {
+  background: linear-gradient(135deg, rgba(239, 81, 54, 0.1) 0%, rgba(40, 41, 105, 0.1) 100%);
+}
+
+.cosmic-glow {
+  position: relative;
+  box-shadow: 0 0 20px rgba(239, 81, 54, 0.1);
+}
+
+.cosmic-grid {
+  background-image: 
+    linear-gradient(rgba(239, 81, 54, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(239, 81, 54, 0.1) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.cosmic-glass {
+  @apply backdrop-blur-sm bg-card/80 border border-border shadow-lg;
+}
+
+.cosmic-card {
+  @apply bg-card border border-border backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/10;
+}
+
+.nav-pill {
+  @apply backdrop-blur-md bg-card/80 border border-border rounded-full;
+}
+
+.nav-pill-item {
+  @apply px-4 py-2 text-sm rounded-full transition-all duration-300 hover:scale-105;
+}
+
+.nav-pill-item:hover {
+  @apply bg-accent text-accent-foreground;
+}
+
+.nav-pill-item.active {
+  @apply bg-accent text-accent-foreground;
+}
+
+.icon-glow {
+  filter: drop-shadow(0 0 6px rgba(239, 81, 54, 0.3));
+  transition: all 0.3s ease;
+}
+
+.icon-glow:hover {
+  filter: drop-shadow(0 0 10px rgba(239, 81, 54, 0.5));
+  transform: rotate(5deg) scale(1.1);
+}
+
+.collapsible-trigger:hover .icon-glow {
+  filter: drop-shadow(0 0 10px rgba(239, 81, 54, 0.5));
+}
+
+/* Micro-interaction utilities */
+.interactive-card {
+  @apply transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:shadow-primary/10;
+}
+
+.interactive-button {
+  @apply transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg;
+}
+
+.logo-hover {
+  @apply transition-all duration-300 ease-in-out hover:scale-110 hover:-rotate-2;
+}
+
+.nav-link {
+  @apply relative inline-block transition-all duration-300;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -4px;
+  left: 50%;
+  background: hsl(var(--primary));
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+.feature-icon {
+  @apply transition-all duration-300 ease-in-out hover:scale-110 hover:rotate-3;
+}
+
+.marquee-item-interactive {
+  @apply transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-md hover:-translate-y-1;
+}
+
+.task-card {
+  @apply transition-all duration-300 ease-in-out hover:scale-105 hover:shadow-lg hover:border-primary/30;
+}
+
+.task-card.dragging {
+  @apply scale-105 shadow-lg border-primary opacity-70 rotate-1 z-10;
+}
+
+.task-card.dragged-over {
+  @apply border-primary border-dashed;
+}
+
+.task-card-enter {
+  @apply opacity-0 -translate-y-4;
+}
+
+.task-card-enter-active {
+  @apply opacity-100 translate-y-0 transition-all duration-300 ease-out;
+}
+
+.task-card-exit {
+  @apply opacity-100;
+}
+
+.task-card-exit-active {
+  @apply opacity-0 translate-y-4 transition-all duration-300 ease-in;
+}
+
+.column-highlight {
+  @apply bg-accent/20 transition-all duration-300;
+}
+
+/* Logo Marquee Animations */
+.marquee-container {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
+  -webkit-mask: linear-gradient(90deg, transparent, white 10%, white 90%, transparent);
+}
+
+.marquee-content {
+  display: flex;
+  align-items: center;
+  animation: marquee-scroll 40s linear infinite;
+  will-change: transform;
+}
+
+.marquee-container:hover .marquee-content {
+  animation-play-state: paused;
+}
+
+.marquee-item {
+  flex-shrink: 0;
+  margin-right: 2rem;
+  display: flex;
+  align-items: center;
+}
+
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* Floating animations for testimonials */
+@keyframes float-1 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-10px) rotate(1deg); }
+  50% { transform: translateY(-5px) rotate(0deg); }
+  75% { transform: translateY(-15px) rotate(-1deg); }
+}
+
+@keyframes float-2 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-15px) rotate(-1deg); }
+  50% { transform: translateY(-8px) rotate(0deg); }
+  75% { transform: translateY(-12px) rotate(1deg); }
+}
+
+@keyframes float-3 {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-8px) rotate(1deg); }
+  50% { transform: translateY(-20px) rotate(0deg); }
+  75% { transform: translateY(-5px) rotate(-1deg); }
+}
+
+/* Vietnamese font for Vietnamese language UI */
+.font-vietnamese {
+  font-family: 'Be Vietnam Pro', 'Poppins', 'Inter', sans-serif !important;
 }
