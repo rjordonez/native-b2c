@@ -10,6 +10,8 @@ import ChatPage from './features/chat/ChatPage';
 import SettingsPage from './features/settings/SettingsPage';
 import AuthPage from './features/auth/AuthPage';
 import OnboardingPage from './features/auth/components/OnboardingPage';
+import LandingPage from './features/landing/LandingPage';
+import { LanguageProvider } from './features/landing/contexts/LanguageContext';
 import './styles/App.css';
 import BlockSpinner from './shared/components/layout/BlockSpinner';
 
@@ -26,23 +28,41 @@ const AppRoutes: React.FC = () => {
     );
   }
 
-  if (!user) {
-    return <AuthPage />;
-  }
-
-  if (user && needsOnboarding) {
-    return <OnboardingPage />;
-  }
-
   return (
-    <Layout>
-      <Routes>
-        <Route path="/" element={<LibraryPage />} />
-        <Route path="/chat" element={<ChatPage />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Layout>
+    <Routes>
+      {/* Public routes */}
+      <Route path="/landing" element={
+        <LanguageProvider>
+          <LandingPage />
+        </LanguageProvider>
+      } />
+      
+      {/* Protected routes */}
+      {!user ? (
+        <Route path="*" element={<AuthPage />} />
+      ) : needsOnboarding ? (
+        <Route path="*" element={<OnboardingPage />} />
+      ) : (
+        <>
+          <Route path="/" element={
+            <Layout>
+              <LibraryPage />
+            </Layout>
+          } />
+          <Route path="/chat" element={
+            <Layout>
+              <ChatPage />
+            </Layout>
+          } />
+          <Route path="/settings" element={
+            <Layout>
+              <SettingsPage />
+            </Layout>
+          } />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </>
+      )}
+    </Routes>
   );
 };
 
