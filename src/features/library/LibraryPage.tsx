@@ -8,7 +8,7 @@ import {
 import {
   selectTestDate,
   selectPracticeActivityDates
-} from '../../shared/store/dashboardSlice';
+} from '../../store/slices/dashboard/dashboardSlice';
 import { GitHubCard, ChecklistCard } from '../../shared/components/dashboard';
 import { SearchFilters, TopicList, Pagination } from './components';
 

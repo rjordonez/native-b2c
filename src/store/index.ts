@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import navigationReducer from './slices/navigationSlice';
-import dashboardReducer from '../shared/store/dashboardSlice';
+import dashboardReducer from './slices/dashboard/dashboardSlice';
 import settingsReducer from '../features/settings/settingsSlice';
 import libraryReducer from '../features/library/librarySlice';
 import chatReducer from '../features/chat/chatSlice';

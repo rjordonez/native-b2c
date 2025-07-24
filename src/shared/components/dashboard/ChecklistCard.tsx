@@ -3,7 +3,7 @@ import { CheckSquare, Square } from 'phosphor-react';
 import { Card, CardHeader, CardTitle, CardContent } from '../layout/ui/card';
 import ProgressBar from '../layout/ui/progress-bar';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
-import { selectTasks, selectCompletedTasksCount, toggleTask } from '../../store/dashboardSlice';
+import { selectTasks, selectCompletedTasksCount, toggleTask } from '../../../store/slices/dashboard/dashboardSlice';
 
 const ChecklistCard: React.FC = () => {
   const dispatch = useAppDispatch();

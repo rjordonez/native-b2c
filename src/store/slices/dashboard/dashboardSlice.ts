@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import type { RootState } from '../../store/types';
-import { HomeState, Task } from './dashboardTypes';
+import type { RootState } from '../../types';
+import { HomeState, Task } from './types';
 import { DASHBOARD_CONFIG, PRACTICE_ACTIVITY_DATES } from './constants/dashboardData';
 
 const initialState: HomeState = {
