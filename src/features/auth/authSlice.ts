@@ -3,6 +3,8 @@ import { User } from '@supabase/supabase-js';
 import type { RootState } from '../../store/types';
 import { AuthState, LoginCredentials, SignupCredentials } from './types';
 import { supabase } from '../../shared/services/supabase';
+import { generateDefaultAvatar } from '../../lib/supabase/avatars';
+import { updateProfile } from '../settings/settingsSlice';
 
 const initialState: AuthState = {
   user: null,
@@ -82,45 +84,100 @@ export const checkAuth = createAsyncThunk(
     }
 
     // Check onboarding status from user_profiles table
-    const { data: profile } = await supabase
+    const { data: profiles, error } = await supabase
       .from('user_profiles')
       .select('onboarding_completed')
-      .eq('auth_user_id', user.id)
-      .single();
+      .eq('auth_user_id', user.id);
+
+    if (error) {
+      // If profile doesn't exist or there's an error, assume needs onboarding
+      return { 
+        user, 
+        needsOnboarding: true 
+      };
+    }
+
+    // Check if profile exists
+    if (!profiles || profiles.length === 0) {
+      return { 
+        user, 
+        needsOnboarding: true 
+      };
+    }
 
     return { 
       user, 
-      needsOnboarding: !profile?.onboarding_completed 
+      needsOnboarding: !profiles[0]?.onboarding_completed 
     };
   }
 );
 
 export const completeOnboarding = createAsyncThunk(
   'auth/completeOnboarding',
-  async (onboardingData: any) => {
+  async (onboardingData: any, { dispatch }) => {
     const { data: { user } } = await supabase.auth.getUser();
     
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    // Save onboarding data to user_profiles table
-    const { error } = await supabase
-      .from('user_profiles')
-      .update({
-        full_name: onboardingData.fullName,
-        target_band_score: parseFloat(onboardingData.targetScore),
-        current_level: onboardingData.currentLevel,
-        test_date: onboardingData.testDate || null,
-        study_goal: onboardingData.studyGoal,
-        onboarding_completed: true,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('auth_user_id', user.id);
+    // Generate default gradient avatar
+    const avatarUrl = generateDefaultAvatar(user.email || user.id, onboardingData.fullName);
 
-    if (error) {
-      throw error;
+    // First check if profile exists
+    const { data: existingProfile } = await supabase
+      .from('user_profiles')
+      .select('id')
+      .eq('auth_user_id', user.id)
+      .single();
+
+    if (!existingProfile) {
+      // Create new profile
+      const { error } = await supabase
+        .from('user_profiles')
+        .insert({
+          auth_user_id: user.id,
+          email: user.email || '',
+          full_name: onboardingData.fullName,
+          target_band_score: parseFloat(onboardingData.targetScore),
+          current_level: onboardingData.currentLevel,
+          test_date: onboardingData.testDate || null,
+          study_goal: onboardingData.studyGoal,
+          avatar_url: avatarUrl,
+          onboarding_completed: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) {
+        throw error;
+      }
+    } else {
+      // Update existing profile
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          full_name: onboardingData.fullName,
+          target_band_score: parseFloat(onboardingData.targetScore),
+          current_level: onboardingData.currentLevel,
+          test_date: onboardingData.testDate || null,
+          study_goal: onboardingData.studyGoal,
+          avatar_url: avatarUrl,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('auth_user_id', user.id);
+
+      if (error) {
+        throw error;
+      }
     }
+
+    // Update Redux profile state immediately
+    dispatch(updateProfile({
+      name: onboardingData.fullName,
+      avatarUrl: avatarUrl,
+    }));
 
     return onboardingData;
   }
