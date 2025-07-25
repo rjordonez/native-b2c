@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, Pause } from 'phosphor-react';
 import WaveSurfer from 'wavesurfer.js';
-import { PronunciationText } from '../../../shared/components/ui/PronunciationText';
+import { PronunciationText } from '../../../shared/components/layout/ui/PronunciationText';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectAutoPlayMessageId, clearAutoPlayMessageId, selectCurrentlyPlayingMessageId, setCurrentlyPlayingMessageId } from '../store/audioPlaybackSlice';
 import { formatDuration, createWaveSurfer, cleanupWaveSurfer, setupWaveSurferEvents } from '@/shared/utils/audio';

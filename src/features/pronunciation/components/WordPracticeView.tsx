@@ -1,7 +1,7 @@
 import React from 'react';
 import { Word } from '../types';
 import { AudioPlaybackButton } from './AudioPlaybackButton';
-import { PronunciationText } from '../../../shared/components/ui/PronunciationText';
+import { PronunciationText } from '../../../shared/components/layout/ui/PronunciationText';
 import { RecordingButton } from './RecordingButton';
 
 interface WordPracticeViewProps {

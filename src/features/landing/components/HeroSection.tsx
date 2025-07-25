@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from './ui/button';
+import { Button } from '../../../shared/components/layout/ui/button';
 import TaskBoard from './TaskBoard';
 import { Mic } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';

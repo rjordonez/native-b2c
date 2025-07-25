@@ -1,12 +1,12 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from './ui/button';
+import { Button } from '../../../shared/components/layout/ui/button';
 import Logo from './Logo';
 import { Menu, X, Mic, BarChart3, Trophy, Languages } from 'lucide-react';
 import { cn } from '../lib/utils';
-import { ToggleGroup, ToggleGroupItem } from './ui/toggle-group';
-import { Switch } from './ui/switch';
+import { ToggleGroup, ToggleGroupItem } from '../../../shared/components/layout/ui/toggle-group';
+import { Switch } from '../../../shared/components/layout/ui/switch';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Header = () => {

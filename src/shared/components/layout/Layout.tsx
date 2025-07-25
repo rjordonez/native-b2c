@@ -1,7 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import TopNav from './TopNav';
-import { ErrorToast } from '../ui/ErrorToast';
+import { ErrorToast } from './ui/ErrorToast';
 
 interface LayoutProps {
   children: React.ReactNode;

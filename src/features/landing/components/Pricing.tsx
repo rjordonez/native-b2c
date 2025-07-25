@@ -1,6 +1,6 @@
 import React from 'react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
+import { Button } from '../../../shared/components/layout/ui/button';
+import { Card, CardContent, CardFooter, CardHeader } from '../../../shared/components/layout/ui/card';
 import { useLanguage } from '../contexts/LanguageContext';
 const Pricing = () => {
   const { t, language } = useLanguage();

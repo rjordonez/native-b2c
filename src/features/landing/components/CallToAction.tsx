@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from './ui/button';
+import { Button } from '../../../shared/components/layout/ui/button';
 import { ArrowRight, Star, Users, Zap } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 

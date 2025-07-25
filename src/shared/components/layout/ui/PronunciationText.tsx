@@ -1,10 +1,10 @@
 import React from 'react';
-import { cn } from '../../../utils/cn';
+import { cn } from '../../../../utils/cn';
 import { 
   SCORING_THRESHOLDS, 
   PHONEME_COLORS, 
   type PronunciationWord 
-} from '../../constants/pronunciation';
+} from '../../../constants/pronunciation';
 
 interface PronunciationTextProps {
   words: PronunciationWord[];
