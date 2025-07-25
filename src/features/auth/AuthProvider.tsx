@@ -3,6 +3,8 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { checkAuth, setUser } from './authSlice';
 import { fetchUserProfile } from '../settings/settingsSlice';
 import { subscriptions } from '../../shared/services/supabaseService';
+import { loadConversations } from '../chat/store/conversationSlice';
+import { restoreTopicPracticeState } from '../chat/store/topicPracticeSlice';
 
 interface AuthProviderProps {
   children: React.ReactNode;
@@ -33,6 +35,18 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     if (user?.id && !needsOnboarding) {
       dispatch(fetchUserProfile(user.id));
+      // Load user's conversations and topic practice state
+      dispatch(loadConversations(user.id))
+        .unwrap()
+        .then((result) => {
+          // Restore topic practice state if it exists
+          if (result.topicPracticeState) {
+            dispatch(restoreTopicPracticeState(result.topicPracticeState));
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to load conversations:', error);
+        });
     }
   }, [dispatch, user?.id, needsOnboarding]);
 

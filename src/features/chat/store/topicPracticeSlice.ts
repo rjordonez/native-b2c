@@ -401,6 +401,11 @@ export const topicPracticeSlice = createSlice({
       state.currentQuestionIndex = 0;
       state.questions = [];
     },
+    restoreTopicPracticeState: (state, action: PayloadAction<{ currentTopic: any; currentQuestionIndex: number; questions: any[] }>) => {
+      state.currentTopic = action.payload.currentTopic;
+      state.currentQuestionIndex = action.payload.currentQuestionIndex;
+      state.questions = action.payload.questions;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -458,6 +463,7 @@ export const topicPracticeSlice = createSlice({
 export const {
   nextTopicQuestion,
   resetTopicPractice,
+  restoreTopicPracticeState,
 } = topicPracticeSlice.actions;
 
 // Selectors

@@ -2,13 +2,20 @@ import React from 'react';
 import { ArrowCounterClockwise, ArrowRight } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { getNextTopicQuestion, redoTopicQuestion, selectTopicPractice } from '../../store/topicPracticeSlice';
+import { selectActiveConversation } from '../../store/conversationSlice';
 
 const ActionButtons: React.FC = () => {
   const dispatch = useAppDispatch();
   const topicPractice = useAppSelector(selectTopicPractice);
+  const activeConversation = useAppSelector(selectActiveConversation);
+  
+  // Check if this is a topic practice session
+  // Either by having currentTopic in state OR by detecting topic questions in messages
+  const isTopicPractice = topicPractice.currentTopic || 
+    (activeConversation?.messages.some(m => m.isTopicQuestion) ?? false);
   
   // Only show buttons during topic practice
-  if (!topicPractice.currentTopic) {
+  if (!isTopicPractice) {
     return null;
   }
 

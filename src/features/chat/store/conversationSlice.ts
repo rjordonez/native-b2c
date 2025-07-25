@@ -8,8 +8,22 @@ import {
   UpdateConversationPayload 
 } from '../types';
 import { SAMPLE_CONVERSATIONS } from '../constants/chatData';
+import { chatPersistence } from '../../../services/chatPersistence';
 
 // Async thunks for API calls
+export const loadConversations = createAsyncThunk(
+  'conversation/loadConversations',
+  async (userId: string, { rejectWithValue }) => {
+    try {
+      const result = await chatPersistence.loadUserConversations(userId);
+      return result;
+    } catch (error) {
+      console.error('Failed to load conversations:', error);
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to load conversations');
+    }
+  }
+);
+
 export const sendMessage = createAsyncThunk(
   'conversation/sendMessage',
   async ({ conversationId, content }: SendMessagePayload, { getState, rejectWithValue }) => {
@@ -17,7 +31,11 @@ export const sendMessage = createAsyncThunk(
       const state = getState() as RootState;
       
       // Skip AI response during topic practice sessions
-      if (state.topicPractice.currentTopic) {
+      // Check both topicPractice state and if conversation has topic questions
+      const conversation = state.conversation.conversations.find(c => c.id === conversationId);
+      const hasTopicQuestions = conversation?.messages.some(m => m.isTopicQuestion) ?? false;
+      
+      if (state.topicPractice.currentTopic || hasTopicQuestions) {
         console.log('Skipping AI response during topic practice session');
         return null;
       }
@@ -71,8 +89,8 @@ interface ConversationState {
 }
 
 const initialState: ConversationState = {
-  conversations: SAMPLE_CONVERSATIONS,
-  activeConversationId: SAMPLE_CONVERSATIONS[0]?.id || null,
+  conversations: [],
+  activeConversationId: null,
   isLoading: false,
   isTyping: false,
   error: null,
@@ -198,6 +216,26 @@ export const conversationSlice = createSlice({
       .addCase(createConversation.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      // Load conversations
+      .addCase(loadConversations.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loadConversations.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.conversations = action.payload.conversations;
+        // Set active conversation to the first one if exists
+        if (action.payload.conversations.length > 0 && !state.activeConversationId) {
+          state.activeConversationId = action.payload.conversations[0].id;
+        }
+      })
+      .addCase(loadConversations.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        // Fallback to sample data if loading fails
+        state.conversations = SAMPLE_CONVERSATIONS;
+        state.activeConversationId = SAMPLE_CONVERSATIONS[0]?.id || null;
       });
   },
 });

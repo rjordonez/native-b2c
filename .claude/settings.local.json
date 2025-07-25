@@ -20,7 +20,8 @@
       "Bash(git pull:*)",
       "Bash(sed:*)",
       "Bash(git ls-tree:*)",
-      "mcp__supabase__execute_sql"
+      "mcp__supabase__execute_sql",
+      "mcp__supabase__search_docs"
     ],
     "deny": []
   },
