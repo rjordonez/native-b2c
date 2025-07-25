@@ -89,7 +89,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
                     <button
                       onClick={() => handleShadowSentence(msg.content)}
-                      className="text-xs bg-primary text-white px-2 py-1 rounded hover:bg-primary/90 font-medium transition-colors"
+                      className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors"
                     >
                       Shadow sentence
                     </button>

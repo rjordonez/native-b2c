@@ -20,23 +20,27 @@ const enhanceTranscript = async (transcript) => {
     // Count words in original transcript
     const originalWordCount = transcript.split(/\s+/).filter(word => word.length > 0).length;
 
-    const prompt = `Improve this transcript with simple, natural enhancements.
+    const prompt = `Improve this transcript to target a 0.5 IELTS band increase with natural enhancements.
 
 CRITICAL REQUIREMENTS:
 - Keep the SAME LENGTH as the original (around ${originalWordCount} words)
-- Make only SMALL, REALISTIC improvements
-- Keep it natural and conversational
-- Do NOT make it overly formal or academic
+- Target 0.5 IELTS band improvement through:
+  • Better vocabulary (replace basic words with slightly more sophisticated ones)
+  • Improved grammar complexity (use some compound/complex sentences)
+  • More cohesive devices (furthermore, however, additionally, consequently)
+  • Better pronunciation-friendly phrasing
+- Keep it natural and conversational, NOT overly academic
 - Remove filler words like 'um', 'uh', 'like', 'you know'
-- Fix obvious grammar mistakes
-- Add simple connecting words where helpful
+- Fix all grammar mistakes
+- Add appropriate linking words and discourse markers
+- Use some less common vocabulary where natural
 - Do NOT add quotation marks around your response
 - Return only the enhanced text without any formatting or quotes
 
 Original transcript:
 "${transcript}"
 
-Instructions: Make small, natural improvements to make the transcript clearer and more fluent. Focus on removing disfluencies, fixing basic grammar, and adding simple connecting words. Keep the same meaning and approximate length. Make it sound more natural and polished. Return only the enhanced text without quotation marks.`;
+Instructions: Enhance this transcript to reflect a 0.5 IELTS band score improvement. Make the language slightly more sophisticated while keeping it natural. Add variety in sentence structures, use better vocabulary, and improve fluency markers. The enhancement should sound like a more confident and fluent speaker. Return only the enhanced text without quotation marks.`;
 
     logger.info('Sending transcript enhancement request to OpenAI', {
       originalLength: transcript.length,

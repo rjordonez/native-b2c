@@ -11,7 +11,6 @@ import {
   setIsPressed
 } from '../store/voiceRecordingSlice';
 import { RecordingButton, RecordingIndicator, WaveformPlayer, ActionButtons } from './voice-recorder';
-import ToolsDropdown from './voice-recorder/ToolsDropdown';
 
 const VoiceRecorder: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -181,7 +180,6 @@ const VoiceRecorder: React.FC = () => {
     return (
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-3">
-          <ToolsDropdown />
           <ActionButtons />
         </div>
         <RecordingButton
@@ -200,7 +198,6 @@ const VoiceRecorder: React.FC = () => {
     return (
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-3">
-          <ToolsDropdown />
           <ActionButtons />
         </div>
         <WaveformPlayer onClear={handleClear} />
