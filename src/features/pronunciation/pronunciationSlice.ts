@@ -221,4 +221,34 @@ export const {
   nextQuestion,
   updateWordScore
 } = pronunciationSlice.actions;
+
+// Selectors
+import type { RootState } from '../../store/types';
+
+export const selectPronunciationIsOpen = (state: RootState) => state.pronunciation.isOpen;
+export const selectPronunciationSentences = (state: RootState) => state.pronunciation.sentences;
+export const selectPronunciationModalState = (state: RootState) => state.pronunciation.modalState;
+export const selectPronunciationIsProcessing = (state: RootState) => state.pronunciation.isProcessing;
+export const selectPronunciationError = (state: RootState) => state.pronunciation.error;
+export const selectPronunciationAudioCache = (state: RootState) => state.pronunciation.audioCache;
+
+// Derived selectors
+export const selectCurrentSentence = (state: RootState) => {
+  const modalState = state.pronunciation.modalState;
+  if (modalState.type === 'sentence' || modalState.type === 'word') {
+    const index = modalState.type === 'sentence' ? modalState.index : modalState.sentenceIndex;
+    return state.pronunciation.sentences[index];
+  }
+  return null;
+};
+
+export const selectCurrentWord = (state: RootState) => {
+  const modalState = state.pronunciation.modalState;
+  if (modalState.type === 'word') {
+    const sentence = state.pronunciation.sentences[modalState.sentenceIndex];
+    return sentence?.words[modalState.wordIndex] || null;
+  }
+  return null;
+};
+
 export default pronunciationSlice.reducer;

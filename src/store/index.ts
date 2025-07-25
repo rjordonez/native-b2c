@@ -1,17 +1,15 @@
 import { configureStore } from '@reduxjs/toolkit';
-import navigationReducer from './slices/navigationSlice';
-import dashboardReducer from './slices/dashboard/dashboardSlice';
-import saveStatusReducer from './slices/saveStatusSlice';
-import settingsReducer from '../features/settings/settingsSlice';
-import libraryReducer from '../features/library/librarySlice';
+import { navigationReducer, dashboardReducer, saveStatusReducer } from './slices';
+import { settingsReducer } from '../features/settings/store';
+import { libraryReducer } from '../features/library/store';
 import { 
   conversationReducer,
   voiceRecordingReducer,
   audioPlaybackReducer,
   topicPracticeReducer
 } from '../features/chat/store';
-import authReducer from '../features/auth/authSlice';
-import pronunciationReducer from '../features/pronunciation/pronunciationSlice';
+import { authReducer } from '../features/auth/store';
+import { pronunciationReducer } from '../features/pronunciation/store';
 import { autoSaveMiddleware } from './middleware/autoSaveMiddleware';
 
 const store = configureStore({
