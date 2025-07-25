@@ -13,7 +13,8 @@ import {
 import {
   selectActiveConversationId,
   addUserMessage,
-  sendMessage
+  sendMessage,
+  updateMessage
 } from '../../store/conversationSlice';
 import { formatDuration, createWaveSurfer, cleanupWaveSurfer, setupWaveSurferEvents } from '@/shared/utils/audio';
 
@@ -120,8 +121,29 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
       messageId
     }));
 
-    // Start transcription + pronunciation analysis process immediately
-    dispatch(startTranscription({ messageId }));
+    // Update message with initial loading states for transcription and pronunciation
+    dispatch(updateMessage({
+      conversationId: activeConversationId,
+      messageId,
+      updates: {
+        transcription: {
+          text: '',
+          isLoading: true,
+          error: undefined
+        },
+        pronunciation: {
+          words: [],
+          overallScore: 0,
+          accuracy: 0,
+          fluency: 0,
+          completeness: 0,
+          isLoading: true,
+          error: undefined
+        }
+      }
+    }));
+
+    // Start transcription + pronunciation analysis process
     dispatch(transcribeWithPronunciation({
       messageId,
       audioData: audioData,

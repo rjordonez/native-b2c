@@ -222,7 +222,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
               .from('messages')
               .select('*')
               .eq('client_id', messageId)
-              .single();
+              .maybeSingle();
             
             if (dbMsg) {
               // Save transcription if updated
@@ -234,6 +234,10 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
               if (updates.pronunciation && !updates.pronunciation.isLoading) {
                 await chatPersistence.savePronunciation(dbMsg.id, updates.pronunciation);
               }
+            } else if (!updates.transcription?.isLoading && !updates.pronunciation?.isLoading) {
+              // Message doesn't exist in DB yet, but we have final data - save the complete message
+              const completeMessage = { ...message, ...updates };
+              await chatPersistence.saveMessage(completeMessage, dbConv.id, userId);
             }
           }
         }
