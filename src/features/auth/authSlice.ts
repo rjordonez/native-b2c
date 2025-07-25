@@ -202,6 +202,10 @@ export const authSlice = createSlice({
     setUser: (state, action: PayloadAction<User | null>) => {
       state.user = action.payload;
       state.isAuthenticated = !!action.payload;
+      // Reset needsOnboarding when user changes - it will be checked by checkAuth
+      if (!action.payload) {
+        state.needsOnboarding = false;
+      }
     },
     clearError: (state) => {
       state.error = null;
@@ -284,7 +288,12 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.user = null;
         state.isAuthenticated = false;
+        state.needsOnboarding = false;
         state.error = null;
+        // Reset all forms and onboarding data
+        state.loginForm = initialState.loginForm;
+        state.signupForm = initialState.signupForm;
+        state.onboardingData = initialState.onboardingData;
       })
       .addCase(signOut.rejected, (state, action) => {
         state.isLoading = false;

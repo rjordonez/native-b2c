@@ -20,7 +20,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     // Subscribe to auth changes
     const { data: subscription } = subscriptions.subscribeToAuthChanges((user) => {
-      dispatch(setUser(user));
+      if (user) {
+        // User signed in - check full auth status including onboarding
+        dispatch(checkAuth());
+      } else {
+        // User signed out - just set user to null
+        dispatch(setUser(null));
+      }
     });
 
     // Cleanup subscription
