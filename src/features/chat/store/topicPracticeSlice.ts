@@ -62,8 +62,14 @@ export const startTopicPractice = createAsyncThunk<
 
 
       if (!ttsResponse.ok) {
-        console.error('TTS request failed:', ttsResponse.statusText);
-        throw new Error('Failed to generate audio for question');
+        const errorData = await ttsResponse.json().catch(() => ({}));
+        const errorMessage = errorData.message || 'Failed to generate audio';
+        
+        // Provide more specific error for TTS configuration issues
+        if (ttsResponse.status === 503 || errorMessage.includes('unavailable')) {
+          throw new Error('Text-to-speech service is not configured. Please check backend TTS settings.');
+        }
+        throw new Error(errorMessage);
       }
 
       const ttsResult = await ttsResponse.json();
@@ -155,7 +161,14 @@ export const redoTopicQuestion = createAsyncThunk<
       });
 
       if (!ttsResponse.ok) {
-        throw new Error('Failed to generate audio for redo question');
+        const errorData = await ttsResponse.json().catch(() => ({}));
+        const errorMessage = errorData.message || 'Failed to generate audio';
+        
+        // Provide more specific error for TTS configuration issues
+        if (ttsResponse.status === 503 || errorMessage.includes('unavailable')) {
+          throw new Error('Text-to-speech service is not configured. Please check backend TTS settings.');
+        }
+        throw new Error(errorMessage);
       }
 
       const ttsResult = await ttsResponse.json();
@@ -262,7 +275,14 @@ export const getNextTopicQuestion = createAsyncThunk<
       });
 
       if (!ttsResponse.ok) {
-        throw new Error('Failed to generate audio for next question');
+        const errorData = await ttsResponse.json().catch(() => ({}));
+        const errorMessage = errorData.message || 'Failed to generate audio';
+        
+        // Provide more specific error for TTS configuration issues
+        if (ttsResponse.status === 503 || errorMessage.includes('unavailable')) {
+          throw new Error('Text-to-speech service is not configured. Please check backend TTS settings.');
+        }
+        throw new Error(errorMessage);
       }
 
       const ttsResult = await ttsResponse.json();

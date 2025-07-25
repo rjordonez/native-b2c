@@ -56,7 +56,14 @@ export const generateTtsPreview = createAsyncThunk<
       });
 
       if (!response.ok) {
-        throw new Error('Failed to generate preview');
+        const errorData = await response.json().catch(() => ({}));
+        const errorMessage = errorData.message || 'Failed to generate preview';
+        
+        // Provide more specific error for TTS configuration issues
+        if (response.status === 503 || errorMessage.includes('unavailable')) {
+          throw new Error('Text-to-speech service is not configured. Please check backend TTS settings.');
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();

@@ -54,8 +54,11 @@ export const autoSaveMiddleware = (store: any) => (next: any) => (action: AnyAct
         clearTimeout(saveTimer);
       }
       
-      // Set loading state immediately for user feedback
-      store.dispatch(startSaving());
+      // Only start saving if not already saving
+      const saveStatus = state.saveStatus;
+      if (!saveStatus.isSaving) {
+        store.dispatch(startSaving());
+      }
       
       // Debounce the actual save
       saveTimer = setTimeout(async () => {
