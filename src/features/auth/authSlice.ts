@@ -44,7 +44,19 @@ export const signIn = createAsyncThunk(
     });
     
     if (error) throw error;
-    return data.user;
+    
+    const user = data.user;
+    if (!user) throw new Error('No user returned');
+    
+    // Check onboarding status
+    const { data: profiles } = await supabase
+      .from('user_profiles')
+      .select('onboarding_completed')
+      .eq('auth_user_id', user.id);
+    
+    const needsOnboarding = !profiles || profiles.length === 0 || !profiles[0]?.onboarding_completed;
+    
+    return { user, needsOnboarding };
   }
 );
 
@@ -234,8 +246,9 @@ export const authSlice = createSlice({
       })
       .addCase(signIn.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
+        state.needsOnboarding = action.payload.needsOnboarding;
         state.error = null;
       })
       .addCase(signIn.rejected, (state, action) => {

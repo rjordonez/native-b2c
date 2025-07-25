@@ -8,7 +8,7 @@ const AuthLogo: React.FC = () => {
         alt="Logo" 
         className="h-8 mr-3"
       />
-      <span className="text-xl font-semibold text-gray-900">Native Speaking</span>
+     
     </div>
   );
 };

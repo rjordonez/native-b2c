@@ -51,7 +51,10 @@ const AppRoutes: React.FC = () => {
           <Route path="*" element={<AuthPage />} />
         </>
       ) : needsOnboarding ? (
-        <Route path="/onboarding" element={<OnboardingPage />} />
+        <>
+          <Route path="/onboarding" element={<OnboardingPage />} />
+          <Route path="*" element={<Navigate to="/onboarding" replace />} />
+        </>
       ) : (
         <>
           <Route path="/library" element={
