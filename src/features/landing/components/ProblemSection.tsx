@@ -3,7 +3,7 @@ import { ChevronRight } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const ProblemSection = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [flippedCards, setFlippedCards] = useState<Set<number>>(new Set());
 
   const problems = [
@@ -40,7 +40,7 @@ const ProblemSection = () => {
     <section className="w-full px-6 md:px-12 bg-muted/30 py-20">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">
+          <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
             {t('problem.title')}
           </h2>
           <p className="text-muted-foreground text-xl max-w-3xl mx-auto leading-relaxed">

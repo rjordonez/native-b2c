@@ -31,9 +31,9 @@ const Testimonials = () => {
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Header section - aligned with other sections */}
         <div className="text-center space-y-4 max-w-5xl mx-auto">
-          <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">
+          <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
             {language === 'vi' ? (
-              <>Được tin dùng bởi hàng trăm học viên IELTS<br />trên khắp thế giới</>
+              <>2000+ học viên IELTS<br />trên khắp thế giới</>
             ) : (
               t('testimonials.title')
             )}

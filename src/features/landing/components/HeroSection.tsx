@@ -32,11 +32,11 @@ const HeroSection = () => {
           
         </div>
         
-        <h1 className="font-heading font-bold text-[34px] leading-tight tracking-tight text-balance text-foreground px-[19px] py-[11px] md:text-5xl">
+        <h1 className={`font-heading font-bold text-[34px] leading-tight tracking-tight text-balance text-foreground px-[19px] py-[11px] md:text-5xl${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
           {language === 'vi' ? (
             <>
-              Vật vã vì IELTS Speaking <br />
-              mãi không lên band? <span className="text-primary">Native xử được</span>
+              Loay hoay mãi với IELTS Speaking?<br />
+              Để <span className="text-primary">Native</span> giải quyết!
             </>
           ) : (
             <>

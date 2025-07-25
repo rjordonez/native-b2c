@@ -3,9 +3,7 @@ import { Button } from './ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from './ui/card';
 import { useLanguage } from '../contexts/LanguageContext';
 const Pricing = () => {
-  const {
-    t
-  } = useLanguage();
+  const { t, language } = useLanguage();
   const plans = [{
     name: t('pricing.basic.name'),
     price: t('pricing.basic.price'),
@@ -37,7 +35,9 @@ const Pricing = () => {
     <section className="w-full py-20 px-6 md:px-12 bg-background">
       <div className="max-w-7xl mx-auto space-y-16">
         <div className="text-center space-y-4 max-w-3xl mx-auto">
-          <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">Choose Your Plan</h2>
+          <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
+            {t('pricing.title')}
+          </h2>
           <p className="text-muted-foreground text-lg">Get started with flexible pricing options.</p>
         </div>
         

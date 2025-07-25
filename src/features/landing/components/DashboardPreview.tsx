@@ -1,9 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
 import TaskBoard from './TaskBoard';
+import { useLanguage } from '../contexts/LanguageContext';
 
 const DashboardPreview = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const { t, language } = useLanguage();
 
   useEffect(() => {
     // Use IntersectionObserver to trigger animation when component enters viewport
@@ -33,8 +35,8 @@ const DashboardPreview = () => {
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
           }`}
         >
-          <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">
-            Intuitive task management interface
+          <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
+            {t('dashboard.title')}
           </h2>
           <p className="text-cosmic-muted text-lg">
             A powerful dashboard that adapts to how your team works

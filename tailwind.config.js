@@ -75,7 +75,8 @@ export default {
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
         'heading': ['Poppins', 'sans-serif'],
-        'body': ['Inter', 'sans-serif']
+        'body': ['Inter', 'sans-serif'],
+        'vietnamese-heading': ['Be Vietnam Pro', 'Poppins', 'Inter', 'sans-serif'],
       },
       letterSpacing: {
         'tighter': '-0.05em',

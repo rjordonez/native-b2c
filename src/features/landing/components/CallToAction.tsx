@@ -5,7 +5,7 @@ import { ArrowRight, Star, Users, Zap } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const CallToAction = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const stats = [{
     icon: Users,
@@ -31,7 +31,9 @@ const CallToAction = () => {
         <div className="text-center space-y-8">
           {/* Main CTA Content */}
           <div className="space-y-6 max-w-4xl mx-auto">
-            <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">{t('cta.title')}</h2>
+            <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
+              {t('cta.title')}
+            </h2>
           </div>
 
           {/* Action Buttons */}

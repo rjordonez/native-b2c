@@ -257,7 +257,7 @@ const translations = {
     'features.section2.feature2.title': 'Huấn luyện cá nhân hóa',
     'features.section2.feature2.description': 'Nhận kế hoạch học tập tùy chỉnh dựa trên điểm mạnh và lĩnh vực cần cải thiện cụ thể của bạn.',
     
-    'features.section3.title': 'Mục tiêu tập trung, rõ ràng.',
+    'features.section3.title': 'Mục tiêu tập trung, rõ ràng',
     'features.section3.description': 'Theo dõi điểm thi phỏng đoán và tiến trình học mỗi ngày. Hệ thống nhắc nhở lịch và đưa ra lời khuyên để bạn giữ vững động lực.',
     'features.section3.feature1.title': 'Phản hồi nhanh như chớp',
     'features.section3.feature1.description': 'Nhận sửa lỗi và gợi ý tức thì mà không cần chờ đánh giá của con người hoặc lên lịch buổi học.',
@@ -285,7 +285,7 @@ const translations = {
     'problem.card2.title': 'Không có ai luyện tập cùng nên phản xạ kém',
     'problem.card2.description': 'Muốn nói trôi chảy, bạn cần môi trường có phản hồi thật, chứ không chỉ luyện một chiều.',
     'problem.card3.title': 'Vào thi là cứng họng, đầu trống rỗng',
-    'problem.card3.description': 'Vì bạn chưa luyện trong bối cảnh mô phỏng thật. Chưa làm quen với áp lực nên vào thi dễ bị “đơ',
+    'problem.card3.description': 'Vì bạn chưa luyện trong bối cảnh mô phỏng thật. Chưa làm quen với áp lực nên vào thi dễ bị “đơ”',
     'problem.tapToReveal': 'Xem thêm',
     'problem.tapToFlipBack': 'Nhấn để lật lại',
     'problem.problemLabel': 'Vấn đề',

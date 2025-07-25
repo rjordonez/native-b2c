@@ -1,9 +1,12 @@
 import React from 'react';
 import { Mic, MessageSquare, Play, Brain, Target, Zap } from "lucide-react";
 import { useLanguage } from '../contexts/LanguageContext';
+import dashImg from '../lib/images/dash.png';
+import chatImg from '../lib/images/chat.png';
+import practiceSessionImg from '../lib/images/practice_session.png';
 
 const Features = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const featuresData = [{
     title: t('features.section1.title'),
@@ -18,8 +21,8 @@ const Features = () => {
       description: t('features.section1.feature2.description'),
       icon: <MessageSquare size={20} className="text-primary" />
     }],
-    videoSrc: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&h=400&fit=crop&crop=center",
-    videoAlt: "Native AI tutor demonstration"
+    videoSrc: dashImg,
+    videoAlt: "Native AI dashboard preview"
   }, {
     title: t('features.section2.title'),
     highlightedWords: ["feedback"],
@@ -33,8 +36,8 @@ const Features = () => {
       description: t('features.section2.feature2.description'),
       icon: <Target size={20} className="text-primary" />
     }],
-    videoSrc: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=600&h=400&fit=crop&crop=center",
-    videoAlt: "AI analysis demonstration"
+    videoSrc: chatImg,
+    videoAlt: "Native AI chat preview"
   }, {
     title: t('features.section3.title'),
     highlightedWords: ["track", "goal"],
@@ -48,8 +51,8 @@ const Features = () => {
       description: t('features.section3.feature2.description'),
       icon: <MessageSquare size={20} className="text-primary" />
     }],
-    videoSrc: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop&crop=center",
-    videoAlt: "Results dashboard demonstration"
+    videoSrc: practiceSessionImg,
+    videoAlt: "Native AI practice session preview"
   }];
   
   const FeatureSection = ({
@@ -94,7 +97,7 @@ const Features = () => {
         <div className={`space-y-8 ${reversed ? 'lg:order-2' : ''}`}>
           {/* Headline with gradient */}
           <div>
-            <h2 className="text-3xl md:text-4xl font-bold leading-tight mb-4">
+            <h2 className={`text-3xl md:text-4xl font-bold leading-tight mb-4 font-heading${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
               {renderTitle(data.title, data.highlightedWords)}
             </h2>
             <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
@@ -108,22 +111,26 @@ const Features = () => {
           </div>
         </div>
 
-        {/* Video Column */}
+        {/* Video/Image Column */}
         <div className={`bg-muted/30 rounded-2xl p-8 ${reversed ? 'lg:order-1' : ''}`}>
           <div className="relative group">
-            <div className="relative overflow-hidden rounded-xl shadow-lg bg-muted aspect-video">
-              <img src={data.videoSrc} alt={data.videoAlt} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
-              
-              {/* Play Button Overlay */}
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="bg-primary/90 backdrop-blur-sm rounded-full p-4 shadow-lg transform scale-75 group-hover:scale-100 transition-transform duration-300">
-                  <Play className="h-8 w-8 text-primary-foreground fill-current" />
-                </div>
+            {(index === 0 || index === 1 || index === 2) ? (
+              <div className="relative overflow-hidden rounded-xl shadow-lg bg-muted aspect-video">
+                <img src={data.videoSrc} alt={data.videoAlt} className="w-full h-full object-cover" />
               </div>
-
-              {/* Subtle border glow on hover */}
-              <div className="absolute inset-0 rounded-xl border-2 border-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-            </div>
+            ) : (
+              <div className="relative overflow-hidden rounded-xl shadow-lg bg-muted aspect-video">
+                <img src={data.videoSrc} alt={data.videoAlt} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                {/* Play Button Overlay */}
+                <div className="absolute inset-0 flex items-center justify-center bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="bg-primary/90 backdrop-blur-sm rounded-full p-4 shadow-lg transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                    <Play className="h-8 w-8 text-primary-foreground fill-current" />
+                  </div>
+                </div>
+                {/* Subtle border glow on hover */}
+                <div className="absolute inset-0 rounded-xl border-2 border-primary/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -134,7 +141,7 @@ const Features = () => {
       <div className="max-w-7xl mx-auto space-y-24">
         {/* Main Headline */}
         <div className="text-center mb-16">
-          <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">
+          <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
             {t('features.title')}
           </h2>
         </div>

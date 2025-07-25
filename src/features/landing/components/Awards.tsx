@@ -3,7 +3,7 @@ import { Award, Trophy, Star } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Awards = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const awards = [{
     title: t('awards.award1.title'),
@@ -29,7 +29,7 @@ const Awards = () => {
     <section className="w-full py-12 md:py-16 px-6 md:px-12 bg-gradient-subtle">
       <div className="max-w-7xl mx-auto">
         <div className="text-center space-y-3 max-w-3xl mx-auto mb-12">
-          <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">
+          <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
             {t('awards.title')}
           </h2>
           <p className="font-body text-muted-foreground text-lg">

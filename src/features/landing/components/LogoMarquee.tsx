@@ -7,7 +7,7 @@ import viterbi from '../lib/images/institutions/viterbi.png';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const LogoMarquee = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const universities = [
     { name: 'Lloyd Grief Center', logo: lloyd },
@@ -24,7 +24,7 @@ const LogoMarquee = () => {
     <section className="py-20 bg-white">
       <div className="container mx-auto">
         <div className="text-center mb-8">
-          <h2 className="font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4">
+          <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
             {t('institutions.title')}
           </h2>
         </div>
