@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import dashImg from '../lib/images/dash.png';
 import chatImg from '../lib/images/chat.png';
 import practiceSessionImg from '../lib/images/practice_session.png';
+import activity from '../lib/images/activity.png'
 
 const Features = () => {
   const { t, language } = useLanguage();
@@ -51,7 +52,7 @@ const Features = () => {
       description: t('features.section3.feature2.description'),
       icon: <MessageSquare size={20} className="text-primary" />
     }],
-    videoSrc: dashImg,
+    videoSrc: activity,
     videoAlt: "Native AI practice session preview "
   }];
   
