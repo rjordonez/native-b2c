@@ -2,6 +2,7 @@ import { Middleware, AnyAction } from '@reduxjs/toolkit';
 import { RootState } from '../types';
 import { chatPersistence } from '../../services/chatPersistence';
 import { startSaving, completeSaving, failSaving } from '../slices/saveStatusSlice';
+import { supabase } from '../../shared/services/supabase';
 
 // Actions that trigger saves
 const SAVE_ACTIONS = [
@@ -23,6 +24,11 @@ const SAVE_ACTIONS = [
   'topicPractice/startTopicPractice/fulfilled',
   'topicPractice/redoTopicQuestion/fulfilled',
   'topicPractice/getNextTopicQuestion/fulfilled',
+  // Transcription and pronunciation actions
+  'conversation/updateMessage',
+  'chat/updateMessage',
+  'voiceRecording/processTranscription/fulfilled',
+  'voiceRecording/analyzePronunciation/fulfilled',
 ];
 
 // Debounce timer for saves
@@ -101,7 +107,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
         // Find and save the message
         const message = conversation.messages.find((m: any) => m.id === (messageId || `msg-${Date.now()}-user`));
         if (message) {
-          await chatPersistence.saveMessage(message, dbConvId);
+          await chatPersistence.saveMessage(message, dbConvId, userId);
         }
       }
       break;
@@ -120,7 +126,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
         const dbConvId = await chatPersistence.saveConversation(conversation, userId, topicPracticeState);
         
         // Save the message
-        await chatPersistence.saveMessage(message, dbConvId);
+        await chatPersistence.saveMessage(message, dbConvId, userId);
       }
       break;
     }
@@ -151,7 +157,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
       
       // Save the first message (question)
       if (conversation.messages.length > 0) {
-        await chatPersistence.saveMessage(conversation.messages[0], dbConvId);
+        await chatPersistence.saveMessage(conversation.messages[0], dbConvId, userId);
       }
       break;
     }
@@ -168,7 +174,48 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
         const topicPracticeState = state.topicPractice;
         
         const dbConvId = await chatPersistence.saveConversation(conversation, userId, topicPracticeState);
-        await chatPersistence.saveMessage(message, dbConvId);
+        await chatPersistence.saveMessage(message, dbConvId, userId);
+      }
+      break;
+    }
+    
+    // Handle message updates (transcription/pronunciation)
+    case 'chat/updateMessage':
+    case 'conversation/updateMessage': {
+      const { conversationId, messageId, updates } = action.payload;
+      const conversation = chatState.conversations.find((c: any) => c.id === conversationId);
+      
+      if (conversation) {
+        const message = conversation.messages.find((m: any) => m.id === messageId);
+        if (message) {
+          // Get the database conversation ID
+          const { data: dbConv } = await supabase
+            .from('conversations')
+            .select('*')
+            .eq('client_id', conversationId)
+            .single();
+          
+          if (dbConv) {
+            // Get the database message ID
+            const { data: dbMsg } = await supabase
+              .from('messages')
+              .select('*')
+              .eq('client_id', messageId)
+              .single();
+            
+            if (dbMsg) {
+              // Save transcription if updated
+              if (updates.transcription && !updates.transcription.isLoading) {
+                await chatPersistence.saveTranscription(dbMsg.id, updates.transcription);
+              }
+              
+              // Save pronunciation if updated
+              if (updates.pronunciation && !updates.pronunciation.isLoading) {
+                await chatPersistence.savePronunciation(dbMsg.id, updates.pronunciation);
+              }
+            }
+          }
+        }
       }
       break;
     }
