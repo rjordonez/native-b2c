@@ -1,6 +1,5 @@
 import { supabase } from '../shared/services/supabase';
-
-const AUDIO_BUCKET = 'chat-audio';
+import { AUDIO_STORAGE, AUDIO_FORMATS } from '../constants/audio';
 
 export class AudioStorageService {
   /**
@@ -35,7 +34,7 @@ export class AudioStorageService {
       
       // Upload to Supabase Storage
       const { data, error } = await supabase.storage
-        .from(AUDIO_BUCKET)
+        .from(AUDIO_STORAGE.BUCKET_NAME)
         .upload(fileName, blob, {
           contentType: mimeType,
           upsert: true
@@ -48,7 +47,7 @@ export class AudioStorageService {
       
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
-        .from(AUDIO_BUCKET)
+        .from(AUDIO_STORAGE.BUCKET_NAME)
         .getPublicUrl(data.path);
       
       return {
@@ -68,7 +67,7 @@ export class AudioStorageService {
   async deleteAudio(filePath: string): Promise<void> {
     try {
       const { error } = await supabase.storage
-        .from(AUDIO_BUCKET)
+        .from(AUDIO_STORAGE.BUCKET_NAME)
         .remove([filePath]);
       
       if (error) {

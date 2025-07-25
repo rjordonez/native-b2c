@@ -8,6 +8,7 @@ import {
   UpdateConversationPayload 
 } from '../types';
 import { SAMPLE_CONVERSATIONS } from '../constants/chatData';
+import { DELAYS } from '../../../constants/timing';
 import { chatPersistence } from '../../../services/chatPersistence';
 
 // Async thunks for API calls
@@ -41,7 +42,7 @@ export const sendMessage = createAsyncThunk(
       }
       
       // Simulate API call delay for regular conversations
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise(resolve => setTimeout(resolve, DELAYS.SIMULATED_API_RESPONSE));
       
       // Simulate AI response (replace with actual API call)
       const aiResponse: Message = {
@@ -63,7 +64,7 @@ export const createConversation = createAsyncThunk(
   async ({ title }: CreateConversationPayload, { rejectWithValue }) => {
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, DELAYS.SIMULATED_CONVERSATION_CREATE));
       
       const newConversation: Conversation = {
         id: `conv-${Date.now()}`,

@@ -1,9 +1,10 @@
-import { Middleware, AnyAction } from '@reduxjs/toolkit';
+import { AnyAction } from '@reduxjs/toolkit';
 import { RootState } from '../types';
 import { chatPersistence } from '../../services/chatPersistence';
 import { startSaving, completeSaving, failSaving } from '../slices/saveStatusSlice';
 import { supabase } from '../../shared/services/supabase';
 import { getUserFriendlyError, logError } from '../../utils/error';
+import { DELAYS } from '../../constants/timing';
 
 // Actions that trigger saves
 const SAVE_ACTIONS = [
@@ -36,9 +37,8 @@ const SAVE_ACTIONS = [
 
 // Debounce timer for saves
 let saveTimer: NodeJS.Timeout | null = null;
-const SAVE_DELAY = 1000; // 1 second debounce
 
-export const autoSaveMiddleware: Middleware<{}, RootState> = (store) => (next) => (action: AnyAction) => {
+export const autoSaveMiddleware = (store: any) => (next: any) => (action: AnyAction) => {
   // Execute the action first
   const result = next(action);
   
@@ -67,7 +67,7 @@ export const autoSaveMiddleware: Middleware<{}, RootState> = (store) => (next) =
           const userMessage = getUserFriendlyError(error);
           store.dispatch(failSaving(userMessage));
         }
-      }, SAVE_DELAY);
+      }, DELAYS.AUTOSAVE_DEBOUNCE);
     }
   }
   
@@ -77,19 +77,30 @@ export const autoSaveMiddleware: Middleware<{}, RootState> = (store) => (next) =
 /**
  * Handle the save operation based on action type
  */
-async function handleSave(action: AnyAction, state: RootState, userId: string) {
-  // Get the chat state - check both possible locations
-  const chatState = state.chat || state.conversation;
-  
-  interface ConversationState {
-    conversations: Array<{
-      id: string;
-      messages: Array<{
-        id: string;
-        transcription?: { text: string };
-      }>;
-    }>;
+// Helper function to transform topic practice state for database
+function transformTopicPracticeForDB(topicPracticeState: any) {
+  if (!topicPracticeState || !topicPracticeState.currentTopic) {
+    return undefined;
   }
+  
+  return {
+    currentTopic: {
+      id: topicPracticeState.currentTopic.id || `topic-${Date.now()}`,
+      title: topicPracticeState.currentTopic.title || topicPracticeState.currentTopic.name || 'Unknown Topic',
+      description: topicPracticeState.currentTopic.description,
+    },
+    currentQuestionIndex: topicPracticeState.currentQuestionIndex || 0,
+    questions: (topicPracticeState.questions || []).map((q: any, index: number) => ({
+      id: q.id || `question-${index}`,
+      text: q.text || q,
+      order: q.order ?? index,
+    })),
+  };
+}
+
+async function handleSave(action: AnyAction, state: RootState, userId: string) {
+  // Get the conversation state
+  const chatState = state.conversation;
   
   switch (action.type) {
     case 'chat/createConversation/fulfilled':
@@ -102,17 +113,18 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/addUserMessage':
     case 'conversation/addUserMessage': {
       const { conversationId, messageId } = action.payload;
-      const conversation = chatState.conversations.find(c => c.id === conversationId);
+      const conversation = chatState.conversations.find((c: { id: string }) => c.id === conversationId);
       
       if (conversation) {
         // Get topic practice state if active
         const topicPracticeState = state.topicPractice;
+        const transformedTopicState = transformTopicPracticeForDB(topicPracticeState);
         
         // Save conversation first to ensure it exists
-        const dbConvId = await chatPersistence.saveConversation(conversation, userId, topicPracticeState);
+        const dbConvId = await chatPersistence.saveConversation(conversation, userId, transformedTopicState);
         
         // Find and save the message
-        const message = conversation.messages.find(m => m.id === (messageId || `msg-${Date.now()}-user`));
+        const message = conversation.messages.find((m: { id: string }) => m.id === (messageId || `msg-${Date.now()}-user`));
         if (message) {
           await chatPersistence.saveMessage(message, dbConvId, userId);
         }
@@ -123,14 +135,15 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/addMessage':
     case 'conversation/addMessage': {
       const { conversationId, message } = action.payload;
-      const conversation = chatState.conversations.find(c => c.id === conversationId);
+      const conversation = chatState.conversations.find((c: { id: string }) => c.id === conversationId);
       
       if (conversation) {
         // Get topic practice state if active
         const topicPracticeState = state.topicPractice;
+        const transformedTopicState = transformTopicPracticeForDB(topicPracticeState);
         
         // Save conversation first to ensure it exists
-        const dbConvId = await chatPersistence.saveConversation(conversation, userId, topicPracticeState);
+        const dbConvId = await chatPersistence.saveConversation(conversation, userId, transformedTopicState);
         
         // Save the message
         await chatPersistence.saveMessage(message, dbConvId, userId);
@@ -174,13 +187,14 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/getNextTopicQuestion/fulfilled':
     case 'topicPractice/getNextTopicQuestion/fulfilled': {
       const { conversationId, message } = action.payload;
-      const conversation = chatState.conversations.find(c => c.id === conversationId);
+      const conversation = chatState.conversations.find((c: { id: string }) => c.id === conversationId);
       
       if (conversation) {
         // Get topic practice state if active
         const topicPracticeState = state.topicPractice;
+        const transformedTopicState = transformTopicPracticeForDB(topicPracticeState);
         
-        const dbConvId = await chatPersistence.saveConversation(conversation, userId, topicPracticeState);
+        const dbConvId = await chatPersistence.saveConversation(conversation, userId, transformedTopicState);
         await chatPersistence.saveMessage(message, dbConvId, userId);
       }
       break;
@@ -190,10 +204,10 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/updateMessage':
     case 'conversation/updateMessage': {
       const { conversationId, messageId, updates } = action.payload;
-      const conversation = chatState.conversations.find(c => c.id === conversationId);
+      const conversation = chatState.conversations.find((c: { id: string }) => c.id === conversationId);
       
       if (conversation) {
-        const message = conversation.messages.find(m => m.id === messageId);
+        const message = conversation.messages.find((m: { id: string }) => m.id === messageId);
         if (message) {
           // Get the database conversation ID
           const { data: dbConv } = await supabase
@@ -230,16 +244,16 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     // Handle enhanced transcript
     case 'topicPractice/enhanceTranscript/fulfilled': {
       const { conversationId, message } = action.payload;
-      const conversation = chatState.conversations.find(c => c.id === conversationId);
+      const conversation = chatState.conversations.find((c: { id: string }) => c.id === conversationId);
       
       if (conversation && message) {
         // Find the original message that was enhanced
-        const originalMessages = conversation.messages.filter(m => 
+        const originalMessages = conversation.messages.filter((m: { sender: string; transcription?: { text: string } }) => 
           m.sender === 'user' && m.transcription && m.transcription.text
         );
         const lastUserMessage = originalMessages[originalMessages.length - 1];
         
-        if (lastUserMessage) {
+        if (lastUserMessage && lastUserMessage.transcription) {
           // Get the database message ID
           const { data: dbMsg } = await supabase
             .from('messages')

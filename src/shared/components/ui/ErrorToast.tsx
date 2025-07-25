@@ -2,12 +2,13 @@ import React, { useEffect } from 'react';
 import { X, Warning } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { selectSaveError, clearError } from '../../../store/slices/saveStatusSlice';
+import { DELAYS } from '../../../constants/timing';
 
 interface ErrorToastProps {
   duration?: number; // milliseconds
 }
 
-export const ErrorToast: React.FC<ErrorToastProps> = ({ duration = 5000 }) => {
+export const ErrorToast: React.FC<ErrorToastProps> = ({ duration = DELAYS.ERROR_TOAST_DURATION }) => {
   const dispatch = useAppDispatch();
   const error = useAppSelector(selectSaveError);
 

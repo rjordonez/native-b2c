@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useAppSelector } from '../../../store/hooks';
 import { selectIsSaving, selectLastSaved, selectSaveError } from '../../../store/slices/saveStatusSlice';
 import { CheckCircle, CloudArrowUp, XCircle } from '@phosphor-icons/react';
+import { DELAYS } from '../../../constants/timing';
 
 const SaveStatusIndicator: React.FC = () => {
   const isSaving = useAppSelector(selectIsSaving);
@@ -9,14 +10,12 @@ const SaveStatusIndicator: React.FC = () => {
   const error = useAppSelector(selectSaveError);
   const [showSaved, setShowSaved] = useState(false);
 
-  // Debug logging
-  console.log('SaveStatusIndicator state:', { isSaving, lastSaved, error, showSaved });
 
   // Show "Saved" message for 3 seconds after save completes
   useEffect(() => {
     if (lastSaved && !isSaving) {
       setShowSaved(true);
-      const timer = setTimeout(() => setShowSaved(false), 3000);
+      const timer = setTimeout(() => setShowSaved(false), DELAYS.SAVE_STATUS_HIDE);
       return () => clearTimeout(timer);
     }
   }, [lastSaved, isSaving]);

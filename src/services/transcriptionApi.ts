@@ -1,5 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from '../config/api';
+import { TIMEOUTS } from '../constants/timing';
+import { API_ENDPOINTS } from '../constants/api';
 
 export interface TranscriptionResult {
   id: string;
