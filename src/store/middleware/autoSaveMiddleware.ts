@@ -1,4 +1,4 @@
-import { AnyAction } from '@reduxjs/toolkit';
+import { AnyAction, Middleware } from '@reduxjs/toolkit';
 import { RootState } from '../types';
 import { chatPersistence } from '../../features/chat/services/chatPersistence';
 import { startSaving, completeSaving, failSaving } from '../slices/saveStatusSlice';
@@ -38,12 +38,12 @@ const SAVE_ACTIONS = [
 // Debounce timer for saves
 let saveTimer: NodeJS.Timeout | null = null;
 
-export const autoSaveMiddleware = (store: any) => (next: any) => (action: AnyAction) => {
+export const autoSaveMiddleware: Middleware = (store) => (next) => (action) => {
   // Execute the action first
   const result = next(action);
   
   // Check if this action should trigger a save
-  if (SAVE_ACTIONS.includes(action.type)) {
+  if (SAVE_ACTIONS.includes((action as AnyAction).type)) {
     const state = store.getState();
     const userId = state.auth.user?.id;
     
@@ -63,7 +63,7 @@ export const autoSaveMiddleware = (store: any) => (next: any) => (action: AnyAct
       // Debounce the actual save
       saveTimer = setTimeout(async () => {
         try {
-          await handleSave(action, state, userId);
+          await handleSave(action as AnyAction, state, userId);
           store.dispatch(completeSaving());
         } catch (error) {
           logError(error, 'AutoSave');

@@ -10,6 +10,7 @@ import {
 } from '../features/chat/store';
 import { authReducer } from '../features/auth/store';
 import { pronunciationReducer } from '../features/pronunciation/store';
+import devDashReducer from '../features/dev-dash/devDashSlice';
 import { autoSaveMiddleware } from './middleware/autoSaveMiddleware';
 
 const store = configureStore({
@@ -25,6 +26,7 @@ const store = configureStore({
     topicPractice: topicPracticeReducer,
     auth: authReducer,
     pronunciation: pronunciationReducer,
+    devDash: devDashReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

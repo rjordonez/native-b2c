@@ -141,6 +141,7 @@ export const userProgressService = {
   },
 };
 
+
 // Real-time subscriptions
 export const subscriptions = {
   subscribeToAuthChanges(callback: (user: any) => void) {
@@ -159,6 +160,21 @@ export const subscriptions = {
           schema: 'public',
           table: 'user_topic_progress',
           filter: `user_id=eq.${userId}`,
+        },
+        callback
+      )
+      .subscribe();
+  },
+
+  subscribeToUserAnalytics(callback: (payload: any) => void) {
+    return supabase
+      .channel('dev_analytics')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'user_profiles',
         },
         callback
       )

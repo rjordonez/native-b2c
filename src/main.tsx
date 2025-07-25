@@ -6,6 +6,7 @@ import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
 import './index.css'
 import App from './App.tsx'
+import { PostHogProvider } from 'posthog-js/react'
 
 // Suppress WaveSurfer AbortError in development
 if (import.meta.env.DEV) {
@@ -16,8 +17,15 @@ if (import.meta.env.DEV) {
   });
 }
 
+const options = {
+  api_host: import.meta.env.VITE_PUBLIC_POSTHOG_HOST,
+  defaults: '2025-05-24',
+}
+
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <PostHogProvider apiKey={import.meta.env.VITE_PUBLIC_POSTHOG_KEY} options={options}>
+      <App />
+    </PostHogProvider>
   </StrictMode>,
 )
