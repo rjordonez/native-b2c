@@ -269,7 +269,8 @@ export class ChatPersistenceService {
           messages (
             *,
             transcriptions (*),
-            pronunciation_scores (*)
+            pronunciation_scores (*),
+            enhanced_transcripts (*)
           )
         `)
         .eq('user_id', userId)
@@ -278,8 +279,6 @@ export class ChatPersistenceService {
       if (error) throw error;
 
       if (!conversations) return { conversations: [] };
-
-      console.log('Loaded conversations from DB:', conversations);
 
       // Transform DB data to Redux format
       const transformedConversations = conversations.map(conv => this.transformConversation(conv));
@@ -348,7 +347,6 @@ export class ChatPersistenceService {
             : msg.pronunciation_scores;
           
           if (pron && pron.overall_score !== undefined) {
-            console.log('Loading pronunciation for message:', msg.client_id, pron);
             message.pronunciation = {
               words: pron.word_scores || [],
               overallScore: pron.overall_score,
@@ -366,10 +364,38 @@ export class ChatPersistenceService {
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
 
+    // Collect all enhanced transcripts from all messages
+    const enhancedMessages: Message[] = [];
+    dbConv.messages.forEach((dbMsg: any) => {
+      if (dbMsg.enhanced_transcripts) {
+        const transcripts = Array.isArray(dbMsg.enhanced_transcripts)
+          ? dbMsg.enhanced_transcripts
+          : [dbMsg.enhanced_transcripts];
+        
+        transcripts.forEach((enhancedTrans: any) => {
+          if (enhancedTrans && enhancedTrans.enhanced_text) {
+            const enhancedMessage: Message = {
+              id: `enhanced-${dbMsg.client_id}-${enhancedTrans.id}`,
+              content: enhancedTrans.enhanced_text,
+              sender: 'assistant',
+              timestamp: enhancedTrans.created_at || new Date().toISOString(),
+              isEnhanced: true,
+            };
+            enhancedMessages.push(enhancedMessage);
+          }
+        });
+      }
+    });
+
+    // Combine regular messages and enhanced messages, then sort by timestamp
+    const allMessages = [...messages, ...enhancedMessages].sort((a, b) => 
+      new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+
     return {
       id: dbConv.client_id,
       title: dbConv.title,
-      messages,
+      messages: allMessages,
       createdAt: dbConv.created_at,
       updatedAt: dbConv.updated_at,
     };

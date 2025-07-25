@@ -29,6 +29,8 @@ const SAVE_ACTIONS = [
   'chat/updateMessage',
   'voiceRecording/processTranscription/fulfilled',
   'voiceRecording/analyzePronunciation/fulfilled',
+  // Enhanced transcript action
+  'topicPractice/enhanceTranscript/fulfilled',
 ];
 
 // Debounce timer for saves
@@ -214,6 +216,39 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
                 await chatPersistence.savePronunciation(dbMsg.id, updates.pronunciation);
               }
             }
+          }
+        }
+      }
+      break;
+    }
+    
+    // Handle enhanced transcript
+    case 'topicPractice/enhanceTranscript/fulfilled': {
+      const { conversationId, message } = action.payload;
+      const conversation = chatState.conversations.find((c: any) => c.id === conversationId);
+      
+      if (conversation && message) {
+        // Find the original message that was enhanced
+        const originalMessages = conversation.messages.filter((m: any) => 
+          m.sender === 'user' && m.transcription && m.transcription.text
+        );
+        const lastUserMessage = originalMessages[originalMessages.length - 1];
+        
+        if (lastUserMessage) {
+          // Get the database message ID
+          const { data: dbMsg } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('client_id', lastUserMessage.id)
+            .maybeSingle();
+          
+          if (dbMsg) {
+            // Save the enhanced transcript
+            await chatPersistence.saveEnhancedTranscript(
+              dbMsg.id,
+              message.content, // Enhanced text
+              lastUserMessage.transcription.text // Original text
+            );
           }
         }
       }
