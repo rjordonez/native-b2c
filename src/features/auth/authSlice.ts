@@ -30,7 +30,7 @@ const initialState: AuthState = {
     targetScore: '',
     currentLevel: '',
     testDate: '',
-    studyGoal: '',
+    howDidYouHear: '',
   },
 };
 
@@ -154,7 +154,7 @@ export const completeOnboarding = createAsyncThunk(
           target_band_score: parseFloat(onboardingData.targetScore),
           current_level: onboardingData.currentLevel,
           test_date: onboardingData.testDate || null,
-          study_goal: onboardingData.studyGoal,
+          how_did_you_hear: onboardingData.howDidYouHear,
           avatar_url: avatarUrl,
           onboarding_completed: true,
           created_at: new Date().toISOString(),
@@ -173,7 +173,7 @@ export const completeOnboarding = createAsyncThunk(
           target_band_score: parseFloat(onboardingData.targetScore),
           current_level: onboardingData.currentLevel,
           test_date: onboardingData.testDate || null,
-          study_goal: onboardingData.studyGoal,
+          how_did_you_hear: onboardingData.howDidYouHear,
           avatar_url: avatarUrl,
           onboarding_completed: true,
           updated_at: new Date().toISOString(),

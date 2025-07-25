@@ -182,10 +182,7 @@ const VoiceRecorder: React.FC = () => {
         <div className="flex items-center gap-3">
           <ActionButtons />
         </div>
-        <RecordingButton
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-        />
+        <RecordingButton />
       </div>
     );
   }

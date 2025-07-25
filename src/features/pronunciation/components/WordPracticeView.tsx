@@ -152,7 +152,7 @@ export const WordPracticeView: React.FC<WordPracticeViewProps> = ({
             title="Listen to pronunciation"
           >
             <SpeakerHigh size={16} />
-            {isPlayingTTS ? 'Playing...' : 'Listen'}
+            {isPlayingTTS ? 'Playing...' : 'Sample'}
           </Button>
           {audioUrl && (
             <AudioPlaybackButton

@@ -20,7 +20,7 @@ export interface OnboardingData {
   targetScore: string;
   currentLevel: string;
   testDate: string;
-  studyGoal: string;
+  howDidYouHear: string;
 }
 
 export interface AuthState {

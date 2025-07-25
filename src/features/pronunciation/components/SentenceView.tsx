@@ -101,7 +101,7 @@ export const SentenceView: React.FC<SentenceViewProps> = ({
           >
             <SpeakerHigh size={20} />
             <span className="text-sm font-medium">
-              {isPlayingTTS ? 'Playing...' : 'Listen'}
+              {isPlayingTTS ? 'Playing...' : 'Sample'}
             </span>
           </button>
         </div>

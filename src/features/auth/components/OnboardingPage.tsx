@@ -97,21 +97,15 @@ const OnboardingPage: React.FC = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Primary Study Goal
+              How did you hear about us?
             </label>
-            <select
-              value={onboardingData.studyGoal}
-              onChange={(e) => dispatch(updateOnboardingData({ studyGoal: e.target.value }))}
+            <input
+              type="text"
+              value={onboardingData.howDidYouHear}
+              onChange={(e) => dispatch(updateOnboardingData({ howDidYouHear: e.target.value }))}
               className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
-              required
-            >
-              <option value="">Select your main goal</option>
-              <option value="improve-speaking">Improve Speaking Skills</option>
-              <option value="pronunciation">Better Pronunciation</option>
-              <option value="fluency">Increase Fluency</option>
-              <option value="vocabulary">Expand Vocabulary</option>
-              <option value="overall">Overall Improvement</option>
-            </select>
+              placeholder="e.g., Google search, friend recommendation, social media..."
+            />
           </div>
 
           <div className="pt-4">
