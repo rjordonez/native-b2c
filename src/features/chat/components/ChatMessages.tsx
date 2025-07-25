@@ -29,16 +29,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
   };
 
   const handleShadowSentence = (enhancedText: string) => {
-    console.log('Shadow sentence clicked with text:', enhancedText);
-    
     // Parse enhanced text into sentences
     const sentences = enhancedText
       .split(/[.!?]+/)
       .map(sentence => sentence.trim())
       .filter(sentence => sentence.length > 0)
       .map(sentence => sentence.replace(/^[^a-zA-Z0-9]*/, '').replace(/[^a-zA-Z0-9]*$/, ''));
-    
-    console.log('Parsed sentences:', sentences);
     
     dispatch(openModalWithSentences(sentences));
   };

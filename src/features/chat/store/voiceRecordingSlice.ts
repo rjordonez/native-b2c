@@ -4,17 +4,42 @@ import type { AppDispatch } from '../../../store/types';
 import { VoiceRecording } from '../types';
 import { transcriptionApi } from '../../../services/transcriptionApi';
 import { updateMessage } from './conversationSlice';
+import { ErrorMessages } from '../../../utils/error';
+
+interface TranscriptionData {
+  text: string;
+  confidence?: number;
+  transcriptId?: string;
+  isLoading: boolean;
+  error?: string;
+}
+
+interface PronunciationData {
+  words: Array<{
+    text: string;
+    score?: number;
+    phonemes?: Array<{
+      phoneme: string;
+      score: number;
+    }>;
+  }>;
+  overallScore: number;
+  accuracy: number;
+  fluency: number;
+  completeness: number;
+  isLoading: boolean;
+  error?: string;
+}
 
 // Transcription async thunk
 export const transcribeAudio = createAsyncThunk<
-  { messageId: string; transcription: any },
+  { messageId: string; transcription: TranscriptionData },
   { messageId: string; audioData: string; contentType?: string },
   { dispatch: AppDispatch; state: RootState }
 >(
   'voiceRecording/transcribeAudio',
   async ({ messageId, audioData, contentType }, { getState, dispatch, rejectWithValue }) => {
     try {
-      console.log(`Starting transcription for message ${messageId}`);
       
       const result = await transcriptionApi.transcribeBase64Audio(
         audioData,
@@ -48,24 +73,22 @@ export const transcribeAudio = createAsyncThunk<
       
       return { messageId, transcription };
     } catch (error) {
-      console.error(`Transcription failed for message ${messageId}:`, error);
       return rejectWithValue({
         messageId,
-        error: error instanceof Error ? error.message : 'Transcription failed'
+        error: error instanceof Error ? error.message : ErrorMessages.TRANSCRIPTION_FAILED
       });
     }
   }
 );
 
 export const transcribeWithPronunciation = createAsyncThunk<
-  { messageId: string; transcription: any; pronunciation: any },
+  { messageId: string; transcription: TranscriptionData; pronunciation: PronunciationData },
   { messageId: string; audioData: string; contentType?: string },
   { dispatch: AppDispatch; state: RootState }
 >(
   'voiceRecording/transcribeWithPronunciation',
   async ({ messageId, audioData, contentType }, { getState, dispatch, rejectWithValue }) => {
     try {
-      console.log(`Starting combined transcription + pronunciation for message ${messageId}`);
       
       const result = await transcriptionApi.transcribeWithPronunciation(
         audioData,
@@ -104,10 +127,12 @@ export const transcribeWithPronunciation = createAsyncThunk<
       
       return { messageId, transcription, pronunciation };
     } catch (error) {
-      console.error(`Combined transcription + pronunciation failed for message ${messageId}:`, error);
+      const errorMessage = error instanceof Error && error.message.includes('pronunciation') 
+        ? ErrorMessages.PRONUNCIATION_FAILED 
+        : ErrorMessages.TRANSCRIPTION_FAILED;
       return rejectWithValue({
         messageId,
-        error: error instanceof Error ? error.message : 'Analysis failed'
+        error: error instanceof Error ? error.message : errorMessage
       });
     }
   }

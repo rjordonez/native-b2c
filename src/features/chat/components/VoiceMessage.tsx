@@ -85,7 +85,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
 
       // Add error handling
       wavesurfer.on('error', (error) => {
-        console.warn('Wavesurfer error:', error);
+        // Silently handle wavesurfer errors
         // Clean up on error
         if (wavesurferRef.current === wavesurfer) {
           wavesurferRef.current = null;
@@ -96,7 +96,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
         wavesurfer.load(audioSource);
         wavesurferRef.current = wavesurfer;
       } catch (error) {
-        console.warn('Failed to load audio:', error);
+        // Failed to load audio - user will see waveform UI disabled
         wavesurfer.destroy();
         return;
       }
@@ -137,7 +137,6 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
         
         // Auto-play only if this message is marked for autoplay
         if (autoPlayMessageId === messageId) {
-          console.log('Auto-playing topic question audio for message:', messageId);
           setTimeout(() => {
             wavesurfer.play();
             // Clear the autoplay flag after playing
@@ -158,7 +157,6 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   // Watch for autoplay changes
   useEffect(() => {
     if (autoPlayMessageId === messageId && wavesurferRef.current && wavesurferRef.current.isReady) {
-      console.log('Auto-playing topic question audio for message (from effect):', messageId);
       setTimeout(() => {
         if (wavesurferRef.current) {
           wavesurferRef.current.play();
@@ -172,7 +170,6 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   // Pause this message if another message starts playing
   useEffect(() => {
     if (currentlyPlayingMessageId && currentlyPlayingMessageId !== messageId && isPlaying && wavesurferRef.current) {
-      console.log(`Pausing message ${messageId} because message ${currentlyPlayingMessageId} started playing`);
       wavesurferRef.current.pause();
     }
   }, [currentlyPlayingMessageId, messageId, isPlaying]);

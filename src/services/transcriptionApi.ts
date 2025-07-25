@@ -24,7 +24,7 @@ export interface TranscriptionResult {
       filename?: string;
       encoding?: string;
     };
-    transcriptionOptions?: any;
+    transcriptionOptions?: TranscriptionOptions;
   };
 }
 
@@ -72,12 +72,6 @@ class TranscriptionApiService {
     options: TranscriptionOptions = {}
   ): Promise<TranscriptionResult> {
     try {
-      console.log('🎤 Sending transcription request to backend...');
-      console.log('Request details:', {
-        audioDataLength: audioData.length,
-        contentType,
-        options
-      });
 
       const response = await axios.post(`${API_BASE_URL}/transcription/transcribe-base64`, {
         audioData,
@@ -91,18 +85,11 @@ class TranscriptionApiService {
       });
 
       if (response.data.success) {
-        console.log('✅ Transcription completed successfully:', {
-          text: response.data.data.text.substring(0, 100) + '...',
-          confidence: response.data.data.confidence,
-          processingTime: response.data.data.metadata.processingTimeMs
-        });
-        
         return response.data.data;
       } else {
         throw new Error(response.data.error || 'Transcription failed');
       }
     } catch (error) {
-      console.error('❌ Transcription API error:', error);
       
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
@@ -136,13 +123,6 @@ class TranscriptionApiService {
     options: TranscriptionOptions = {}
   ): Promise<TranscriptionResult> {
     try {
-      console.log('🎤 Uploading audio file for transcription...');
-      console.log('File details:', {
-        name: audioFile.name,
-        size: audioFile.size,
-        type: audioFile.type,
-        options
-      });
 
       const formData = new FormData();
       formData.append('audio', audioFile);
@@ -162,18 +142,11 @@ class TranscriptionApiService {
       });
 
       if (response.data.success) {
-        console.log('✅ File transcription completed successfully:', {
-          text: response.data.data.text.substring(0, 100) + '...',
-          confidence: response.data.data.confidence,
-          processingTime: response.data.data.metadata.processingTimeMs
-        });
-        
         return response.data.data;
       } else {
         throw new Error(response.data.error || 'Transcription failed');
       }
     } catch (error) {
-      console.error('❌ File transcription API error:', error);
       
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
@@ -204,7 +177,6 @@ class TranscriptionApiService {
         throw new Error(response.data.error || 'Failed to get transcription status');
       }
     } catch (error) {
-      console.error('❌ Get transcription status error:', error);
       
       if (axios.isAxiosError(error) && error.response?.data?.error) {
         throw new Error(error.response.data.error);
@@ -223,12 +195,6 @@ class TranscriptionApiService {
     options: TranscriptionOptions = {}
   ): Promise<CombinedResult> {
     try {
-      console.log('🎤🗣️ Sending combined transcription + pronunciation request to backend...');
-      console.log('Request details:', {
-        audioDataLength: audioData.length,
-        contentType,
-        options
-      });
 
       // Convert base64 to Blob for multipart upload
       const base64Data = audioData.includes(',') ? audioData.split(',')[1] : audioData;
@@ -261,24 +227,11 @@ class TranscriptionApiService {
       });
 
       if (response.data.success) {
-        console.log('✅ Combined transcription + pronunciation completed successfully:', {
-          text: response.data.data.transcription.text.substring(0, 100) + '...',
-          transcriptionConfidence: response.data.data.transcription.confidence,
-          pronunciationScore: response.data.data.pronunciation.overallScore,
-          processingTime: response.data.data.metadata.totalProcessingTimeMs
-        });
-        
-        // Log raw Azure response in development
-        if (process.env.NODE_ENV === 'development' && response.data.data.pronunciation.azureRawResponse) {
-          console.log('🔍 Raw Azure pronunciation response:', response.data.data.pronunciation.azureRawResponse);
-        }
-        
         return response.data.data;
       } else {
         throw new Error(response.data.error || 'Combined analysis failed');
       }
     } catch (error) {
-      console.error('❌ Combined transcription + pronunciation API error:', error);
       
       if (axios.isAxiosError(error)) {
         if (error.code === 'ECONNABORTED') {
@@ -315,7 +268,6 @@ class TranscriptionApiService {
       
       return response.data.status === 'healthy';
     } catch (error) {
-      console.warn('Transcription service health check failed:', error);
       return false;
     }
   }

@@ -16,16 +16,12 @@ export const startTopicPractice = createAsyncThunk<
   async ({ topicName }, { getState, dispatch, rejectWithValue }) => {
     try {
       dispatch(setLoading(true));
-      console.log('Starting topic practice for:', topicName);
       
       // Fetch all topics from Supabase
       const topics = await fetchTopics();
-      console.log('Using topics from Supabase:', topics);
       const selectedTopic = topics.find(topic => 
         topic.title.toLowerCase() === topicName.toLowerCase()
       );
-      
-      console.log('Selected topic:', selectedTopic);
       
       if (!selectedTopic || !selectedTopic.questionsList || selectedTopic.questionsList.length === 0) {
         throw new Error(`No questions found for topic: ${topicName}`);
@@ -42,18 +38,15 @@ export const startTopicPractice = createAsyncThunk<
 
       // Get first question
       const firstQuestion = selectedTopic.questionsList[0];
-      console.log('First question:', firstQuestion);
       
       // Generate audio for the first question using TTS
       const { API_BASE_URL } = await import('../../../config/api');
-      console.log('Making TTS request to:', `${API_BASE_URL}/tts/synthesize`);
       
       // Get current TTS settings from state
       const state = getState();
       const ttsSpeed = state.audioPlayback.ttsSpeed;
       const ttsVoice = state.audioPlayback.ttsVoice;
       
-      console.log('Using TTS settings - Voice:', ttsVoice, 'Speed:', ttsSpeed);
       
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
@@ -67,7 +60,6 @@ export const startTopicPractice = createAsyncThunk<
         }),
       });
 
-      console.log('TTS response status:', ttsResponse.status);
 
       if (!ttsResponse.ok) {
         console.error('TTS request failed:', ttsResponse.statusText);
@@ -75,7 +67,6 @@ export const startTopicPractice = createAsyncThunk<
       }
 
       const ttsResult = await ttsResponse.json();
-      console.log('TTS result:', ttsResult);
       
       if (!ttsResult.success) {
         throw new Error(ttsResult.message || 'TTS generation failed');
@@ -92,7 +83,6 @@ export const startTopicPractice = createAsyncThunk<
       };
 
       conversation.messages.push(questionMessage);
-      console.log('Created conversation with audio:', conversation);
 
       // Add conversation to conversation slice
       dispatch(addConversation(conversation));
@@ -143,7 +133,6 @@ export const redoTopicQuestion = createAsyncThunk<
         throw new Error('No current question to redo');
       }
       
-      console.log('Redoing question:', currentQuestion.text);
       
       // Generate audio for the current question
       const { API_BASE_URL } = await import('../../../config/api');
@@ -152,7 +141,6 @@ export const redoTopicQuestion = createAsyncThunk<
       const ttsSpeed = state.audioPlayback.ttsSpeed;
       const ttsVoice = state.audioPlayback.ttsVoice;
       
-      console.log('Using TTS settings for redo - Voice:', ttsVoice, 'Speed:', ttsSpeed);
       
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
@@ -260,7 +248,6 @@ export const getNextTopicQuestion = createAsyncThunk<
       const ttsSpeed = state.audioPlayback.ttsSpeed;
       const ttsVoice = state.audioPlayback.ttsVoice;
       
-      console.log('Using TTS settings for next question - Voice:', ttsVoice, 'Speed:', ttsSpeed);
       
       const ttsResponse = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',

@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import TopNav from './TopNav';
+import { ErrorToast } from '../ui/ErrorToast';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -20,6 +21,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
         </main>
       </div>
+      
+      {/* Global error toast */}
+      <ErrorToast />
     </div>
   );
 };

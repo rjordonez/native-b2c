@@ -1,33 +1,28 @@
 import { supabase } from '../shared/services/supabase';
 import { Conversation, Message } from '../features/chat/types';
 import { audioStorageService } from './audioStorageService';
-
-interface DBConversation {
-  id: string;
-  user_id: string;
-  client_id: string;
-  title: string;
-  created_at: string;
-  updated_at: string;
-  current_topic?: any;
-  current_question_index?: number;
-  topic_questions?: any[];
-}
-
-interface DBMessage {
-  id: string;
-  conversation_id: string;
-  client_id: string;
-  content: string;
-  sender: 'user' | 'assistant';
-  created_at: string;
-}
+import { 
+  DBConversation, 
+  DBMessage, 
+  DBConversationWithRelations,
+  DBMessageWithRelations,
+  DBTopic,
+  DBTopicQuestion
+} from '../types/database';
 
 export class ChatPersistenceService {
   /**
    * Save or update a conversation with topic practice state
    */
-  async saveConversation(conversation: Conversation, userId: string, topicPracticeState?: any): Promise<string> {
+  async saveConversation(
+    conversation: Conversation, 
+    userId: string, 
+    topicPracticeState?: {
+      currentTopic: DBTopic;
+      currentQuestionIndex: number;
+      questions: DBTopicQuestion[];
+    }
+  ): Promise<string> {
     try {
       // Check if conversation exists by client_id
       const { data: existing } = await supabase
@@ -38,7 +33,7 @@ export class ChatPersistenceService {
 
       if (existing) {
         // Update existing conversation
-        const updateData: any = {
+        const updateData: Partial<DBConversation> = {
           title: conversation.title,
           updated_at: new Date().toISOString(),
         };
@@ -59,7 +54,7 @@ export class ChatPersistenceService {
         return existing.id;
       } else {
         // Insert new conversation
-        const insertData: any = {
+        const insertData: Partial<DBConversation> = {
           user_id: userId,
           client_id: conversation.id,
           title: conversation.title,
@@ -84,8 +79,7 @@ export class ChatPersistenceService {
         return data.id;
       }
     } catch (error) {
-      console.error('Error saving conversation:', error);
-      throw error;
+      throw new Error(`Failed to save conversation: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -140,8 +134,8 @@ export class ChatPersistenceService {
             audioStorageUrl = url;
           }
         } catch (uploadError) {
-          console.error('Failed to upload audio, falling back to base64:', uploadError);
           // Continue saving message without storage URL, will use base64
+          // This is a graceful fallback, not an error condition
         }
       }
 
@@ -178,8 +172,7 @@ export class ChatPersistenceService {
       
       return data.id;
     } catch (error) {
-      console.error('Error saving message:', error);
-      throw error;
+      throw new Error(`Failed to save message: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -203,8 +196,8 @@ export class ChatPersistenceService {
       
       if (error) throw error;
     } catch (error) {
-      console.error('Error saving transcription:', error);
       // Don't throw - transcription is optional
+      // Silently fail to avoid disrupting the user experience
     }
   }
   
@@ -231,8 +224,8 @@ export class ChatPersistenceService {
       
       if (error) throw error;
     } catch (error) {
-      console.error('Error saving pronunciation scores:', error);
       // Don't throw - pronunciation is optional
+      // Silently fail to avoid disrupting the user experience
     }
   }
   
@@ -251,15 +244,22 @@ export class ChatPersistenceService {
       
       if (error) throw error;
     } catch (error) {
-      console.error('Error saving enhanced transcript:', error);
       // Don't throw - enhancement is optional
+      // Silently fail to avoid disrupting the user experience
     }
   }
 
   /**
    * Load all conversations for a user with topic practice state
    */
-  async loadUserConversations(userId: string): Promise<{ conversations: Conversation[], topicPracticeState?: any }> {
+  async loadUserConversations(userId: string): Promise<{ 
+    conversations: Conversation[], 
+    topicPracticeState?: {
+      currentTopic: DBTopic;
+      currentQuestionIndex: number;
+      questions: DBTopicQuestion[];
+    }
+  }> {
     try {
       // Fetch conversations with their messages and related data
       const { data: conversations, error } = await supabase
@@ -300,17 +300,16 @@ export class ChatPersistenceService {
         topicPracticeState
       };
     } catch (error) {
-      console.error('Error loading conversations:', error);
-      throw error;
+      throw new Error(`Failed to load conversations: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
   /**
    * Transform DB conversation to Redux format
    */
-  private transformConversation(dbConv: any): Conversation {
+  private transformConversation(dbConv: DBConversationWithRelations): Conversation {
     const messages: Message[] = (dbConv.messages || [])
-      .map((msg: any) => {
+      .map((msg: DBMessageWithRelations) => {
         const message: Message = {
           id: msg.client_id,
           content: msg.content,
@@ -366,13 +365,13 @@ export class ChatPersistenceService {
 
     // Collect all enhanced transcripts from all messages
     const enhancedMessages: Message[] = [];
-    dbConv.messages.forEach((dbMsg: any) => {
+    dbConv.messages.forEach((dbMsg: DBMessageWithRelations) => {
       if (dbMsg.enhanced_transcripts) {
         const transcripts = Array.isArray(dbMsg.enhanced_transcripts)
           ? dbMsg.enhanced_transcripts
           : [dbMsg.enhanced_transcripts];
         
-        transcripts.forEach((enhancedTrans: any) => {
+        transcripts.forEach((enhancedTrans) => {
           if (enhancedTrans && enhancedTrans.enhanced_text) {
             const enhancedMessage: Message = {
               id: `enhanced-${dbMsg.client_id}-${enhancedTrans.id}`,
@@ -413,8 +412,7 @@ export class ChatPersistenceService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error deleting conversation:', error);
-      throw error;
+      throw new Error(`Failed to delete conversation: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -433,8 +431,7 @@ export class ChatPersistenceService {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Error updating conversation title:', error);
-      throw error;
+      throw new Error(`Failed to update conversation title: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

@@ -3,6 +3,7 @@ import { RootState } from '../types';
 import { chatPersistence } from '../../services/chatPersistence';
 import { startSaving, completeSaving, failSaving } from '../slices/saveStatusSlice';
 import { supabase } from '../../shared/services/supabase';
+import { getUserFriendlyError, logError } from '../../utils/error';
 
 // Actions that trigger saves
 const SAVE_ACTIONS = [
@@ -41,17 +42,13 @@ export const autoSaveMiddleware: Middleware<{}, RootState> = (store) => (next) =
   // Execute the action first
   const result = next(action);
   
-  console.log('Middleware: Action dispatched:', action.type);
-  
   // Check if this action should trigger a save
   if (SAVE_ACTIONS.includes(action.type)) {
-    console.log('Middleware: Save action detected:', action.type);
     const state = store.getState();
     const userId = state.auth.user?.id;
     
     // Only save if user is authenticated
     if (userId) {
-      console.log('Middleware: User authenticated, triggering save');
       // Clear existing timer
       if (saveTimer) {
         clearTimeout(saveTimer);
@@ -63,16 +60,14 @@ export const autoSaveMiddleware: Middleware<{}, RootState> = (store) => (next) =
       // Debounce the actual save
       saveTimer = setTimeout(async () => {
         try {
-          console.log('Middleware: Executing save for action:', action.type);
           await handleSave(action, state, userId);
           store.dispatch(completeSaving());
         } catch (error) {
-          console.error('Auto-save error:', error);
-          store.dispatch(failSaving(error instanceof Error ? error.message : 'Save failed'));
+          logError(error, 'AutoSave');
+          const userMessage = getUserFriendlyError(error);
+          store.dispatch(failSaving(userMessage));
         }
       }, SAVE_DELAY);
-    } else {
-      console.log('Middleware: No user ID, skipping save');
     }
   }
   
@@ -86,6 +81,16 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
   // Get the chat state - check both possible locations
   const chatState = state.chat || state.conversation;
   
+  interface ConversationState {
+    conversations: Array<{
+      id: string;
+      messages: Array<{
+        id: string;
+        transcription?: { text: string };
+      }>;
+    }>;
+  }
+  
   switch (action.type) {
     case 'chat/createConversation/fulfilled':
     case 'conversation/createConversation/fulfilled': {
@@ -97,7 +102,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/addUserMessage':
     case 'conversation/addUserMessage': {
       const { conversationId, messageId } = action.payload;
-      const conversation = chatState.conversations.find((c: any) => c.id === conversationId);
+      const conversation = chatState.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
         // Get topic practice state if active
@@ -107,7 +112,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
         const dbConvId = await chatPersistence.saveConversation(conversation, userId, topicPracticeState);
         
         // Find and save the message
-        const message = conversation.messages.find((m: any) => m.id === (messageId || `msg-${Date.now()}-user`));
+        const message = conversation.messages.find(m => m.id === (messageId || `msg-${Date.now()}-user`));
         if (message) {
           await chatPersistence.saveMessage(message, dbConvId, userId);
         }
@@ -118,7 +123,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/addMessage':
     case 'conversation/addMessage': {
       const { conversationId, message } = action.payload;
-      const conversation = chatState.conversations.find((c: any) => c.id === conversationId);
+      const conversation = chatState.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
         // Get topic practice state if active
@@ -169,7 +174,7 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/getNextTopicQuestion/fulfilled':
     case 'topicPractice/getNextTopicQuestion/fulfilled': {
       const { conversationId, message } = action.payload;
-      const conversation = chatState.conversations.find((c: any) => c.id === conversationId);
+      const conversation = chatState.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
         // Get topic practice state if active
@@ -185,10 +190,10 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     case 'chat/updateMessage':
     case 'conversation/updateMessage': {
       const { conversationId, messageId, updates } = action.payload;
-      const conversation = chatState.conversations.find((c: any) => c.id === conversationId);
+      const conversation = chatState.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
-        const message = conversation.messages.find((m: any) => m.id === messageId);
+        const message = conversation.messages.find(m => m.id === messageId);
         if (message) {
           // Get the database conversation ID
           const { data: dbConv } = await supabase
@@ -225,11 +230,11 @@ async function handleSave(action: AnyAction, state: RootState, userId: string) {
     // Handle enhanced transcript
     case 'topicPractice/enhanceTranscript/fulfilled': {
       const { conversationId, message } = action.payload;
-      const conversation = chatState.conversations.find((c: any) => c.id === conversationId);
+      const conversation = chatState.conversations.find(c => c.id === conversationId);
       
       if (conversation && message) {
         // Find the original message that was enhanced
-        const originalMessages = conversation.messages.filter((m: any) => 
+        const originalMessages = conversation.messages.filter(m => 
           m.sender === 'user' && m.transcription && m.transcription.text
         );
         const lastUserMessage = originalMessages[originalMessages.length - 1];
