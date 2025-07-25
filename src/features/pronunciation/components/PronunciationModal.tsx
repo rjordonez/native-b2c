@@ -20,6 +20,7 @@ export const PronunciationModal: React.FC = () => {
     handleRecordingComplete,
     handleStart,
     handleNext,
+    handleSkip,
     closeModal: closeModalHandler,
     setError,
   } = usePronunciationModal();
@@ -97,6 +98,7 @@ export const PronunciationModal: React.FC = () => {
             isReady={modalState.isReady}
             onStart={handleStart}
             onStop={handleStop}
+            onSkip={handleSkip}
             audioUrl={availableAudio}
           />
         );
@@ -111,12 +113,12 @@ export const PronunciationModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl md:w-[30vw] md:h-[30vw] max-h-[90vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl md:w-[35vw] md:h-[35vw] max-h-[90vh] flex flex-col overflow-hidden">
         {/* Progress bar for sentences and words */}
         {(modalState.type === 'sentence' || modalState.type === 'word') && isVisible && (
           <div className="h-1 bg-gray-200">
             <div
-              className="h-full bg-blue-500 transition-all duration-100 ease-linear"
+              className="h-full bg-secondary transition-all duration-100 ease-linear"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -163,6 +165,19 @@ export const PronunciationModal: React.FC = () => {
                 {isProcessing ? 'Processing...' : 'Next'}
                 <ArrowRight size={18} />
               </Button>
+            </div>
+          )}
+          
+          {/* Skip button - positioned at bottom right for word practice */}
+          {modalState.type === 'word' && !modalState.showResults && (
+            <div className="absolute right-6 bottom-6">
+              <button
+                onClick={handleSkip}
+                className="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
+                title="Skip this word"
+              >
+                Skip
+              </button>
             </div>
           )}
         </div>

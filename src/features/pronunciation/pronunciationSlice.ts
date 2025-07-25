@@ -203,6 +203,47 @@ const pronunciationSlice = createSlice({
           isReady: false
         };
       }
+    },
+    skipWord: (state) => {
+      if (state.modalState.type === 'word') {
+        // Mark word as skipped (0 score) but move directly to next word
+        const updatedWords = [...state.modalState.incorrectWords];
+        updatedWords[state.modalState.wordIndex] = {
+          ...updatedWords[state.modalState.wordIndex],
+          score: 0,
+          phonemes: [],
+          isCorrect: false
+        };
+        
+        // Move to next word or sentence directly
+        const nextWordIndex = state.modalState.wordIndex + 1;
+        if (nextWordIndex < state.modalState.incorrectWords.length) {
+          // Next word
+          state.modalState = {
+            ...state.modalState,
+            incorrectWords: updatedWords,
+            wordIndex: nextWordIndex,
+            timerActive: true,
+            showResults: false,
+            currentScore: undefined,
+            isReady: false
+          };
+        } else {
+          // Done with words, move to next sentence or complete
+          const nextSentenceIndex = state.modalState.sentenceIndex + 1;
+          if (nextSentenceIndex < state.sentences.length) {
+            state.modalState = {
+              type: 'sentence',
+              index: nextSentenceIndex,
+              timerActive: true,
+              showResults: false,
+              isReady: false
+            };
+          } else {
+            state.modalState = { type: 'complete' };
+          }
+        }
+      }
     }
   }
 });
@@ -219,7 +260,8 @@ export const {
   startRecording,
   showResults,
   nextQuestion,
-  updateWordScore
+  updateWordScore,
+  skipWord
 } = pronunciationSlice.actions;
 
 // Selectors

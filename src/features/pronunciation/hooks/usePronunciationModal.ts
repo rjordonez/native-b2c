@@ -9,7 +9,8 @@ import {
   cacheAudio,
   nextQuestion,
   updateWordScore,
-  showResults
+  showResults,
+  skipWord
 } from '../pronunciationSlice';
 import { pronunciationService } from '../services/pronunciationService';
 import { SCORING_THRESHOLDS } from '../../../shared/constants/pronunciation';
@@ -98,6 +99,11 @@ export const usePronunciationModal = () => {
     dispatch(nextQuestion());
   }, [dispatch]);
 
+  // Handle skip button click - skip current word and move to next
+  const handleSkip = useCallback(() => {
+    dispatch(skipWord());
+  }, [dispatch]);
+
   // Close modal handler
   const closeModalHandler = useCallback(() => {
     dispatch(closeModal());
@@ -138,6 +144,7 @@ export const usePronunciationModal = () => {
     handleRecordingComplete,
     handleStart,
     handleNext,
+    handleSkip,
     closeModal: closeModalHandler,
     setError: setErrorHandler,
   };

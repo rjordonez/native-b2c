@@ -1,5 +1,5 @@
 // Timer configuration
-export const TIMER_DURATION = 5000; // 5 seconds in milliseconds
+export const TIMER_DURATION = 8000; // 8 seconds in milliseconds
 
 // Scoring thresholds
 export const SCORING_THRESHOLDS = {
