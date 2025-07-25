@@ -77,7 +77,6 @@ export const devDashService = {
   },
 
   async getAllUserDetails() {
-    console.log('🔍 [getAllUserDetails] Starting to fetch user details with conversation counts...');
     
     // Use a more efficient approach: get all users and their conversation counts separately
     const { data: users, error: usersError } = await supabase
@@ -85,40 +84,24 @@ export const devDashService = {
       .select('id, email, full_name, username, created_at, country, target_band_score, current_level, auth_user_id')
       .order('created_at', { ascending: false });
     
-    console.log('📊 [getAllUserDetails] Fetched users:', users?.length || 0, 'users');
-    console.log('👤 [getAllUserDetails] Sample user data:', users?.[0]);
     
     if (usersError) {
       console.error('❌ [getAllUserDetails] Error fetching users:', usersError);
       throw usersError;
     }
     if (!users || users.length === 0) {
-      console.log('⚠️ [getAllUserDetails] No users found');
       return [];
     }
 
     // Get conversation counts for all users at once
     const authUserIds = users.map(user => user.auth_user_id);
-    console.log('🔑 [getAllUserDetails] Auth user IDs to check:', authUserIds);
-    console.log('🔑 [getAllUserDetails] Auth user IDs with emails:');
-    users.forEach(user => {
-      console.log(`  - ${user.email}: auth_user_id = ${user.auth_user_id}`);
-    });
+    
     
     const { data: conversationCounts, error: countsError } = await supabase
       .from('conversations')
       .select('user_id')
       .in('user_id', authUserIds);
     
-    console.log('💬 [getAllUserDetails] Fetched conversations:', conversationCounts?.length || 0, 'conversations');
-    console.log('💬 [getAllUserDetails] Conversation data:', conversationCounts);
-    
-    // Debug: Let's also see ALL conversations in the table
-    const { data: allConversations } = await supabase
-      .from('conversations')
-      .select('user_id, id')
-      .limit(10);
-    console.log('🔍 [getAllUserDetails] ALL conversations in table (sample):', allConversations);
     
     if (countsError) {
       console.error('❌ [getAllUserDetails] Error fetching conversations:', countsError);
@@ -131,13 +114,11 @@ export const devDashService = {
       countsByUser[conv.user_id] = (countsByUser[conv.user_id] || 0) + 1;
     });
     
-    console.log('📈 [getAllUserDetails] Conversation counts by user:', countsByUser);
-
+    
     // Combine user data with conversation counts and remove auth_user_id from response
     const usersWithCounts = users.map(user => {
       const { auth_user_id, ...userWithoutAuthId } = user;
       const conversationCount = countsByUser[auth_user_id] || 0;
-      console.log(`👤 [getAllUserDetails] User ${user.email}: ${conversationCount} conversations`);
       
       return {
         ...userWithoutAuthId,
@@ -145,8 +126,6 @@ export const devDashService = {
       };
     });
 
-    console.log('✅ [getAllUserDetails] Final users with counts:', usersWithCounts.length, 'users');
-    console.log('�� [getAllUserDetails] Sample final user:', usersWithCounts[0]);
     
     return usersWithCounts;
   },

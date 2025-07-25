@@ -127,10 +127,7 @@ export const fetchUserDetails = createAsyncThunk(
   'devDash/fetchUserDetails',
   async (_, { rejectWithValue }) => {
     try {
-      console.log('🚀 [fetchUserDetails] Starting Redux thunk...');
       const userDetails = await devDashService.getAllUserDetails();
-      console.log('✅ [fetchUserDetails] Redux thunk received data:', userDetails?.length || 0, 'users');
-      console.log('📋 [fetchUserDetails] Sample user in Redux:', userDetails?.[0]);
       return userDetails as UserDetail[];
     } catch (error) {
       console.error('❌ [fetchUserDetails] Redux thunk error:', error);
@@ -277,13 +274,10 @@ const devDashSlice = createSlice({
 
     // User Details
       .addCase(fetchUserDetails.pending, (state) => {
-        console.log('⏳ [Redux] fetchUserDetails.pending - Starting to load user details...');
         state.loading.userDetails = true;
         state.error.userDetails = null;
       })
       .addCase(fetchUserDetails.fulfilled, (state, action) => {
-        console.log('✅ [Redux] fetchUserDetails.fulfilled - Received user details:', action.payload?.length || 0, 'users');
-        console.log('📋 [Redux] Sample user stored in state:', action.payload?.[0]);
         state.loading.userDetails = false;
         state.userDetails = action.payload;
       })
