@@ -25,9 +25,7 @@ const OnboardingPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Welcome to Native Speaking!
           </h1>
-          <p className="text-gray-600">
-            Let's set up your profile to personalize your learning experience.
-          </p>
+    
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
