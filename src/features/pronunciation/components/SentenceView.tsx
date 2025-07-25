@@ -24,7 +24,7 @@ export const SentenceView: React.FC<SentenceViewProps> = ({
   return (
     <div className="space-y-8">
       <h2 className="text-xl text-gray-700 font-medium text-center">
-        {isRecording ? 'Recording... Speak now!' : 'Read this sentence:'}
+        {isRecording ? 'Recording... Speak now!' : 'Read aloud:'}
       </h2>
       <div className="flex justify-center">
         <PronunciationText 

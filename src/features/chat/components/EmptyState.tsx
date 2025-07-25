@@ -50,7 +50,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({ onCreateConversation, onTopicSe
         {/* Bottom row - 1 pill underneath */}
         <div className="flex gap-4">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/library')}
             disabled={isLoading}
             className="px-6 py-4 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-2xl transition-colors flex items-center justify-center gap-3 disabled:opacity-50 min-w-[120px]"
           >

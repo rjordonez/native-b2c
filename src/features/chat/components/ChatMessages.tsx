@@ -84,7 +84,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                   <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                 </div>
                 
-                {/* Shadow sentence button for enhanced messages */}
+                {/* Shadow sentence and Enhance transcript buttons for enhanced messages */}
                 {msg.isEnhanced && msg.sender === 'assistant' && (
                   <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
                     <button
@@ -92,6 +92,12 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                       className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors"
                     >
                       Shadow sentence
+                    </button>
+                    <button
+                      onClick={() => handleEnhanceTranscript(msg.content)}
+                      className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors ml-2"
+                    >
+                      Enhance Again
                     </button>
                   </div>
                 )}
