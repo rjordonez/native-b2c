@@ -2,69 +2,19 @@ import axios from 'axios';
 import { API_BASE_URL } from '../../../config/api';
 import { TIMEOUTS } from '../../../constants/timing';
 import { API_ENDPOINTS } from '../../../constants/api';
+import { AppError, ErrorMessages, logError } from '../../../utils/error';
+import { 
+  ITranscriptionApiService,
+  TranscriptionResult,
+  PronunciationResult,
+  CombinedResult,
+  TranscriptionOptions
+} from './types';
 
-export interface TranscriptionResult {
-  id: string;
-  text: string;
-  confidence: number;
-  status: string;
-  audioUrl: string;
-  languageDetected?: string;
-  words?: Array<{
-    text: string;
-    start: number;
-    end: number;
-    confidence: number;
-    speaker?: string;
-  }>;
-  metadata: {
-    requestId: string;
-    processingTimeMs: number;
-    audioInfo: {
-      size: number;
-      type: string;
-      filename?: string;
-      encoding?: string;
-    };
-    transcriptionOptions?: TranscriptionOptions;
-  };
-}
+// Re-export types for backward compatibility
+export type { TranscriptionResult, PronunciationResult, CombinedResult, TranscriptionOptions };
 
-export interface PronunciationResult {
-  words: Array<{
-    text: string;
-    score?: number;
-    phonemes?: Array<{
-      phoneme: string;
-      score: number;
-    }>;
-  }>;
-  overallScore: number;
-  accuracy: number;
-  fluency: number;
-  completeness: number;
-  isLoading: boolean;
-  error?: string;
-}
-
-export interface CombinedResult {
-  transcription: TranscriptionResult;
-  pronunciation: PronunciationResult;
-}
-
-export interface TranscriptionOptions {
-  speechModel?: string;
-  autoDetectLanguage?: boolean;
-  speakerLabels?: boolean;
-  sentimentAnalysis?: boolean;
-  entityDetection?: boolean;
-  autoChapters?: boolean;
-  punctuate?: boolean;
-  formatText?: boolean;
-  dualChannel?: boolean;
-}
-
-class TranscriptionApiService {
+class TranscriptionApiService implements ITranscriptionApiService {
   /**
    * Transcribe audio from base64 data
    */

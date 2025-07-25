@@ -9,8 +9,10 @@ import {
   DBTopic,
   DBTopicQuestion
 } from '../../../types/database';
+import { AppError, ErrorMessages, logError } from '../../../utils/error';
+import { IChatPersistenceService } from './types';
 
-export class ChatPersistenceService {
+export class ChatPersistenceService implements IChatPersistenceService {
   /**
    * Save or update a conversation with topic practice state
    */
@@ -50,7 +52,14 @@ export class ChatPersistenceService {
           .update(updateData)
           .eq('id', existing.id);
 
-        if (error) throw error;
+        if (error) {
+          logError(error, 'ChatPersistence.saveConversation.update');
+          throw new AppError(
+            ErrorMessages.CONVERSATION_SAVE_FAILED,
+            'CONVERSATION_UPDATE_ERROR',
+            error
+          );
+        }
         return existing.id;
       } else {
         // Insert new conversation
@@ -75,11 +84,24 @@ export class ChatPersistenceService {
           .select('*')
           .single();
 
-        if (error) throw error;
+        if (error) {
+          logError(error, 'ChatPersistence.saveConversation.insert');
+          throw new AppError(
+            ErrorMessages.CONVERSATION_SAVE_FAILED,
+            'CONVERSATION_INSERT_ERROR',
+            error
+          );
+        }
         return data.id;
       }
     } catch (error) {
-      throw new Error(`Failed to save conversation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      if (error instanceof AppError) throw error;
+      logError(error, 'ChatPersistence.saveConversation');
+      throw new AppError(
+        ErrorMessages.CONVERSATION_SAVE_FAILED,
+        'CONVERSATION_SAVE_ERROR',
+        error
+      );
     }
   }
 
@@ -172,7 +194,13 @@ export class ChatPersistenceService {
       
       return data.id;
     } catch (error) {
-      throw new Error(`Failed to save message: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      if (error instanceof AppError) throw error;
+      logError(error, 'ChatPersistence.saveMessage');
+      throw new AppError(
+        ErrorMessages.MESSAGE_SAVE_FAILED,
+        'MESSAGE_SAVE_ERROR',
+        error
+      );
     }
   }
 
@@ -300,7 +328,13 @@ export class ChatPersistenceService {
         topicPracticeState
       };
     } catch (error) {
-      throw new Error(`Failed to load conversations: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      if (error instanceof AppError) throw error;
+      logError(error, 'ChatPersistence.loadUserConversations');
+      throw new AppError(
+        'Failed to load conversations',
+        'CONVERSATION_LOAD_ERROR',
+        error
+      );
     }
   }
 
@@ -412,7 +446,13 @@ export class ChatPersistenceService {
 
       if (error) throw error;
     } catch (error) {
-      throw new Error(`Failed to delete conversation: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      if (error instanceof AppError) throw error;
+      logError(error, 'ChatPersistence.deleteConversation');
+      throw new AppError(
+        'Failed to delete conversation',
+        'CONVERSATION_DELETE_ERROR',
+        error
+      );
     }
   }
 
@@ -431,7 +471,13 @@ export class ChatPersistenceService {
 
       if (error) throw error;
     } catch (error) {
-      throw new Error(`Failed to update conversation title: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      if (error instanceof AppError) throw error;
+      logError(error, 'ChatPersistence.updateConversationTitle');
+      throw new AppError(
+        'Failed to update conversation title',
+        'CONVERSATION_UPDATE_TITLE_ERROR',
+        error
+      );
     }
   }
 }

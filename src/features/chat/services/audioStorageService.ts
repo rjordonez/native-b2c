@@ -1,7 +1,9 @@
 import { supabase } from '../../../shared/services/supabase';
 import { AUDIO_STORAGE, AUDIO_FORMATS } from '../../../constants/audio';
+import { AppError, ErrorMessages, logError } from '../../../utils/error';
+import { IAudioStorageService } from './types';
 
-export class AudioStorageService {
+export class AudioStorageService implements IAudioStorageService {
   /**
    * Upload audio to Supabase Storage
    * @param audioData Base64 audio data or Blob
@@ -41,8 +43,12 @@ export class AudioStorageService {
         });
       
       if (error) {
-        console.error('Audio upload error:', error);
-        throw error;
+        logError(error, 'AudioStorageService.uploadAudio');
+        throw new AppError(
+          ErrorMessages.AUDIO_UPLOAD_FAILED,
+          'AUDIO_UPLOAD_ERROR',
+          error
+        );
       }
       
       // Get public URL
@@ -55,8 +61,13 @@ export class AudioStorageService {
         path: data.path
       };
     } catch (error) {
-      console.error('Failed to upload audio:', error);
-      throw error;
+      if (error instanceof AppError) throw error;
+      logError(error, 'AudioStorageService.uploadAudio');
+      throw new AppError(
+        ErrorMessages.AUDIO_UPLOAD_FAILED,
+        'AUDIO_UPLOAD_ERROR',
+        error
+      );
     }
   }
   
@@ -71,12 +82,21 @@ export class AudioStorageService {
         .remove([filePath]);
       
       if (error) {
-        console.error('Audio deletion error:', error);
-        throw error;
+        logError(error, 'AudioStorageService.deleteAudio');
+        throw new AppError(
+          'Failed to delete audio file',
+          'AUDIO_DELETE_ERROR',
+          error
+        );
       }
     } catch (error) {
-      console.error('Failed to delete audio:', error);
-      throw error;
+      if (error instanceof AppError) throw error;
+      logError(error, 'AudioStorageService.deleteAudio');
+      throw new AppError(
+        'Failed to delete audio file',
+        'AUDIO_DELETE_ERROR',
+        error
+      );
     }
   }
   
@@ -109,7 +129,7 @@ export class AudioStorageService {
       });
       
       audio.addEventListener('error', (error) => {
-        console.error('Failed to get audio duration:', error);
+        logError(error, 'AudioStorageService.getAudioDuration');
         resolve(0); // Default to 0 if we can't get duration
       });
     });
