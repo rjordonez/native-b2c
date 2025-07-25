@@ -70,7 +70,14 @@ const ProblemSection = () => {
                         {problem.id}
                       </div>
                       <h3 className="text-lg md:text-xl font-semibold text-foreground text-center leading-tight mb-6">
-                        "{problem.title}"
+                        {problem.id === 3
+                          ? (
+                            (() => {
+                              const [first, ...rest] = problem.title.split(',');
+                              return <>{first},{<br />}{rest.join(',').trim()}</>;
+                            })()
+                          )
+                          : `"${problem.title}"`}
                       </h3>
                       <div className="flex items-center gap-2 text-muted-foreground text-sm">
                         <span>{t('problem.tapToReveal')}</span>

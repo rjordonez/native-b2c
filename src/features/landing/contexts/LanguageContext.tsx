@@ -40,7 +40,7 @@ const translations = {
     'hero.board.count': '12',
 
     // Features
-    'features.title': 'Everything You Need for a Band 7+ Speaking Score.',
+    'features.title': 'Everything You Need to Reach Your Target',
     'features.subtitle': 'Comprehensive IELTS speaking preparation with AI-powered feedback and personalized learning',
     'features.ai.title': 'AI Speech Analysis',
     'features.ai.description': 'Pinpoint pronunciation mistakes instantly with AI.',
@@ -123,7 +123,7 @@ const translations = {
     'awards.award3.description': 'USC Marshall Lloyd Grief Center for Entrepreneurial Studies',
     
     // Call to Action
-    'cta.title': 'Ready to Speak Confidently and Score Higher?',
+    'cta.title': 'Ready to Speak Confidently?',
     'cta.button': 'Start Free Practice Now',
     'cta.urgency': 'Limited free spots available this month.',
     'cta.stats.students': 'Active Students',
@@ -306,7 +306,7 @@ const translations = {
     // Call to Action
     'cta.title': 'Sẵn sàng để bứt phá Speaking?',
     'cta.button': 'Bắt đầu luyện miễn phí',
-    'cta.urgency': 'Miễn phí số lượng có hạn trong tháng này.',
+    'cta.urgency': 'Số lượng miễn phí có hạn trong tháng này.',
     'cta.stats.students': 'Học viên đang học',
     'cta.stats.rating': 'Đánh giá trung bình',
     'cta.stats.improvement': 'Cải thiện điểm số',

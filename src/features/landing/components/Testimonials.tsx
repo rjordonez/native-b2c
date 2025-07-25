@@ -33,7 +33,10 @@ const Testimonials = () => {
         <div className="text-center space-y-4 max-w-5xl mx-auto">
           <h2 className={`font-heading font-bold text-4xl md:text-5xl tracking-tight text-foreground text-center mb-4${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
             {language === 'vi' ? (
-              <>2000+ học viên IELTS<br />trên khắp thế giới</>
+              <>
+                <span>2000+ học viên IELTS</span><br />
+                <span className="mt-3 inline-block">trên khắp thế giới</span>
+              </>
             ) : (
               t('testimonials.title')
             )}

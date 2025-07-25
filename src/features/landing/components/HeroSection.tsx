@@ -35,8 +35,8 @@ const HeroSection = () => {
         <h1 className={`font-heading font-bold text-[34px] leading-tight tracking-tight text-balance text-foreground px-[19px] py-[11px] md:text-5xl${language === 'vi' ? ' font-vietnamese-heading' : ''}`}>
           {language === 'vi' ? (
             <>
-              Loay hoay mãi với IELTS Speaking?<br />
-              Để <span className="text-primary">Native</span> giải quyết!
+              <span>Loay hoay mãi với IELTS Speaking?</span><br />
+              <span className="mt-3 inline-block">Để <span className="text-primary">Native</span> giải quyết!</span>
             </>
           ) : (
             <>
