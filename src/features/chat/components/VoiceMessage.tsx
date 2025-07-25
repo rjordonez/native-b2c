@@ -241,7 +241,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
                   <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
                 </div>
                 <span className="text-sm text-gray-500">
-                  {transcription.isLoading ? 'Transcribing audio...' : 'Analyzing pronunciation...'}
+                  {transcription.isLoading ? 'Generating feedback...' : 'Analyzing pronunciation...'}
                 </span>
               </div>
             ) : (

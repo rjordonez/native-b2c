@@ -1,13 +1,16 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../../shared/services/supabase';
 
 const GoogleSignInButton: React.FC = () => {
+  const navigate = useNavigate();
+  
   const handleGoogleSignIn = async () => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/library`
+          redirectTo: `${window.location.origin}/`
         }
       });
       if (error) throw error;

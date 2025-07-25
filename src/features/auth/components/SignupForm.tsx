@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { signUp, updateSignupForm, toggleSignupPasswordVisibility, toggleSignupConfirmPasswordVisibility, resetSignupForm } from '../authSlice';
 import { Button } from '../../../shared/components/layout/ui/button';
@@ -15,6 +16,7 @@ interface SignupFormProps {
 
 const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { isLoading, error, signupForm } = useAppSelector((state) => state.auth);
   const { email, password, confirmPassword, fullName, showPassword, showConfirmPassword } = signupForm;
 
@@ -34,6 +36,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
         fullName
       })).unwrap();
       dispatch(resetSignupForm());
+      
+      // New users always need onboarding
+      navigate('/onboarding');
     } catch (err) {
       console.error('Signup failed:', err);
     }

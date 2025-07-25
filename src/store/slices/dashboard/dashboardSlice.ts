@@ -9,9 +9,9 @@ const initialState: HomeState = {
   testDate: DASHBOARD_CONFIG.testDate.toISOString(),
   practiceActivityDates: PRACTICE_ACTIVITY_DATES.map(date => date.toISOString()),
   tasks: [
-    { id: 1, text: 'Complete Reading Practice Test', completed: true },
-    { id: 2, text: 'Review vocabulary flashcards', completed: false },
-    { id: 3, text: 'Practice speaking with partner', completed: false },
+    { id: 1, text: 'Practice Part 1', completed: true },
+    { id: 2, text: 'Practice Part 2', completed: false },
+    { id: 3, text: 'Practice Part 3', completed: false },
   ],
 };
 

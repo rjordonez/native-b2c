@@ -31,7 +31,7 @@ export const INFO_MESSAGES = {
   UPLOADING: 'Uploading...',
   
   // Transcription messages
-  TRANSCRIBING: 'Transcribing audio...',
+  TRANSCRIBING: 'Generating feedback...',
   ANALYZING_PRONUNCIATION: 'Analyzing pronunciation...',
   ENHANCING_TRANSCRIPT: 'Enhancing transcript...',
   

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { signIn, updateLoginForm, toggleLoginPasswordVisibility, resetLoginForm } from '../authSlice';
 import { Button } from '../../../shared/components/layout/ui/button';
@@ -15,14 +16,22 @@ interface LoginFormProps {
 
 const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { isLoading, error, loginForm } = useAppSelector((state) => state.auth);
   const { email, password, showPassword } = loginForm;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(signIn({ email, password })).unwrap();
+      const result = await dispatch(signIn({ email, password })).unwrap();
       dispatch(resetLoginForm());
+      
+      // Navigate based on onboarding status
+      if (result.needsOnboarding) {
+        navigate('/onboarding');
+      } else {
+        navigate('/library');
+      }
     } catch (err) {
       console.error('Login failed:', err);
     }
