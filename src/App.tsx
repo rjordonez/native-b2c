@@ -12,6 +12,7 @@ import AuthPage from './features/auth/AuthPage';
 import OnboardingPage from './features/auth/components/OnboardingPage';
 import LandingPage from './features/landing/LandingPage';
 import PrivacyPage from './features/landing/PrivacyPage';
+import TermsPage from './features/landing/TermsPage';
 import { DevDashPage } from './features/dev-dash/DevDashPage';
 import { LanguageProvider } from './features/landing/contexts/LanguageContext';
 import './styles/App.css';
@@ -44,6 +45,7 @@ const AppRoutes: React.FC = () => {
         </LanguageProvider>
       } />
       <Route path="/privacy" element={<PrivacyPage />} />
+      <Route path="/terms" element={<TermsPage />} />
       
       {/* Protected routes */}
       {!user ? (
