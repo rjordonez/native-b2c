@@ -21,7 +21,7 @@ const Features = () => {
       description: t('features.section1.feature2.description'),
       icon: <MessageSquare size={20} className="text-primary" />
     }],
-    videoSrc: dashImg,
+    videoSrc: practiceSessionImg,
     videoAlt: "Native AI dashboard preview"
   }, {
     title: t('features.section2.title'),
@@ -51,8 +51,8 @@ const Features = () => {
       description: t('features.section3.feature2.description'),
       icon: <MessageSquare size={20} className="text-primary" />
     }],
-    videoSrc: practiceSessionImg,
-    videoAlt: "Native AI practice session preview"
+    videoSrc: dashImg,
+    videoAlt: "Native AI practice session preview "
   }];
   
   const FeatureSection = ({
