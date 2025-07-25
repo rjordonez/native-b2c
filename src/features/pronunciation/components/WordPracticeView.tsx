@@ -7,6 +7,7 @@ import { Button } from '../../../shared/components/layout/ui/button';
 import { SpeakerHigh, Play, Pause } from 'phosphor-react';
 import { arpaToIpa, arpaArrayToIpa } from '../utils/arpaToIpa';
 import { SCORING_THRESHOLDS } from '../../../shared/constants/pronunciation';
+import { API_BASE_URL } from '../../../config/api';
 
 interface WordPracticeViewProps {
   word: Word;
@@ -43,7 +44,7 @@ export const WordPracticeView: React.FC<WordPracticeViewProps> = ({
       setIsPlayingTTS(true);
       setTtsError(null);
 
-      const response = await fetch('http://localhost:3001/api/tts/synthesize', {
+      const response = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

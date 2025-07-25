@@ -4,6 +4,7 @@ import { cn } from '../../../utils/cn';
 import { PronunciationText } from '../../../shared/components/layout/ui/PronunciationText';
 import { RecordingButton } from './RecordingButton';
 import { SpeakerHigh } from 'phosphor-react';
+import { API_BASE_URL } from '../../../config/api';
 
 interface SentenceViewProps {
   words: Word[];
@@ -33,7 +34,7 @@ export const SentenceView: React.FC<SentenceViewProps> = ({
       setIsPlayingTTS(true);
       setTtsError(null);
 
-      const response = await fetch('http://localhost:3001/api/tts/synthesize', {
+      const response = await fetch(`${API_BASE_URL}/tts/synthesize`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
