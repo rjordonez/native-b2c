@@ -1,6 +1,6 @@
 import { AnyAction } from '@reduxjs/toolkit';
 import { RootState } from '../types';
-import { chatPersistence } from '../../services/chatPersistence';
+import { chatPersistence } from '../../features/chat/services/chatPersistence';
 import { startSaving, completeSaving, failSaving } from '../slices/saveStatusSlice';
 import { supabase } from '../../shared/services/supabase';
 import { getUserFriendlyError, logError } from '../../utils/error';

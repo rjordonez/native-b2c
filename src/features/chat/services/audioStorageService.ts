@@ -1,5 +1,5 @@
-import { supabase } from '../shared/services/supabase';
-import { AUDIO_STORAGE, AUDIO_FORMATS } from '../constants/audio';
+import { supabase } from '../../../shared/services/supabase';
+import { AUDIO_STORAGE, AUDIO_FORMATS } from '../../../constants/audio';
 
 export class AudioStorageService {
   /**

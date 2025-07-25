@@ -9,7 +9,7 @@ import {
 } from '../types';
 import { SAMPLE_CONVERSATIONS } from '../constants/chatData';
 import { DELAYS } from '../../../constants/timing';
-import { chatPersistence } from '../../../services/chatPersistence';
+import { chatPersistence } from '../services/chatPersistence';
 
 // Async thunks for API calls
 export const loadConversations = createAsyncThunk(

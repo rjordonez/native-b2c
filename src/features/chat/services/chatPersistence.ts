@@ -1,5 +1,5 @@
-import { supabase } from '../shared/services/supabase';
-import { Conversation, Message } from '../features/chat/types';
+import { supabase } from '../../../shared/services/supabase';
+import { Conversation, Message } from '../types';
 import { audioStorageService } from './audioStorageService';
 import { 
   DBConversation, 
@@ -8,7 +8,7 @@ import {
   DBMessageWithRelations,
   DBTopic,
   DBTopicQuestion
-} from '../types/database';
+} from '../../../types/database';
 
 export class ChatPersistenceService {
   /**

@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../../store/types';
 import type { AppDispatch } from '../../../store/types';
 import { VoiceRecording } from '../types';
-import { transcriptionApi } from '../../../services/transcriptionApi';
+import { transcriptionApi } from '../services/transcriptionApi';
 import { updateMessage } from './conversationSlice';
 import { ErrorMessages } from '../../../utils/error';
 
