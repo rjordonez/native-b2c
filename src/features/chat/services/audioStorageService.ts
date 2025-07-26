@@ -1,5 +1,5 @@
 import { supabase } from '../../../shared/services/supabase';
-import { AUDIO_STORAGE, AUDIO_FORMATS } from '../../../constants/audio';
+import { AUDIO_STORAGE } from '../../../constants/audio';
 import { AppError, ErrorMessages, logError } from '../../../utils/error';
 import { IAudioStorageService } from './types';
 
@@ -47,6 +47,7 @@ export class AudioStorageService implements IAudioStorageService {
         throw new AppError(
           ErrorMessages.AUDIO_UPLOAD_FAILED,
           'AUDIO_UPLOAD_ERROR',
+          undefined,
           error
         );
       }
@@ -66,6 +67,7 @@ export class AudioStorageService implements IAudioStorageService {
       throw new AppError(
         ErrorMessages.AUDIO_UPLOAD_FAILED,
         'AUDIO_UPLOAD_ERROR',
+        undefined,
         error
       );
     }
@@ -86,6 +88,7 @@ export class AudioStorageService implements IAudioStorageService {
         throw new AppError(
           'Failed to delete audio file',
           'AUDIO_DELETE_ERROR',
+          undefined,
           error
         );
       }
@@ -95,6 +98,7 @@ export class AudioStorageService implements IAudioStorageService {
       throw new AppError(
         'Failed to delete audio file',
         'AUDIO_DELETE_ERROR',
+        undefined,
         error
       );
     }

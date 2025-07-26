@@ -130,7 +130,7 @@ export const transcribeWithPronunciation = createAsyncThunk<
           const currentIndex = topicPractice.currentQuestionIndex;
           const totalQuestions = topicPractice.questions.length;
           const isLastQuestion = currentIndex === totalQuestions - 1;
-          const topicTitle = topicPractice.currentTopic.title || topicPractice.currentTopic.name;
+          const topicTitle = topicPractice.currentTopic.title;
           const topicPart = topicPractice.currentTopic.part || 'Part 1'; // Default to Part 1 if not specified
           
           // Show AI typing

@@ -1,7 +1,8 @@
 import React from 'react';
 import { ArrowCounterClockwise, ArrowRight } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
-import { getNextTopicQuestion, redoTopicQuestion, selectTopicPractice } from '../../store/topicPracticeSlice';
+import { selectTopicPractice } from '../../store/topicPracticeSlice';
+import { getNextTopicQuestion, redoTopicQuestion } from '../../store/topicPracticeThunks';
 import { selectActiveConversation } from '../../store/conversationSlice';
 
 const ActionButtons: React.FC = () => {

@@ -8,7 +8,7 @@ import {
   createConversation,
   clearError
 } from './store/conversationSlice';
-import { startTopicPractice } from './store/topicPracticeSlice';
+import { startTopicPractice } from './store/topicPracticeThunks';
 import {
   ChatMessages,
   VoiceRecorder,
