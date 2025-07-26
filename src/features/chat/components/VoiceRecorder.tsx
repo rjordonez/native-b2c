@@ -20,6 +20,7 @@ const VoiceRecorder: React.FC = () => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const durationRef = useRef<number>(0);
 
   // Initialize media recorder
   const initializeRecorder = async () => {
@@ -58,10 +59,11 @@ const VoiceRecorder: React.FC = () => {
           reader.onloadend = () => {
             const base64Data = reader.result as string;
             
+            console.log('Stopping recording with duration:', durationRef.current);
             dispatch(stopRecording({
               audioUrl,
               audioData: base64Data, // WAV base64 data for API
-              duration: recordingDuration,
+              duration: durationRef.current,
               mimeType: 'audio/wav' // Now it's actually WAV
             }));
           };
@@ -82,7 +84,7 @@ const VoiceRecorder: React.FC = () => {
             dispatch(stopRecording({
               audioUrl,
               audioData: base64Data,
-              duration: recordingDuration,
+              duration: durationRef.current,
               mimeType: 'audio/webm' // Fallback to WebM
             }));
           };
@@ -105,17 +107,23 @@ const VoiceRecorder: React.FC = () => {
     if (recordingState !== 'idle') return;
     
     dispatch(setIsPressed(true));
+    
+    // Reset duration before starting
+    durationRef.current = 0;
+    dispatch(updateRecordingDuration(0));
+    
     const success = await initializeRecorder();
     
     if (success && mediaRecorderRef.current) {
       dispatch(startRecording());
       mediaRecorderRef.current.start();
       
+      console.log('Starting recording timer');
       // Start timer
-      let duration = 0;
       recordingTimerRef.current = setInterval(() => {
-        duration += 1;
-        dispatch(updateRecordingDuration(duration));
+        durationRef.current += 1;
+        console.log('Timer tick - duration:', durationRef.current);
+        dispatch(updateRecordingDuration(durationRef.current));
       }, 1000);
     }
   };
@@ -173,6 +181,7 @@ const VoiceRecorder: React.FC = () => {
   // Handle clearing recording
   const handleClear = () => {
     dispatch(clearRecording());
+    durationRef.current = 0;
   };
 
   // Render different states

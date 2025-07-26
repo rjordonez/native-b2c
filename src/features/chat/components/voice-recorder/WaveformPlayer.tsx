@@ -186,13 +186,13 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
   
   // Check if recording meets minimum duration
   const minimumDuration = 10; // 10 seconds
-  const canSend = recordingDuration >= minimumDuration;
+  const canSend = totalDuration >= minimumDuration;
 
   return (
     <div className="flex flex-col items-center gap-2 w-full max-w-md">
       {!canSend && (
         <div className="text-xs text-red-600 bg-red-50 px-3 py-1 rounded-full">
-          Recording too short: {recordingDuration}s / {minimumDuration}s minimum
+          Recording too short: {Math.floor(totalDuration)}s / {minimumDuration}s minimum
         </div>
       )}
       <div className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm">
@@ -244,7 +244,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
           }`}
           title={canSend 
             ? "Send voice message" 
-            : `Recording too short (${recordingDuration}s / ${minimumDuration}s minimum)`
+            : `Recording too short (${Math.floor(totalDuration)}s / ${minimumDuration}s minimum)`
           }
         >
           <ArrowRight size={16} />
