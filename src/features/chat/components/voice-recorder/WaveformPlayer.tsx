@@ -6,6 +6,7 @@ import {
   selectAudioUrl,
   selectAudioData,
   selectMimeType,
+  selectRecordingDuration,
   startTranscription,
   transcribeAudio,
   transcribeWithPronunciation
@@ -27,6 +28,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
   const audioUrl = useAppSelector(selectAudioUrl);
   const audioData = useAppSelector(selectAudioData);
   const mimeType = useAppSelector(selectMimeType);
+  const recordingDuration = useAppSelector(selectRecordingDuration);
   const activeConversationId = useAppSelector(selectActiveConversationId);
   
   const waveformRef = useRef<HTMLDivElement | null>(null);
@@ -181,9 +183,19 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
 
   // Get play state directly from WaveSurfer
   const isPlaying = wavesurferRef.current?.isPlaying() || false;
+  
+  // Check if recording meets minimum duration
+  const minimumDuration = 10; // 10 seconds
+  const canSend = recordingDuration >= minimumDuration;
 
   return (
-    <div className="flex items-center justify-between w-full max-w-md px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm">
+    <div className="flex flex-col items-center gap-2 w-full max-w-md">
+      {!canSend && (
+        <div className="text-xs text-red-600 bg-red-50 px-3 py-1 rounded-full">
+          Recording too short: {recordingDuration}s / {minimumDuration}s minimum
+        </div>
+      )}
+      <div className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm">
       {/* Play/Pause button */}
       <button
         onClick={handlePlayPause}
@@ -224,12 +236,21 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
         {/* Send button */}
         <button
           onClick={handleSend}
-          className="flex items-center justify-center w-8 h-8 text-white bg-blue-500 hover:bg-blue-600 rounded-full transition-colors"
-          title="Send voice message"
+          disabled={!canSend}
+          className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
+            canSend 
+              ? 'text-white bg-blue-500 hover:bg-blue-600 cursor-pointer' 
+              : 'text-gray-400 bg-gray-200 cursor-not-allowed'
+          }`}
+          title={canSend 
+            ? "Send voice message" 
+            : `Recording too short (${recordingDuration}s / ${minimumDuration}s minimum)`
+          }
         >
           <ArrowRight size={16} />
         </button>
       </div>
+    </div>
     </div>
   );
 };
