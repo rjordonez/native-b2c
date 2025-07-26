@@ -1,7 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../../store/types';
 import type { AppDispatch } from '../../../store/types';
-import { VoiceRecording } from '../types';
+import { VoiceRecordingState } from '../types';
 import { transcriptionApi } from '../services';
 import { updateMessage, addMessage, setTyping } from './conversationSlice';
 import { ErrorMessages } from '../../../utils/error';
@@ -129,6 +129,9 @@ export const transcribeWithPronunciation = createAsyncThunk<
         if (topicPractice.currentTopic && topicPractice.questions) {
           const currentIndex = topicPractice.currentQuestionIndex;
           const totalQuestions = topicPractice.questions.length;
+          const isLastQuestion = currentIndex === totalQuestions - 1;
+          const topicTitle = topicPractice.currentTopic.title || topicPractice.currentTopic.name;
+          const topicPart = topicPractice.currentTopic.part || 'Part 1'; // Default to Part 1 if not specified
           
           // Show AI typing
           dispatch(setTyping(true));
@@ -136,10 +139,19 @@ export const transcribeWithPronunciation = createAsyncThunk<
           // Wait a bit to simulate AI thinking
           await new Promise(resolve => setTimeout(resolve, 1500));
           
-          // Create completion message
+          // Create appropriate completion message
+          let messageContent: string;
+          if (isLastQuestion) {
+            // Final question completed - congratulations message
+            messageContent = `🎉 Congratulations! You have completed "${topicTitle}" - ${topicPart}. Great job practicing all ${totalQuestions} questions!`;
+          } else {
+            // Not the last question - regular completion message
+            messageContent = `You have completed question ${currentIndex + 1} out of ${totalQuestions}. Let me know when you want to go to the next question.`;
+          }
+          
           const completionMessage = {
             id: `msg-${Date.now()}`,
-            content: `You have completed question ${currentIndex + 1} out of ${totalQuestions}. Let me know when you want to go to the next question.`,
+            content: messageContent,
             sender: 'assistant' as const,
             timestamp: new Date().toISOString(),
           };
@@ -162,11 +174,11 @@ export const transcribeWithPronunciation = createAsyncThunk<
   }
 );
 
-interface VoiceRecordingState {
-  voiceRecording: VoiceRecording;
+interface VoiceRecordingSliceState {
+  voiceRecording: VoiceRecordingState;
 }
 
-const initialState: VoiceRecordingState = {
+const initialState: VoiceRecordingSliceState = {
   voiceRecording: {
     isRecording: false,
     isPaused: false,

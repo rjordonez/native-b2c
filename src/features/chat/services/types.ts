@@ -85,7 +85,11 @@ export interface IChatPersistenceService {
   
   loadUserConversations(userId: string): Promise<{
     conversations: Conversation[];
-    activeConversationId: string | null;
+    topicPracticeState?: {
+      currentTopic: DBTopic;
+      currentQuestionIndex: number;
+      questions: DBTopicQuestion[];
+    };
   }>;
   
   deleteConversation(conversationId: string): Promise<void>;
