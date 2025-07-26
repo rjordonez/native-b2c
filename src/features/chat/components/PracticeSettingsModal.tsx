@@ -10,8 +10,10 @@ import {
   selectPreviewVoice,
   selectIsGeneratingPreview,
   selectPreviewAudioUrl,
+  selectShowProgressDots,
   setPreviewSpeed,
   setPreviewVoice,
+  setShowProgressDots,
   initializePreviewSettings,
   applyPreviewSettings,
   clearPreview,
@@ -19,7 +21,7 @@ import {
 } from '../store/audioPlaybackSlice';
 import { formatDuration, createWaveSurfer, cleanupWaveSurfer, setupWaveSurferEvents } from '@/shared/utils/audio';
 
-interface TtsConfigModalProps {
+interface PracticeSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
@@ -33,7 +35,7 @@ const voiceOptions = [
   { label: 'Standard (Male)', value: 'en-US-Standard-B' },
 ];
 
-const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
+const PracticeSettingsModal: React.FC<PracticeSettingsModalProps> = ({ isOpen, onClose }) => {
   const dispatch = useAppDispatch();
   const ttsSpeed = useAppSelector(selectTtsSpeed);
   const ttsVoice = useAppSelector(selectTtsVoice);
@@ -43,6 +45,7 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
   const previewVoice = useAppSelector(selectPreviewVoice);
   const isGeneratingPreview = useAppSelector(selectIsGeneratingPreview);
   const previewAudioUrl = useAppSelector(selectPreviewAudioUrl);
+  const showProgressDots = useAppSelector(selectShowProgressDots);
   
   // Local state for WaveSurfer UI only
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
@@ -175,7 +178,7 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Gear size={20} className="text-gray-600" />
-              <h3 className="text-lg font-semibold">Voice Configuration</h3>
+              <h3 className="text-lg font-semibold">Practice Settings</h3>
             </div>
             <button
               onClick={handleCancel}
@@ -225,6 +228,27 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
                 <span className="text-xs text-gray-500">1.5x</span>
               </div>
             </div>
+          </div>
+          
+          {/* Practice Settings Section */}
+          <div className="border-t pt-4">
+            <label className="flex items-center justify-between">
+              <span className="text-sm font-medium text-gray-700">Show Progress Indicators</span>
+              <button
+                type="button"
+                onClick={() => dispatch(setShowProgressDots(!showProgressDots))}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  showProgressDots ? 'bg-primary' : 'bg-gray-200'
+                }`}
+              >
+                <span
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                    showProgressDots ? 'translate-x-6' : 'translate-x-1'
+                  }`}
+                />
+              </button>
+            </label>
+            <p className="mt-1 text-xs text-gray-500">Display progress dots during topic practice</p>
           </div>
           
           {/* Preview Section */}
@@ -293,4 +317,4 @@ const TtsConfigModal: React.FC<TtsConfigModalProps> = ({ isOpen, onClose }) => {
   );
 };
 
-export default TtsConfigModal;
+export default PracticeSettingsModal;

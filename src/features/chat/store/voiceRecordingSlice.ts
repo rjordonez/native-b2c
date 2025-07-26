@@ -3,7 +3,7 @@ import type { RootState } from '../../../store/types';
 import type { AppDispatch } from '../../../store/types';
 import { VoiceRecording } from '../types';
 import { transcriptionApi } from '../services';
-import { updateMessage } from './conversationSlice';
+import { updateMessage, addMessage, setTyping } from './conversationSlice';
 import { ErrorMessages } from '../../../utils/error';
 
 interface TranscriptionData {
@@ -123,6 +123,30 @@ export const transcribeWithPronunciation = createAsyncThunk<
           messageId,
           updates: { transcription, pronunciation }
         }));
+        
+        // Check if this is during topic practice to send completion message
+        const topicPractice = state.topicPractice;
+        if (topicPractice.currentTopic && topicPractice.questions) {
+          const currentIndex = topicPractice.currentQuestionIndex;
+          const totalQuestions = topicPractice.questions.length;
+          
+          // Show AI typing
+          dispatch(setTyping(true));
+          
+          // Wait a bit to simulate AI thinking
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Create completion message
+          const completionMessage = {
+            id: `msg-${Date.now()}`,
+            content: `You have completed question ${currentIndex + 1} out of ${totalQuestions}. Let me know when you want to go to the next question.`,
+            sender: 'assistant' as const,
+            timestamp: new Date().toISOString(),
+          };
+          
+          dispatch(addMessage({ conversationId, message: completionMessage }));
+          dispatch(setTyping(false));
+        }
       }
       
       return { messageId, transcription, pronunciation };

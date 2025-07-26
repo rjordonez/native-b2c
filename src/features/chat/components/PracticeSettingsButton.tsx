@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Gear } from 'phosphor-react';
-import TtsConfigModal from './TtsConfigModal';
+import PracticeSettingsModal from './PracticeSettingsModal';
 
-const TtsConfigButton: React.FC = () => {
+const PracticeSettingsButton: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -10,16 +10,16 @@ const TtsConfigButton: React.FC = () => {
       <button
         onClick={() => setIsModalOpen(true)}
         className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors relative group"
-        title="Voice Configuration"
+        title="Practice Settings"
       >
         <Gear size={20} />
         {/* Tooltip */}
         <span className="absolute right-0 top-full mt-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-          Voice Configuration
+          Practice Settings
         </span>
       </button>
       
-      <TtsConfigModal 
+      <PracticeSettingsModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
@@ -27,4 +27,4 @@ const TtsConfigButton: React.FC = () => {
   );
 };
 
-export default TtsConfigButton;
+export default PracticeSettingsButton;

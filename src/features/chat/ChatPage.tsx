@@ -13,8 +13,9 @@ import {
   ChatMessages,
   VoiceRecorder,
   EmptyState,
-  TtsConfigButton
+  PracticeSettingsButton
 } from './components';
+import { ProgressDots } from './components/voice-recorder';
 import { PronunciationModal } from '../pronunciation/components/PronunciationModal';
 
 const ChatPage: React.FC = () => {
@@ -68,7 +69,7 @@ const ChatPage: React.FC = () => {
                   {activeConversation.messages.length} messages
                 </p>
               </div>
-              <TtsConfigButton />
+              <PracticeSettingsButton />
             </div>
           </div>
 
@@ -84,6 +85,11 @@ const ChatPage: React.FC = () => {
             isTyping={isTyping}
             formatTimestamp={formatTimestamp}
           />
+
+          {/* Progress indicators for topic practice */}
+          <div className="px-4 pb-2 bg-white flex justify-center">
+            <ProgressDots />
+          </div>
 
           <div className="p-4 border-t border-gray-200 bg-white flex-shrink-0 flex justify-center">
             <VoiceRecorder />

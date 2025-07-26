@@ -12,6 +12,8 @@ interface AudioPlaybackState {
   previewVoice: string;
   isGeneratingPreview: boolean;
   previewAudioUrl: string | null;
+  // Practice settings
+  showProgressDots: boolean;
 }
 
 const initialState: AudioPlaybackState = {
@@ -24,6 +26,8 @@ const initialState: AudioPlaybackState = {
   previewVoice: 'en-US-Journey-F',
   isGeneratingPreview: false,
   previewAudioUrl: null,
+  // Practice settings
+  showProgressDots: true,
 };
 
 // Async thunk for generating TTS preview
@@ -127,6 +131,9 @@ export const audioPlaybackSlice = createSlice({
       state.previewAudioUrl = null;
       state.isGeneratingPreview = false;
     },
+    setShowProgressDots: (state, action: PayloadAction<boolean>) => {
+      state.showProgressDots = action.payload;
+    },
   },
 });
 
@@ -143,6 +150,7 @@ export const {
   initializePreviewSettings,
   applyPreviewSettings,
   clearPreview,
+  setShowProgressDots,
 } = audioPlaybackSlice.actions;
 
 // Selectors
@@ -155,5 +163,7 @@ export const selectPreviewSpeed = (state: RootState) => state.audioPlayback.prev
 export const selectPreviewVoice = (state: RootState) => state.audioPlayback.previewVoice;
 export const selectIsGeneratingPreview = (state: RootState) => state.audioPlayback.isGeneratingPreview;
 export const selectPreviewAudioUrl = (state: RootState) => state.audioPlayback.previewAudioUrl;
+// Practice settings selectors
+export const selectShowProgressDots = (state: RootState) => state.audioPlayback.showProgressDots;
 
 export default audioPlaybackSlice.reducer;
