@@ -24,6 +24,7 @@ export class MessagePersistence extends PersistenceBase {
 
       // Handle audio upload
       const audioData = await this.handleAudioUpload(message, userId);
+      
 
       // Insert new message
       const { data, error } = await this.supabase
@@ -45,8 +46,10 @@ export class MessagePersistence extends PersistenceBase {
         .single();
 
       if (error || !data) {
+        console.error('[MessagePersistence] Save error:', error);
         throw error || new Error('Failed to save message');
       }
+      
       
       return data.id;
     }, 'saveMessage');

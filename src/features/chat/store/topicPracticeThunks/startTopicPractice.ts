@@ -68,6 +68,7 @@ export const startTopicPractice = createAsyncThunk<
           speakingRate: ttsSpeed
         });
         
+        
         // Hide typing indicator
         dispatch(setTyping(false));
         
@@ -79,6 +80,7 @@ export const startTopicPractice = createAsyncThunk<
           timestamp: new Date().toISOString(),
           isTopicQuestion: true,
           audioUrl: ttsResult.success ? ttsResult.data?.audioUrl : undefined,
+          audioData: ttsResult.success ? ttsResult.data?.audioData : undefined,
         };
         
         // Add message
@@ -101,6 +103,7 @@ export const startTopicPractice = createAsyncThunk<
           timestamp: new Date().toISOString(),
           isTopicQuestion: true,
           audioUrl: undefined,
+          audioData: undefined,
         };
         
         dispatch(addMessage({ conversationId: conversation.id, message: firstMessage }));

@@ -80,6 +80,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
     // For chat messages, prioritize audioData (base64) over audioUrl (temporary blob)
     const audioSource = audioData || audioUrl;
     
+    
     if (audioSource && waveformRef.current) {
       
       const wavesurfer = createWaveSurfer({

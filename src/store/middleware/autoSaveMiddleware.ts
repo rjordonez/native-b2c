@@ -23,35 +23,63 @@ export const autoSaveMiddleware: Middleware = (store) => (next) => (action) => {
   // Execute the action first
   const result = next(action);
   
+  const actionType = (action as AnyAction).type;
+  
+  
   // Check if this action should trigger a save
-  if (SAVE_ACTIONS.includes((action as AnyAction).type)) {
+  if (SAVE_ACTIONS.includes(actionType)) {
     const state = store.getState();
     const userId = state.auth.user?.id;
     
+    
     // Only save if user is authenticated
     if (userId) {
-      // Clear existing timer
-      if (saveTimer) {
-        clearTimeout(saveTimer);
-      }
+      // For critical actions like adding messages, save immediately
+      const criticalActions = ['conversation/addMessage', 'chat/addMessage'];
+      const isCritical = criticalActions.includes(actionType);
       
-      // Only start saving if not already saving
-      const saveStatus = state.saveStatus;
-      if (!saveStatus.isSaving) {
+      if (isCritical) {
+        // Save immediately for critical actions
         store.dispatch(startSaving());
-      }
-      
-      // Debounce the actual save
-      saveTimer = setTimeout(async () => {
-        try {
-          await handleSave(action as AnyAction, state, userId);
-          store.dispatch(completeSaving());
-        } catch (error) {
-          logError(error, 'AutoSave');
-          const userMessage = getUserFriendlyError(error);
-          store.dispatch(failSaving(userMessage));
+        
+        (async () => {
+          try {
+            await handleSave(action as AnyAction, state, userId);
+            store.dispatch(completeSaving());
+          } catch (error) {
+            console.error('[AutoSave] Save failed:', error);
+            logError(error, 'AutoSave');
+            const userMessage = getUserFriendlyError(error);
+            store.dispatch(failSaving(userMessage));
+          }
+        })();
+      } else {
+        // Clear existing timer for non-critical saves
+        if (saveTimer) {
+          clearTimeout(saveTimer);
         }
-      }, DELAYS.AUTOSAVE_DEBOUNCE);
+        
+        // Only start saving if not already saving
+        const saveStatus = state.saveStatus;
+        if (!saveStatus.isSaving) {
+          store.dispatch(startSaving());
+        }
+        
+        // Debounce non-critical saves
+        saveTimer = setTimeout(async () => {
+          try {
+            // Get fresh state for the save
+            const freshState = store.getState();
+            await handleSave(action as AnyAction, freshState, userId);
+            store.dispatch(completeSaving());
+          } catch (error) {
+            console.error('[AutoSave] Save failed:', error);
+            logError(error, 'AutoSave');
+            const userMessage = getUserFriendlyError(error);
+            store.dispatch(failSaving(userMessage));
+          }
+        }, DELAYS.AUTOSAVE_DEBOUNCE);
+      }
     }
   }
   

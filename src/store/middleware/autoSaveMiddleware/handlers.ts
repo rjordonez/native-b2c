@@ -10,7 +10,7 @@ export async function handleCreateConversation(action: AnyAction, userId: string
 }
 
 export async function handleAddUserMessage(action: AnyAction, state: RootState, userId: string) {
-  const { conversationId, messageId } = action.payload;
+  const { conversationId, messageId, audioUrl, audioData } = action.payload;
   const chatState = state.conversation;
   const conversation = chatState.conversations.find((c: { id: string }) => c.id === conversationId);
   
@@ -23,7 +23,7 @@ export async function handleAddUserMessage(action: AnyAction, state: RootState, 
     const dbConvId = await chatPersistence.saveConversation(conversation, userId, transformedTopicState);
     
     // Find and save the message
-    const message = conversation.messages.find((m: { id: string }) => m.id === (messageId || `msg-${Date.now()}-user`));
+    const message = conversation.messages.find((m: { id: string }) => m.id === (messageId || action.payload.messageId));
     if (message) {
       await chatPersistence.saveMessage(message, dbConvId, userId);
     }
@@ -36,6 +36,12 @@ export async function handleAddMessage(action: AnyAction, state: RootState, user
   const conversation = chatState.conversations.find((c: { id: string }) => c.id === conversationId);
   
   if (conversation) {
+    // Skip saving enhanced messages as regular messages
+    // They are saved separately in the enhanced_transcripts table
+    if (message.isEnhanced) {
+      return;
+    }
+    
     // Get topic practice state if active
     const topicPracticeState = state.topicPractice;
     const transformedTopicState = transformTopicPracticeForDB(topicPracticeState);
@@ -63,12 +69,14 @@ export async function handleDeleteConversation(action: AnyAction) {
 export async function handleStartTopicPractice(action: AnyAction, userId: string) {
   const { conversation, topicData } = action.payload;
   
+  
   // Save conversation with topic practice state
   const dbConvId = await chatPersistence.saveConversation(conversation, userId, topicData);
   
   // Save the first message (question)
   if (conversation.messages.length > 0) {
     await chatPersistence.saveMessage(conversation.messages[0], dbConvId, userId);
+  } else {
   }
 }
 
@@ -113,20 +121,29 @@ export async function handleUpdateMessage(action: AnyAction, state: RootState, u
         if (dbMsg) {
           // Save transcription if updated
           if (updates.transcription && !updates.transcription.isLoading) {
+            console.log('Saving transcription for message:', messageId, updates.transcription);
             await chatPersistence.saveTranscription(dbMsg.id, updates.transcription);
           }
           
           // Save pronunciation if updated
           if (updates.pronunciation && !updates.pronunciation.isLoading) {
+            console.log('Saving pronunciation for message:', messageId, updates.pronunciation);
             await chatPersistence.savePronunciation(dbMsg.id, updates.pronunciation);
           }
         } else if (!updates.transcription?.isLoading && !updates.pronunciation?.isLoading) {
           // Message doesn't exist in DB yet, but we have final data - save the complete message
+          console.log('Message not in DB, saving complete message:', messageId, { ...message, ...updates });
           const completeMessage = { ...message, ...updates };
           await chatPersistence.saveMessage(completeMessage, dbConv.id, userId);
         }
+      } else {
+        console.error('Conversation not found in DB:', conversationId);
       }
+    } else {
+      console.error('Message not found in conversation:', messageId);
     }
+  } else {
+    console.error('Conversation not found in state:', conversationId);
   }
 }
 

@@ -72,6 +72,7 @@ export const getNextTopicQuestion = createAsyncThunk<
         timestamp: new Date().toISOString(),
         isTopicQuestion: true,
         audioUrl: ttsResult.data?.audioUrl,
+        audioData: ttsResult.data?.audioData,
       };
 
       // Add message to conversation

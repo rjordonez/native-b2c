@@ -61,6 +61,7 @@ export class TopicPersistence extends PersistenceBase {
   private transformConversation(dbConv: DBConversationWithRelations): Conversation {
     const messages: Message[] = (dbConv.messages || [])
       .map((msg: DBMessageWithRelations) => {
+        
         const message: Message = {
           id: msg.client_id,
           content: msg.content,
@@ -114,7 +115,10 @@ export class TopicPersistence extends PersistenceBase {
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
       );
 
-    // Collect all enhanced transcripts from all messages
+    // Filter out any enhanced messages from regular messages to avoid duplicates
+    const regularMessages = messages.filter(msg => !msg.isEnhanced);
+    
+    // Collect all enhanced transcripts from the enhanced_transcripts table
     const enhancedMessages: Message[] = [];
     dbConv.messages.forEach((dbMsg: DBMessageWithRelations) => {
       if (dbMsg.enhanced_transcripts) {
@@ -138,7 +142,7 @@ export class TopicPersistence extends PersistenceBase {
     });
 
     // Combine regular messages and enhanced messages, then sort by timestamp
-    const allMessages = [...messages, ...enhancedMessages].sort((a, b) => 
+    const allMessages = [...regularMessages, ...enhancedMessages].sort((a, b) => 
       new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
 
