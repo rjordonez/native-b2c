@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Plus } from 'phosphor-react';
+import { Plus, CircleNotch } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectSidebarCollapsed } from '../../../../store/slices/navigationSlice';
 import { 
@@ -10,6 +10,8 @@ import {
   createConversation 
 } from '../../../../features/chat/store/conversationSlice';
 
+const SESSIONS_PER_PAGE = 14;
+
 const ChatSessions: React.FC = () => {
   const location = useLocation();
   const dispatch = useAppDispatch();
@@ -17,6 +19,11 @@ const ChatSessions: React.FC = () => {
   const conversations = useAppSelector(selectConversations);
   const activeConversation = useAppSelector(selectActiveConversation);
   const isChatPage = location.pathname === '/chat';
+  
+  const [displayedSessions, setDisplayedSessions] = useState(SESSIONS_PER_PAGE);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const handleCreateConversation = () => {
     // Clear active conversation to show topic selection UI
@@ -31,6 +38,46 @@ const ChatSessions: React.FC = () => {
       minute: '2-digit',
     }).format(new Date(date));
   };
+
+  // Load more sessions handler
+  const loadMoreSessions = useCallback(() => {
+    if (isLoadingMore || displayedSessions >= conversations.length) return;
+    
+    setIsLoadingMore(true);
+    // Simulate loading delay for smooth UX
+    setTimeout(() => {
+      setDisplayedSessions(prev => Math.min(prev + SESSIONS_PER_PAGE, conversations.length));
+      setIsLoadingMore(false);
+    }, 300);
+  }, [isLoadingMore, displayedSessions, conversations.length]);
+
+  // Intersection observer for infinite scroll
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          loadMoreSessions();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    const currentLoadMoreRef = loadMoreRef.current;
+    if (currentLoadMoreRef) {
+      observer.observe(currentLoadMoreRef);
+    }
+
+    return () => {
+      if (currentLoadMoreRef) {
+        observer.unobserve(currentLoadMoreRef);
+      }
+    };
+  }, [loadMoreSessions]);
+
+  // Reset displayed sessions when conversations change
+  useEffect(() => {
+    setDisplayedSessions(SESSIONS_PER_PAGE);
+  }, [conversations.length]);
 
   // Don't render if sidebar is collapsed
   if (sidebarCollapsed) {
@@ -55,6 +102,7 @@ const ChatSessions: React.FC = () => {
       </div>
       
       <div 
+        ref={scrollContainerRef}
         className="space-y-1 overflow-y-auto pr-2" 
         style={{
           maxHeight: 'calc(100vh - 5rem - 10rem - 4rem - 2rem)', // Account for logo(5rem) + nav(10rem) + user box(4rem) + sessions header(2rem)
@@ -62,7 +110,7 @@ const ChatSessions: React.FC = () => {
           scrollbarColor: '#cbd5e1 #f1f5f9'
         }}
       >
-        {conversations.map((conversation, index) => (
+        {conversations.slice(0, displayedSessions).map((conversation, index) => (
           <div
             key={conversation.id}
             className={`transform transition-all duration-300 ease-out ${
@@ -93,6 +141,20 @@ const ChatSessions: React.FC = () => {
             </button>
           </div>
         ))}
+        
+        {/* Loading indicator */}
+        {displayedSessions < conversations.length && (
+          <div 
+            ref={loadMoreRef}
+            className="py-3 flex justify-center"
+          >
+            {isLoadingMore ? (
+              <CircleNotch size={20} className="animate-spin text-gray-400" />
+            ) : (
+              <div className="text-xs text-gray-400">Scroll for more</div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
