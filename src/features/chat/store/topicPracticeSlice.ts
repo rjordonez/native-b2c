@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import type { RootState } from '../../../store/types';
 import { Topic } from '../../../lib/supabase/topics';
-import { startTopicPractice, redoTopicQuestion, getNextTopicQuestion, enhanceTranscript } from './topicPracticeThunks';
+import { startTopicPractice, redoTopicQuestion, getNextTopicQuestion, enhanceTranscript, handleTopicPracticeCompletion } from './topicPracticeThunks';
 
 // Async thunks moved to topicPracticeThunks.ts
 
