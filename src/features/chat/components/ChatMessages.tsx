@@ -62,6 +62,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
               transcription={msg.transcription}
               pronunciation={msg.pronunciation}
               onEnhanceTranscript={handleEnhanceTranscript}
+              content={msg.content}
             />
           );
         }

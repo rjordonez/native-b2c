@@ -20,6 +20,7 @@ interface VoiceMessageProps {
   timestamp: string;
   formatTimestamp: (timestamp: string) => string;
   isTopicQuestion?: boolean; // For auto-playing topic questions
+  content?: string; // For AI transcript display
   transcription?: {
     text: string;
     isLoading: boolean;
@@ -52,6 +53,7 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
   timestamp,
   formatTimestamp,
   isTopicQuestion = false,
+  content,
   transcription,
   pronunciation,
   onEnhanceTranscript
@@ -201,6 +203,8 @@ const VoiceMessage: React.FC<VoiceMessageProps> = ({
         totalDuration={totalDuration}
         waveformRef={waveformRef}
         onPlayPause={handlePlayPause}
+        content={content}
+        isTopicQuestion={isTopicQuestion}
       />
 
       <TranscriptionSection
