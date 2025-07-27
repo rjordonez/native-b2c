@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { RootState } from '../../../../store/types';
 import type { AppDispatch } from '../../../../store/types';
-import { addMessage, setLoading, setTyping } from '../conversationSlice';
+import { addMessage, setLoading, setTyping, updateConversationMetadata } from '../conversationSlice';
 import { setAutoPlayMessageId } from '../audioPlaybackSlice';
 import { generateTTS } from './ttsService';
 import type { NextQuestionResult } from './types';
@@ -76,6 +76,18 @@ export const getNextTopicQuestion = createAsyncThunk<
 
       // Add message to conversation
       dispatch(addMessage({ conversationId: activeConversationId, message: questionMessage }));
+      
+      // Update conversation metadata with new question index
+      const activeConversation = state.conversation.conversations.find(c => c.id === activeConversationId);
+      if (activeConversation?.topicPracticeMetadata) {
+        dispatch(updateConversationMetadata({
+          conversationId: activeConversationId,
+          metadata: {
+            ...activeConversation.topicPracticeMetadata,
+            currentQuestionIndex: nextIndex,
+          }
+        }));
+      }
       
       // Set autoplay
       dispatch(setAutoPlayMessageId(questionMessage.id));

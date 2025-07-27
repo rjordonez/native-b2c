@@ -2,18 +2,26 @@ import React from 'react';
 import { useAppSelector } from '../../../../store/hooks';
 import { selectTopicPractice } from '../../store/topicPracticeSlice';
 import { selectShowProgressDots } from '../../store/audioPlaybackSlice';
+import { selectActiveConversation } from '../../store/conversationSlice';
 
 const ProgressDots: React.FC = () => {
   const topicPractice = useAppSelector(selectTopicPractice);
   const showProgressDots = useAppSelector(selectShowProgressDots);
+  const activeConversation = useAppSelector(selectActiveConversation);
   const { currentTopic, currentQuestionIndex, questions } = topicPractice;
   
+  // Check both topic practice state and conversation metadata
+  const hasTopicPractice = currentTopic && questions && questions.length > 0;
+  const hasTopicMetadata = activeConversation?.topicPracticeMetadata;
+  
   // Only show during topic practice and when enabled in settings
-  if (!currentTopic || !showProgressDots || !questions) {
+  if (!showProgressDots || (!hasTopicPractice && !hasTopicMetadata)) {
     return null;
   }
   
-  const totalQuestions = questions.length;
+  // Use metadata if topic practice state is not loaded yet
+  const totalQuestions = questions?.length || activeConversation?.topicPracticeMetadata?.totalQuestions || 0;
+  const currentIndex = currentQuestionIndex ?? activeConversation?.topicPracticeMetadata?.currentQuestionIndex ?? 0;
   
   return (
     <div className="flex items-center gap-1.5">
@@ -21,9 +29,9 @@ const ProgressDots: React.FC = () => {
         <div
           key={index}
           className={`w-2 h-2 rounded-full transition-all duration-200 ${
-            index < currentQuestionIndex 
+            index < currentIndex 
               ? 'bg-primary' 
-              : index === currentQuestionIndex
+              : index === currentIndex
               ? 'bg-primary/50 ring-2 ring-primary/30'
               : 'bg-gray-300'
           }`}

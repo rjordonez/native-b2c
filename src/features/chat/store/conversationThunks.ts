@@ -8,6 +8,9 @@ import {
 } from '../types';
 import { DELAYS } from '../../../constants/timing';
 import { chatPersistence } from '../services/chatPersistence';
+import { restoreTopicPracticeState, resetTopicPractice } from './topicPracticeSlice';
+import { updateConversationMetadata } from './conversationSlice';
+import { fetchTopics } from '../../../lib/supabase/topics';
 
 // Async thunks for API calls
 export const loadConversations = createAsyncThunk(
@@ -76,5 +79,79 @@ export const createConversation = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to create conversation');
     }
+  }
+);
+
+export const switchConversation = createAsyncThunk(
+  'conversation/switchConversation',
+  async (conversationId: string | null, { getState, dispatch }) => {
+    const state = getState() as RootState;
+    
+    // If null, just reset topic practice
+    if (!conversationId) {
+      dispatch(resetTopicPractice());
+      return null;
+    }
+    
+    const conversation = state.conversation.conversations.find(c => c.id === conversationId);
+    
+    if (!conversation) {
+      return conversationId;
+    }
+    
+    // Check if this is a topic practice conversation
+    const hasTopicQuestions = conversation.messages.some(m => m.isTopicQuestion);
+    
+    if (hasTopicQuestions || conversation.topicPracticeMetadata) {
+      try {
+        // Try to get topic info from metadata or conversation title
+        let topicName = conversation.topicPracticeMetadata?.topicTitle || conversation.title;
+        let currentQuestionIndex = conversation.topicPracticeMetadata?.currentQuestionIndex || 0;
+        
+        // Count topic questions to determine current index
+        const topicQuestionCount = conversation.messages.filter(m => m.isTopicQuestion).length;
+        if (!conversation.topicPracticeMetadata && topicQuestionCount > 0) {
+          currentQuestionIndex = topicQuestionCount - 1; // Last question index
+        }
+        
+        // Fetch topics to get the full topic data
+        const topics = await fetchTopics();
+        const topic = topics.find(t => 
+          t.id === conversation.topicPracticeMetadata?.topicId ||
+          t.title.toLowerCase() === topicName.toLowerCase()
+        );
+        
+        if (topic && topic.questionsList) {
+          // Restore the topic practice state
+          dispatch(restoreTopicPracticeState({
+            currentTopic: topic,
+            currentQuestionIndex: currentQuestionIndex,
+            questions: topic.questionsList,
+          }));
+          
+          // Also update the conversation metadata for future use
+          dispatch(updateConversationMetadata({
+            conversationId: conversation.id,
+            metadata: {
+              topicId: topic.id,
+              topicTitle: topic.title,
+              currentQuestionIndex: currentQuestionIndex,
+              totalQuestions: topic.questionsList.length,
+            }
+          }));
+        } else {
+          // Topic not found, reset
+          dispatch(resetTopicPractice());
+        }
+      } catch (error) {
+        console.error('Error restoring topic practice:', error);
+        dispatch(resetTopicPractice());
+      }
+    } else {
+      // Not a topic practice conversation
+      dispatch(resetTopicPractice());
+    }
+    
+    return conversationId;
   }
 );

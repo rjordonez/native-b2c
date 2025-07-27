@@ -6,7 +6,7 @@ import { selectSidebarCollapsed } from '../../../../store/slices/navigationSlice
 import { 
   selectConversations, 
   selectActiveConversation, 
-  setActiveConversation,
+  switchConversation,
   createConversation 
 } from '../../../../features/chat/store/conversationSlice';
 
@@ -20,7 +20,7 @@ const ChatSessions: React.FC = () => {
 
   const handleCreateConversation = () => {
     // Clear active conversation to show topic selection UI
-    dispatch(setActiveConversation(null));
+    dispatch(switchConversation(null));
   };
 
   const formatTimestamp = (date: Date) => {
@@ -75,7 +75,9 @@ const ChatSessions: React.FC = () => {
             }}
           >
             <button
-              onClick={() => dispatch(setActiveConversation(conversation.id))}
+              onClick={async () => {
+                await dispatch(switchConversation(conversation.id));
+              }}
               className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ease-out ${
                 activeConversation?.id === conversation.id
                   ? 'bg-gray-100 text-black transform scale-[1.02] shadow-sm'
