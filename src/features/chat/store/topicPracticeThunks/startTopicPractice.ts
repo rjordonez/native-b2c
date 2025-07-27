@@ -47,11 +47,15 @@ export const startTopicPractice = createAsyncThunk<
       const ttsVoice = state.audioPlayback.ttsVoice;
       
       // Generate audio for the first question
-      const { audioUrl, audioData } = await generateTTS({
+      const ttsResult = await generateTTS({
         text: firstQuestion.text,
-        speed: ttsSpeed,
-        voice: ttsVoice
+        voiceName: ttsVoice,
+        speakingRate: ttsSpeed
       });
+      
+      if (!ttsResult.success) {
+        throw new Error(ttsResult.message || 'TTS generation failed');
+      }
 
       // Create initial message with first question
       const firstMessage = {
@@ -60,8 +64,7 @@ export const startTopicPractice = createAsyncThunk<
         sender: 'assistant' as const,
         timestamp: new Date().toISOString(),
         isTopicQuestion: true,
-        audioUrl: audioUrl || undefined,
-        audioData: audioData || undefined,
+        audioUrl: ttsResult.data?.audioUrl,
       };
 
       // Add conversation and message
@@ -78,7 +81,7 @@ export const startTopicPractice = createAsyncThunk<
       dispatch(setLoading(false));
       
       // Set auto-play for the first message if audio was generated
-      if (audioUrl) {
+      if (ttsResult.data?.audioUrl) {
         dispatch(setAutoPlayMessageId(firstMessage.id));
       }
       

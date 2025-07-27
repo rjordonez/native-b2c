@@ -3,7 +3,7 @@ import type { RootState } from '../../../../store/types';
 import type { AppDispatch } from '../../../../store/types';
 import { addMessage, setLoading, setTyping } from '../conversationSlice';
 import { setAutoPlayMessageId } from '../audioPlaybackSlice';
-import { generateTTSLegacy } from './ttsService';
+import { generateTTS } from './ttsService';
 import type { NextQuestionResult } from './types';
 
 // Next topic question async thunk
@@ -54,7 +54,7 @@ export const getNextTopicQuestion = createAsyncThunk<
       const ttsSpeed = state.audioPlayback.ttsSpeed;
       const ttsVoice = state.audioPlayback.ttsVoice;
       
-      const ttsResult = await generateTTSLegacy({
+      const ttsResult = await generateTTS({
         text: nextQuestion.text,
         voiceName: ttsVoice,
         speakingRate: ttsSpeed
