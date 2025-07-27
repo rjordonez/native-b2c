@@ -36,17 +36,6 @@ const ChatPage: React.FC = () => {
     }
   }, [error, dispatch]);
 
-  // Check if active conversation has topic practice on mount
-  useEffect(() => {
-    if (activeConversation?.id) {
-      // Check if it's a topic practice conversation
-      const hasTopicQuestions = activeConversation.messages.some(m => m.isTopicQuestion);
-      if (hasTopicQuestions || activeConversation.topicPracticeMetadata) {
-        // Trigger switch conversation to restore topic practice state
-        dispatch(switchConversation(activeConversation.id));
-      }
-    }
-  }, []); // Only run on mount
 
 
   const handleCreateConversation = () => {

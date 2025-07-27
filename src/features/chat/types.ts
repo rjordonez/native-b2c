@@ -39,12 +39,6 @@ export interface Conversation {
   messages: Message[];
   createdAt: string; // ISO string for Redux serialization
   updatedAt: string; // ISO string for Redux serialization
-  topicPracticeMetadata?: {
-    topicId: string;
-    topicTitle: string;
-    currentQuestionIndex: number;
-    totalQuestions: number;
-  };
 }
 
 export interface VoiceRecordingState {

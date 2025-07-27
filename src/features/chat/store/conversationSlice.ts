@@ -100,13 +100,6 @@ export const conversationSlice = createSlice({
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
-    updateConversationMetadata: (state, action: PayloadAction<{ conversationId: string; metadata: Conversation['topicPracticeMetadata'] }>) => {
-      const { conversationId, metadata } = action.payload;
-      const conversation = state.conversations.find(c => c.id === conversationId);
-      if (conversation) {
-        conversation.topicPracticeMetadata = metadata;
-      }
-    },
   },
   extraReducers: (builder) => {
     builder
@@ -196,7 +189,6 @@ export const {
   clearError,
   setTyping,
   setLoading,
-  updateConversationMetadata,
 } = conversationSlice.actions;
 
 // Re-export thunks for convenience

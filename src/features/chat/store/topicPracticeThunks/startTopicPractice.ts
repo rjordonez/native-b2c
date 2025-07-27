@@ -29,19 +29,13 @@ export const startTopicPractice = createAsyncThunk<
         throw new Error(`No questions found for topic: ${topicName}`);
       }
 
-      // Create new conversation with topic practice metadata
+      // Create new conversation
       const conversation: Conversation = {
         id: `conv-${Date.now()}`,
         title: topicName,
         messages: [],
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        topicPracticeMetadata: {
-          topicId: selectedTopic.id,
-          topicTitle: selectedTopic.title,
-          currentQuestionIndex: 0,
-          totalQuestions: selectedTopic.questionsList.length,
-        },
       };
 
       // Get first question
