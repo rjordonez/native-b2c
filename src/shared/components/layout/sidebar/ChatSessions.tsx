@@ -43,8 +43,6 @@ const ChatSessions: React.FC = () => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     }).format(new Date(date));
   };
 
@@ -228,11 +226,15 @@ const ChatSessions: React.FC = () => {
                         : 'text-gray-600 hover:bg-gray-50 hover:text-black hover:transform hover:scale-[1.01]'
                     }`}
                   >
-                    <div className="truncate font-medium pr-6">
-                      {conversation.title}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      {formatTimestamp(conversation.updatedAt)} • {conversation.messages.length} messages
+                    <div className={`flex items-center justify-between ${(hoveredId === conversation.id || menuOpenId === conversation.id) ? 'pr-8' : ''}`}>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate font-medium">
+                          {conversation.title}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {formatTimestamp(conversation.updatedAt)} • {conversation.messages.length} messages
+                        </div>
+                      </div>
                     </div>
                   </button>
 
@@ -241,7 +243,7 @@ const ChatSessions: React.FC = () => {
                     <button
                       ref={(el) => { menuButtonRefs.current[conversation.id] = el; }}
                       onClick={(e) => handleMenuClick(e, conversation.id)}
-                      className="absolute right-2 top-2 p-1 rounded hover:bg-gray-200 transition-colors"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-200 transition-colors"
                     >
                       <DotsThreeVertical size={16} className="text-gray-600" />
                     </button>
