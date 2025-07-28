@@ -75,9 +75,10 @@ const ChecklistCard: React.FC = () => {
           {tasks.map((task) => (
             <div 
               key={task.id} 
-              className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group"
+              className="flex items-center justify-between p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors group cursor-pointer"
               onMouseEnter={() => setHoveredTaskId(task.id)}
               onMouseLeave={() => setHoveredTaskId(null)}
+              onClick={() => handlePracticeClick(task.id)}
             >
               <div className="flex items-center gap-3">
                 {/* Circle with number or checkmark */}
@@ -102,21 +103,20 @@ const ChecklistCard: React.FC = () => {
               </div>
 
               {/* Navigation arrow with randomize icon */}
-              <button
-                onClick={(e) => handlePracticeClick(task.id, e)}
+              <div
                 className="flex items-center gap-1 text-gray-400 hover:text-gray-600 transition-colors"
-                title="Start random practice"
+                title="Random practice"
               >
                 {hoveredTaskId === task.id && (
                   <Shuffle size={16} className="animate-fade-in" />
                 )}
                 <CaretRight size={20} />
-              </button>
+              </div>
             </div>
           ))}
         </div>
         <p className="text-xs text-gray-500 mt-4">
-          Complete practice sessions to check off items • Click arrow for random practice
+          Complete practice sessions to check off items • Click any task for random practice
         </p>
       </CardContent>
     </Card>
