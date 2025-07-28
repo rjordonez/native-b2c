@@ -10,6 +10,8 @@ interface TopicPracticeState {
   currentQuestionIndex: number;
   questions: Topic['questionsList'] | null;
   hasCompletedTopic: boolean; // Track if topic completion has been recorded
+  isLoadingQuestion: boolean;
+  questionError: string | null;
 }
 
 const initialState: TopicPracticeState = {
@@ -17,6 +19,8 @@ const initialState: TopicPracticeState = {
   currentQuestionIndex: 0,
   questions: null,
   hasCompletedTopic: false,
+  isLoadingQuestion: false,
+  questionError: null,
 };
 
 export const topicPracticeSlice = createSlice({
@@ -37,6 +41,8 @@ export const topicPracticeSlice = createSlice({
       state.currentQuestionIndex = 0;
       state.questions = null;
       state.hasCompletedTopic = false;
+      state.isLoadingQuestion = false;
+      state.questionError = null;
     },
     setTopicCompleted: (state) => {
       state.hasCompletedTopic = true;
@@ -67,15 +73,34 @@ export const topicPracticeSlice = createSlice({
         state.currentQuestionIndex = 0;
         state.questions = null;
       })
-      // Redo topic question - no state change needed
-      .addCase(redoTopicQuestion.fulfilled, () => {
-        // No state changes needed - just adds a new message
-      })
       // Next topic question
+      .addCase(getNextTopicQuestion.pending, (state) => {
+        state.isLoadingQuestion = true;
+        state.questionError = null;
+      })
       .addCase(getNextTopicQuestion.fulfilled, (state, action) => {
+        state.isLoadingQuestion = false;
+        state.questionError = null;
         if (action.payload.questionIndex !== undefined) {
           state.currentQuestionIndex = action.payload.questionIndex;
         }
+      })
+      .addCase(getNextTopicQuestion.rejected, (state, action) => {
+        state.isLoadingQuestion = false;
+        state.questionError = action.payload as string || 'Failed to load next question';
+      })
+      // Redo question loading states
+      .addCase(redoTopicQuestion.pending, (state) => {
+        state.isLoadingQuestion = true;
+        state.questionError = null;
+      })
+      .addCase(redoTopicQuestion.fulfilled, (state) => {
+        state.isLoadingQuestion = false;
+        state.questionError = null;
+      })
+      .addCase(redoTopicQuestion.rejected, (state, action) => {
+        state.isLoadingQuestion = false;
+        state.questionError = action.payload as string || 'Failed to reload question';
       })
       // Enhance transcript - no state change needed
       .addCase(enhanceTranscript.fulfilled, () => {
@@ -99,5 +124,7 @@ export const selectCurrentTopic = (state: RootState) => state.topicPractice.curr
 export const selectCurrentQuestionIndex = (state: RootState) => state.topicPractice.currentQuestionIndex;
 export const selectTopicQuestions = (state: RootState) => state.topicPractice.questions;
 export const selectHasCompletedTopic = (state: RootState) => state.topicPractice.hasCompletedTopic;
+export const selectIsLoadingQuestion = (state: RootState) => state.topicPractice.isLoadingQuestion;
+export const selectQuestionError = (state: RootState) => state.topicPractice.questionError;
 
 export default topicPracticeSlice.reducer;

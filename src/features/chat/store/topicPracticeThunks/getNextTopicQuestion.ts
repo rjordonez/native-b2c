@@ -95,7 +95,21 @@ export const getNextTopicQuestion = createAsyncThunk<
     } catch (error) {
       dispatch(setLoading(false));
       dispatch(setTyping(false));
-      return rejectWithValue(error instanceof Error ? error.message : 'Failed to get next question');
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to load next question. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('TTS')) {
+          errorMessage = 'Audio generation failed. Please try again.';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        } else if (error.message.includes('timeout')) {
+          errorMessage = 'Request timed out. Please try again.';
+        }
+      }
+      
+      return rejectWithValue(errorMessage);
     }
   }
 );

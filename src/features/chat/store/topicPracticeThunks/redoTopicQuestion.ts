@@ -71,10 +71,21 @@ export const redoTopicQuestion = createAsyncThunk<
         autoPlayMessageId: redoMessage.id
       };
     } catch (error) {
-      console.error('Redo action error:', error);
       dispatch(setLoading(false));
       dispatch(setTyping(false));
-      return rejectWithValue(error instanceof Error ? error.message : 'Failed to redo question');
+      
+      // Provide user-friendly error messages
+      let errorMessage = 'Failed to reload question. Please try again.';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('TTS')) {
+          errorMessage = 'Audio generation failed. Please try again.';
+        } else if (error.message.includes('network')) {
+          errorMessage = 'Network error. Please check your connection.';
+        }
+      }
+      
+      return rejectWithValue(errorMessage);
     }
   }
 );
