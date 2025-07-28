@@ -7,8 +7,11 @@ import {
 } from './librarySlice';
 import {
   selectTestDate,
-  selectPracticeActivityDates
+  selectPracticeActivityDatesFromDB,
+  selectPracticeStreak,
+  selectIsLoadingActivities
 } from '../../store/slices/dashboard/dashboardSlice';
+import { fetchPracticeActivity } from '../../store/slices/dashboard/dashboardThunks';
 import { GitHubCard, ChecklistCard } from '../../shared/components/dashboard';
 import { SearchFilters, TopicList, Pagination } from './components';
 
@@ -18,11 +21,14 @@ const LibraryPage: React.FC = () => {
   
   // Home data for sidebar components
   const testDate = useAppSelector(selectTestDate);
-  const completedDays = useAppSelector(selectPracticeActivityDates);
+  const completedDays = useAppSelector(selectPracticeActivityDatesFromDB);
+  const practiceStreak = useAppSelector(selectPracticeStreak);
+  const isLoadingActivities = useAppSelector(selectIsLoadingActivities);
 
-  // Fetch topics on component mount
+  // Fetch topics and practice activity on component mount
   useEffect(() => {
     dispatch(fetchTopicsFromDB());
+    dispatch(fetchPracticeActivity());
   }, [dispatch]);
 
   // Clear errors after 5 seconds
@@ -53,6 +59,8 @@ const LibraryPage: React.FC = () => {
           <GitHubCard
             testDate={testDate}
             completedDays={completedDays}
+            practiceStreak={practiceStreak}
+            isLoading={isLoadingActivities}
           />
           <ChecklistCard />
         </div>
@@ -63,6 +71,8 @@ const LibraryPage: React.FC = () => {
         <GitHubCard
           testDate={testDate}
           completedDays={completedDays}
+          practiceStreak={practiceStreak}
+          isLoading={isLoadingActivities}
         />
         <ChecklistCard />
         <SearchFilters />

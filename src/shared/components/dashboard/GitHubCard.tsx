@@ -1,15 +1,21 @@
 import React, { useMemo } from 'react';
 import GitHubCalendar from 'react-github-calendar';
 import { Card, CardHeader, CardTitle, CardContent } from '../layout/ui/card';
+import { PracticeStreak } from '../../../store/slices/dashboard/types';
+import { CircleNotch, Fire } from 'phosphor-react';
 
 interface GitHubCardProps {
   testDate: Date;
-  completedDays: Date[]; 
+  completedDays: Date[];
+  practiceStreak?: PracticeStreak | null;
+  isLoading?: boolean;
 }
 
 const GitHubCard: React.FC<GitHubCardProps> = ({ 
   testDate,
-  completedDays
+  completedDays,
+  practiceStreak,
+  isLoading = false
 }) => {
   // Calculate days left using useMemo for performance
   const daysLeft = useMemo(() => {
@@ -96,12 +102,26 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
       
       <CardContent>
         {/* Custom Legend */}
-        <div className="mb-4 flex items-center gap-4 text-xs text-gray-600 flex-wrap">
-          <div className="test-date-indicator">
-            <span>Test date:</span>
-            <div className="test-date-box"></div>
-            <span className="font-medium">{daysLeft} days left</span>
+        <div className="mb-4 flex items-center justify-between gap-4 text-xs text-gray-600 flex-wrap">
+          <div className="flex items-center gap-4">
+            <div className="test-date-indicator">
+              <span>Test date:</span>
+              <div className="test-date-box"></div>
+              <span className="font-medium">{daysLeft} days left</span>
+            </div>
+            {practiceStreak && practiceStreak.current > 0 && (
+              <div className="flex items-center gap-1 text-orange-600">
+                <Fire size={14} weight="fill" />
+                <span className="font-medium">{practiceStreak.current} day streak</span>
+              </div>
+            )}
           </div>
+          {practiceStreak && (
+            <div className="text-right">
+              <span className="text-gray-500">Total days: </span>
+              <span className="font-medium">{practiceStreak.totalDays}</span>
+            </div>
+          )}
         </div>
         
         {/* GitHub Calendar */}
@@ -123,21 +143,27 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
             }
           `}</style>
           <div className="min-w-fit">
-            <GitHubCalendar
-              username="any-username" // This won't be used due to transformData
-              transformData={transformData}
-              theme={{
-                light: ['#ebedf0', '#ffd7b3', '#ffb366', '#ff8f1a', '#ff6b00']
-              }}
-              colorScheme="light"
-              fontSize={8}
-              blockSize={10}
-              blockMargin={3}
-              hideColorLegend={false}
-              hideTotalCount={true}
-              hideMonthLabels={false}
-              loading={false}
-            />
+            {isLoading ? (
+              <div className="flex items-center justify-center h-32">
+                <CircleNotch size={24} className="animate-spin text-gray-400" />
+              </div>
+            ) : (
+              <GitHubCalendar
+                username="any-username" // This won't be used due to transformData
+                transformData={transformData}
+                theme={{
+                  light: ['#ebedf0', '#ffd7b3', '#ffb366', '#ff8f1a', '#ff6b00']
+                }}
+                colorScheme="light"
+                fontSize={8}
+                blockSize={10}
+                blockMargin={3}
+                hideColorLegend={false}
+                hideTotalCount={true}
+                hideMonthLabels={false}
+                loading={false}
+              />
+            )}
           </div>
         </div>
       </CardContent>

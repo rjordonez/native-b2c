@@ -1,7 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { ChecklistService } from '../../../features/dashboard/services/checklistService';
+import { PracticeActivityService } from '../../../features/dashboard/services/practiceActivityService';
 import type { DBDailyChecklistProgress, DBChecklistSummary } from '../../../types/database';
-import type { Task } from './types';
+import type { Task, PracticeActivity, PracticeStreak } from './types';
 
 /**
  * Fetch today's checklist from database
@@ -62,5 +63,40 @@ export const completeChecklistForPart = createAsyncThunk<
     
     const success = await ChecklistService.completeTask(taskId);
     return { taskId, success };
+  }
+);
+
+/**
+ * Fetch practice activity history
+ */
+export const fetchPracticeActivity = createAsyncThunk<
+  { activities: PracticeActivity[]; streak: PracticeStreak }
+>(
+  'dashboard/fetchPracticeActivity',
+  async () => {
+    // Fetch last 365 days of activity
+    const startDate = new Date();
+    startDate.setFullYear(startDate.getFullYear() - 1);
+    
+    const [activityData, streakData] = await Promise.all([
+      PracticeActivityService.getPracticeActivity(startDate, new Date()),
+      PracticeActivityService.getPracticeStreak()
+    ]);
+
+    // Transform to frontend format
+    const activities: PracticeActivity[] = activityData.map(day => ({
+      date: day.practice_date,
+      tasksCompleted: day.tasks_completed,
+      totalTasks: day.total_tasks
+    }));
+
+    const streak: PracticeStreak = {
+      current: streakData.current_streak,
+      longest: streakData.longest_streak,
+      totalDays: streakData.total_practice_days,
+      lastPracticeDate: streakData.last_practice_date
+    };
+
+    return { activities, streak };
   }
 );

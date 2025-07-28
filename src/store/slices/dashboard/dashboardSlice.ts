@@ -2,7 +2,7 @@ import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../../types';
 import { HomeState, Task } from './types';
 import { DASHBOARD_CONFIG, PRACTICE_ACTIVITY_DATES } from './constants/dashboardData';
-import { fetchTodayChecklist, completeChecklistTask, completeChecklistForPart } from './dashboardThunks';
+import { fetchTodayChecklist, completeChecklistTask, completeChecklistForPart, fetchPracticeActivity } from './dashboardThunks';
 
 const initialState: HomeState = {
   welcomeMessage: 'Welcome to the Home Page!',
@@ -10,10 +10,13 @@ const initialState: HomeState = {
   testDate: DASHBOARD_CONFIG.testDate.toISOString(),
   practiceActivityDates: PRACTICE_ACTIVITY_DATES.map(date => date.toISOString()),
   tasks: [
-    { id: 1, text: 'Practice Part 1', completed: true },
+    { id: 1, text: 'Practice Part 1', completed: false },
     { id: 2, text: 'Practice Part 2', completed: false },
     { id: 3, text: 'Practice Part 3', completed: false },
   ],
+  practiceActivities: [],
+  practiceStreak: null,
+  isLoadingActivities: false,
 };
 
 export const dashboardSlice = createSlice({
@@ -62,6 +65,18 @@ export const dashboardSlice = createSlice({
             task.completed = true;
           }
         }
+      })
+      // Handle fetchPracticeActivity
+      .addCase(fetchPracticeActivity.pending, (state) => {
+        state.isLoadingActivities = true;
+      })
+      .addCase(fetchPracticeActivity.fulfilled, (state, action) => {
+        state.isLoadingActivities = false;
+        state.practiceActivities = action.payload.activities;
+        state.practiceStreak = action.payload.streak;
+      })
+      .addCase(fetchPracticeActivity.rejected, (state) => {
+        state.isLoadingActivities = false;
       });
   }
 });
@@ -95,6 +110,19 @@ export const selectPracticeActivityDates = createSelector(
 export const selectCompletedTasksCount = createSelector(
   [selectTasks],
   (tasks) => tasks.filter(task => task.completed).length
+);
+
+// New practice activity selectors
+export const selectPracticeActivities = (state: RootState) => state.dashboard.practiceActivities;
+export const selectPracticeStreak = (state: RootState) => state.dashboard.practiceStreak;
+export const selectIsLoadingActivities = (state: RootState) => state.dashboard.isLoadingActivities;
+
+// Memoized selector for practice dates in Date format
+export const selectPracticeActivityDatesFromDB = createSelector(
+  [selectPracticeActivities],
+  (activities) => activities
+    .filter(activity => activity.tasksCompleted > 0)
+    .map(activity => new Date(activity.date))
 );
 
 export default dashboardSlice.reducer;
