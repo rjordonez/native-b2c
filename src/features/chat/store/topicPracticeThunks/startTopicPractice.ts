@@ -61,9 +61,24 @@ export const startTopicPractice = createAsyncThunk<
       const ttsSpeed = state.audioPlayback.ttsSpeed;
       const ttsVoice = state.audioPlayback.ttsVoice;
       
+      // For Part 2, format the content with "You should say:" and bullet points
+      let textToSpeak = firstQuestion.text;
+      
+      if (selectedTopic.part === 'part2') {
+        // Extract bullet points from the questions field
+        const lines = selectedTopic.questions.split('\n');
+        const mainQuestion = lines[0];
+        const bulletPoints = lines.slice(1)
+          .filter(line => line.trim().startsWith('•'))
+          .map(line => line.trim());
+        
+        // Format for display and speech
+        textToSpeak = `${mainQuestion}\n\nYou should say:\n${bulletPoints.join('\n')}`;
+      }
+      
       try {
         const ttsResult = await generateTTS({
-          text: firstQuestion.text,
+          text: textToSpeak,
           voiceName: ttsVoice,
           speakingRate: ttsSpeed
         });
@@ -72,10 +87,10 @@ export const startTopicPractice = createAsyncThunk<
         // Hide typing indicator
         dispatch(setTyping(false));
         
-        // Create message with audio (no content for voice-only messages)
+        // Create message with audio and content for transcript
         const firstMessage = {
           id: messageId,
-          content: '',  // Empty content for voice-only message
+          content: textToSpeak,  // Include full text (with bullet points for Part 2)
           sender: 'assistant' as const,
           timestamp: new Date().toISOString(),
           isTopicQuestion: true,
@@ -95,10 +110,10 @@ export const startTopicPractice = createAsyncThunk<
         // Hide typing indicator
         dispatch(setTyping(false));
         
-        // Still show the message without audio (no content for voice-only messages)
+        // Still show the message without audio but with content for transcript
         const firstMessage = {
           id: messageId,
-          content: '',  // Empty content for voice-only message
+          content: textToSpeak,  // Include full text (with bullet points for Part 2)
           sender: 'assistant' as const,
           timestamp: new Date().toISOString(),
           isTopicQuestion: true,

@@ -48,7 +48,7 @@ export const redoTopicQuestion = createAsyncThunk<
       // Create a new question message (redo) - no content for voice-only messages
       const redoMessage = {
         id: `msg-${Date.now()}`,
-        content: '',  // Empty content for voice-only message
+        content: currentQuestion.text,  // Include question text for transcript display
         sender: 'assistant' as const,
         timestamp: new Date().toISOString(),
         isTopicQuestion: true,

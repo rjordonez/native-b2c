@@ -9,7 +9,7 @@ export interface Question {
 export interface Topic {
   id: string;
   title: string;
-  part: 'part1' | 'part3';
+  part: 'part1' | 'part2' | 'part3';
   progress: number;
   completed: boolean;
   questions: string;
@@ -22,7 +22,7 @@ export interface Topic {
 export interface DatabaseTopic {
   id: string;
   title: string;
-  part: 'part1' | 'part3';
+  part: 'part1' | 'part2' | 'part3';
   questions: string;
   estimated_time: string;
   created_at: string;
@@ -34,7 +34,7 @@ export interface DatabaseQuestion {
   topic_id: string;
   text: string;
   question_order: number;
-  part: 'part1' | 'part3';
+  part: 'part1' | 'part2' | 'part3';
   created_at: string;
   updated_at: string;
 }

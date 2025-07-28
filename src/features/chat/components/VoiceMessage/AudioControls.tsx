@@ -23,8 +23,11 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
   content,
   isTopicQuestion
 }) => {
-  const [showTranscript, setShowTranscript] = useState(false);
   const isAI = sender === 'assistant';
+  // Show transcript by default for Part 2 topics (they have "You should say:" in content)
+  const [showTranscript, setShowTranscript] = useState(
+    isAI && content && content.includes('You should say:')
+  );
 
   return (
     <div
@@ -80,7 +83,9 @@ export const AudioControls: React.FC<AudioControlsProps> = ({
         >
           <div className="overflow-hidden">
             <div className="px-4 pb-3 text-sm text-gray-600">
-              <p className="break-words overflow-y-auto max-h-32">{content}</p>
+              <div className="break-words whitespace-pre-wrap">
+                {content}
+              </div>
             </div>
           </div>
         </div>

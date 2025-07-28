@@ -65,10 +65,10 @@ export const getNextTopicQuestion = createAsyncThunk<
         throw new Error(ttsResult.message || 'TTS generation failed');
       }
 
-      // Create the question message (no content for voice-only messages)
+      // Create the question message with content for transcript
       const questionMessage = {
         id: generateMessageId('question'),
-        content: '',  // Empty content for voice-only message
+        content: nextQuestion.text,  // Include question text for transcript display
         sender: 'assistant' as const,
         timestamp: new Date().toISOString(),
         isTopicQuestion: true,

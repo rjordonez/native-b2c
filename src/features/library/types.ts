@@ -7,7 +7,7 @@ export interface Question {
 export interface Topic {
   id: string;
   title: string;
-  part: 'part1' | 'part3';
+  part: 'part1' | 'part2' | 'part3';
   progress: number;
   completed: boolean;
   questions: string;
