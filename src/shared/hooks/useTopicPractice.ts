@@ -8,8 +8,6 @@ export const useTopicPractice = () => {
   const dispatch = useAppDispatch();
 
   const startPractice = async (topicName: string) => {
-    console.log('Starting practice for topic:', topicName);
-    
     // Check if we're already on the chat page
     const isOnChatPage = location.pathname === '/chat';
     

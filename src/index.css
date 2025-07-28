@@ -4,6 +4,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Fade in animation */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.2s ease-out;
+}
+
 /* 3D Transform utilities for flip cards */
 .perspective-1000 {
   perspective: 1000px;
