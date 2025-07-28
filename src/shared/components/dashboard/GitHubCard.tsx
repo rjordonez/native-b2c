@@ -17,11 +17,12 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
   practiceActivities = [],
   practiceStreak
 }) => {
-  const [tooltip, setTooltip] = useState<{ show: boolean; content: string; x: number; y: number }>({
+  const [tooltip, setTooltip] = useState<{ show: boolean; content: string; x: number; y: number; showOnRight?: boolean }>({
     show: false,
     content: '',
     x: 0,
-    y: 0
+    y: 0,
+    showOnRight: false
   });
 
 
@@ -151,11 +152,25 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
                   return React.cloneElement(block, {
                     onMouseEnter: (event: React.MouseEvent) => {
                       const rect = event.currentTarget.getBoundingClientRect();
+                      const padding = 10; // Padding from screen edge
+                      
+                      // Position tooltip to the left of the box
+                      let x = rect.left;
+                      let y = rect.top + rect.height / 2;
+                      let showOnRight = false;
+                      
+                      // If box is too close to left edge, show tooltip on right
+                      if (rect.left < 250) {
+                        x = rect.right + 10;
+                        showOnRight = true;
+                      }
+                      
                       setTooltip({
                         show: true,
                         content: tooltipText,
-                        x: rect.left + rect.width / 2,
-                        y: rect.top
+                        x,
+                        y,
+                        showOnRight
                       });
                     },
                     onMouseLeave: () => {
@@ -174,8 +189,9 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
           style={{
             position: 'fixed',
             left: tooltip.x,
-            top: tooltip.y - 35,
-            transform: 'translateX(-50%)',
+            top: tooltip.y,
+            transform: tooltip.showOnRight ? 'translateY(-50%)' : 'translate(-100%, -50%)',
+            marginLeft: tooltip.showOnRight ? '0' : '-10px',
             background: 'rgba(0, 0, 0, 0.8)',
             color: 'white',
             padding: '6px 10px',
@@ -188,19 +204,38 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
           }}
         >
           {tooltip.content}
-          <div
-            style={{
-              position: 'absolute',
-              bottom: '-4px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              width: 0,
-              height: 0,
-              borderLeft: '4px solid transparent',
-              borderRight: '4px solid transparent',
-              borderTop: '4px solid rgba(0, 0, 0, 0.8)'
-            }}
-          />
+          {/* Arrow pointing right when tooltip is on left */}
+          {!tooltip.showOnRight && (
+            <div
+              style={{
+                position: 'absolute',
+                right: '-4px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 0,
+                height: 0,
+                borderTop: '4px solid transparent',
+                borderBottom: '4px solid transparent',
+                borderLeft: '4px solid rgba(0, 0, 0, 0.8)'
+              }}
+            />
+          )}
+          {/* Arrow pointing left when tooltip is on right */}
+          {tooltip.showOnRight && (
+            <div
+              style={{
+                position: 'absolute',
+                left: '-4px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: 0,
+                height: 0,
+                borderTop: '4px solid transparent',
+                borderBottom: '4px solid transparent',
+                borderRight: '4px solid rgba(0, 0, 0, 0.8)'
+              }}
+            />
+          )}
         </div>
       )}
     </Card>
