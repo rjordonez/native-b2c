@@ -220,18 +220,22 @@ const ChatSessions: React.FC = () => {
                     onClick={async () => {
                       await dispatch(switchConversation(conversation.id));
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ease-out ${
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm ${
                       activeConversation?.id === conversation.id
-                        ? 'bg-gray-100 text-black transform scale-[1.02] shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-50 hover:text-black hover:transform hover:scale-[1.01]'
+                        ? 'bg-gray-100 text-black shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-black'
                     }`}
                   >
-                    <div className={`flex items-center justify-between ${(hoveredId === conversation.id || menuOpenId === conversation.id) ? 'pr-8' : ''}`}>
-                      <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between">
+                      <div className={`min-w-0 flex-1 ${
+                        hoveredId === conversation.id || menuOpenId === conversation.id 
+                          ? 'pr-8' 
+                          : 'pr-0'
+                      }`}>
                         <div className="truncate font-medium">
                           {conversation.title}
                         </div>
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-gray-500 truncate">
                           {formatTimestamp(conversation.updatedAt)} • {conversation.messages.length} messages
                         </div>
                       </div>
@@ -239,15 +243,17 @@ const ChatSessions: React.FC = () => {
                   </button>
 
                   {/* Three dots menu button */}
-                  {(hoveredId === conversation.id || menuOpenId === conversation.id) && (
-                    <button
-                      ref={(el) => { menuButtonRefs.current[conversation.id] = el; }}
-                      onClick={(e) => handleMenuClick(e, conversation.id)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-200 transition-colors"
-                    >
-                      <DotsThreeVertical size={16} className="text-gray-600" />
-                    </button>
-                  )}
+                  <button
+                    ref={(el) => { menuButtonRefs.current[conversation.id] = el; }}
+                    onClick={(e) => handleMenuClick(e, conversation.id)}
+                    className={`absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-gray-200 ${
+                      hoveredId === conversation.id || menuOpenId === conversation.id 
+                        ? 'opacity-100' 
+                        : 'opacity-0 pointer-events-none'
+                    }`}
+                  >
+                    <DotsThreeVertical size={16} className="text-gray-600" />
+                  </button>
                 </>
               )}
             </div>
