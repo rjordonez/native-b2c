@@ -43,6 +43,7 @@ const SearchFilters: React.FC = () => {
             >
               <option value="all">Select Parts</option>
               <option value="part1">Part 1</option>
+              <option value="part2">Part 2</option>
               <option value="part3">Part 3</option>
             </select>
 

@@ -29,6 +29,7 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
   const getPartColor = (part: string) => {
     switch (part) {
       case 'part1': return 'bg-blue-100 text-blue-700';
+      case 'part2': return 'bg-green-100 text-green-700';
       case 'part3': return 'bg-purple-100 text-purple-700';
       default: return 'bg-gray-100 text-gray-700';
     }
@@ -57,7 +58,7 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
         {/* Part */}
         <div className="col-span-2 flex justify-start">
           <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPartColor(topic.part)}`}>
-            {topic.part === 'part1' ? 'Part 1' : 'Part 3'}
+            {topic.part === 'part1' ? 'Part 1' : topic.part === 'part2' ? 'Part 2' : 'Part 3'}
           </span>
         </div>
 

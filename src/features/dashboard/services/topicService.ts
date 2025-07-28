@@ -13,12 +13,6 @@ export class TopicService {
    */
   static async getRandomTopicForPart(part: string): Promise<Topic | null> {
     try {
-      // Part 2 doesn't have topics in our database, only part1 and part3
-      if (part === 'part2') {
-        console.warn('Part 2 does not have topics in the database');
-        return null;
-      }
-
       // Fetch all topics for the specified part
       const { data, error } = await supabase
         .from('topics')

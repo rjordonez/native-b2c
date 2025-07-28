@@ -50,9 +50,6 @@ const ChecklistCard: React.FC = () => {
     const randomTopic = await TopicService.getRandomTopicForPart(part);
     if (randomTopic) {
       startPractice(randomTopic.title);
-    } else if (part === 'part2') {
-      // Part 2 doesn't have topics in database yet
-      alert('Part 2 practice topics are coming soon!');
     }
   };
 
