@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useRef, useCallback, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
 import { Plus, CircleNotch, DotsThreeVertical, Pencil, Trash } from 'phosphor-react';
@@ -12,6 +12,23 @@ import {
   updateConversationTitle,
   deleteConversation
 } from '../../../../features/chat/store/conversationSlice';
+import {
+  selectDisplayedSessions,
+  selectIsLoadingMore,
+  selectMenuOpenId,
+  selectMenuPosition,
+  selectHoveredId,
+  selectEditingId,
+  selectEditValue,
+  setDisplayedSessions,
+  setIsLoadingMore,
+  setMenuOpenId,
+  setMenuPosition,
+  setHoveredId,
+  setEditingId,
+  setEditValue,
+  incrementDisplayedSessions
+} from '../../../../store/slices/sidebarUISlice';
 
 const SESSIONS_PER_PAGE = 14;
 
@@ -23,28 +40,35 @@ const ChatSessions: React.FC = () => {
   const activeConversation = useAppSelector(selectActiveConversation);
   const isChatPage = location.pathname === '/chat';
   
-  const [displayedSessions, setDisplayedSessions] = useState(SESSIONS_PER_PAGE);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
-  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
-  const [editValue, setEditValue] = useState('');
+  // Get UI state from Redux
+  const displayedSessions = useAppSelector(selectDisplayedSessions);
+  const isLoadingMore = useAppSelector(selectIsLoadingMore);
+  const menuOpenId = useAppSelector(selectMenuOpenId);
+  const menuPosition = useAppSelector(selectMenuPosition);
+  const hoveredId = useAppSelector(selectHoveredId);
+  const editingId = useAppSelector(selectEditingId);
+  const editValue = useAppSelector(selectEditValue);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const menuButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
+  // Memoize displayed conversations for performance
+  const displayedConversations = useMemo(() => 
+    conversations.slice(0, displayedSessions),
+    [conversations, displayedSessions]
+  );
 
   const handleCreateConversation = () => {
     // Clear active conversation to show topic selection UI
     dispatch(switchConversation(null));
   };
 
-  const formatTimestamp = (date: Date) => {
+  const formatTimestamp = useCallback((date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
     }).format(new Date(date));
-  };
+  }, []);
 
   // Load more sessions handler
   const loadMoreSessions = useCallback(() => {
@@ -109,11 +133,11 @@ const ChatSessions: React.FC = () => {
       const button = menuButtonRefs.current[conversationId];
       if (button) {
         const rect = button.getBoundingClientRect();
-        setMenuPosition({
+        dispatch(setMenuPosition({
           top: rect.top,
           left: rect.right + 8 // 8px gap from the button
-        });
-        setMenuOpenId(conversationId);
+        }));
+        dispatch(setMenuOpenId(conversationId));
       }
     }
   };
@@ -180,7 +204,7 @@ const ChatSessions: React.FC = () => {
           scrollbarColor: '#cbd5e1 #f1f5f9'
         }}
       >
-        {conversations.slice(0, displayedSessions).map((conversation, index) => (
+        {displayedConversations.map((conversation, index) => (
           <div
             key={conversation.id}
             className={`transform transition-all duration-300 ease-out ${

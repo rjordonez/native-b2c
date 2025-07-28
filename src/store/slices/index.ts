@@ -5,7 +5,9 @@
 export * from './navigationSlice';
 export * from './saveStatusSlice';
 export * from './dashboard/dashboardSlice';
+export * from './sidebarUISlice';
 
 export { default as navigationReducer } from './navigationSlice';
 export { default as saveStatusReducer } from './saveStatusSlice';
 export { default as dashboardReducer } from './dashboard/dashboardSlice';
+export { default as sidebarUIReducer } from './sidebarUISlice';

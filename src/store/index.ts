@@ -1,5 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { navigationReducer, dashboardReducer, saveStatusReducer } from './slices';
+import sidebarUIReducer from './slices/sidebarUISlice';
 import { settingsReducer } from '../features/settings/store';
 import { libraryReducer } from '../features/library/store';
 import { 
@@ -18,6 +19,7 @@ const store = configureStore({
     navigation: navigationReducer,
     dashboard: dashboardReducer,
     saveStatus: saveStatusReducer,
+    sidebarUI: sidebarUIReducer,
     settings: settingsReducer,
     library: libraryReducer,
     conversation: conversationReducer,
