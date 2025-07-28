@@ -45,7 +45,6 @@ export const useMediaRecorder = () => {
           reader.onloadend = () => {
             const base64Data = reader.result as string;
             
-            console.log('Stopping recording with duration:', durationRef.current);
             dispatch(stopRecording({
               audioUrl,
               audioData: base64Data, // WAV base64 data for API

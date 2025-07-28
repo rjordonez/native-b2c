@@ -39,11 +39,9 @@ export const useRecordingHandlers = ({
       dispatch(startRecording());
       mediaRecorderRef.current.start();
       
-      console.log('Starting recording timer');
       // Start timer
       recordingTimerRef.current = setInterval(() => {
         durationRef.current += 1;
-        console.log('Timer tick - duration:', durationRef.current);
         dispatch(updateRecordingDuration(durationRef.current));
       }, 1000);
     }

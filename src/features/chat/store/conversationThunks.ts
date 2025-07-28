@@ -37,7 +37,6 @@ export const sendMessage = createAsyncThunk(
       const hasTopicQuestions = conversation?.messages.some(m => m.isTopicQuestion) ?? false;
       
       if (state.topicPractice.currentTopic || hasTopicQuestions) {
-        console.log('Skipping AI response during topic practice session');
         return null;
       }
       

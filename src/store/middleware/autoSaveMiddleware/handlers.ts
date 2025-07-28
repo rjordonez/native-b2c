@@ -132,7 +132,6 @@ export async function handleUpdateMessage(action: AnyAction, state: RootState, u
           }
         } else if (!updates.transcription?.isLoading && !updates.pronunciation?.isLoading) {
           // Message doesn't exist in DB yet, but we have final data - save the complete message
-          console.log('Message not in DB, saving complete message:', messageId, { ...message, ...updates });
           const completeMessage = { ...message, ...updates };
           await chatPersistence.saveMessage(completeMessage, dbConv.id, userId);
         }
