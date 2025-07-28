@@ -168,19 +168,21 @@ const PracticeSettingsModal: React.FC<PracticeSettingsModalProps> = ({ isOpen, o
         <ModalHeader onClose={handleCancel} />
         
         <div className="p-4 space-y-4">
-          <VoiceSelector 
-            value={previewVoice}
-            onChange={(value) => dispatch(setPreviewVoice(value))}
+          <ProgressToggle
+            showProgressDots={showProgressDots}
+            onChange={(value) => dispatch(setShowProgressDots(value))}
           />
+          
+          <div className="border-t pt-4">
+            <VoiceSelector 
+              value={previewVoice}
+              onChange={(value) => dispatch(setPreviewVoice(value))}
+            />
+          </div>
           
           <SpeedControl
             value={previewSpeed}
             onChange={(value) => dispatch(setPreviewSpeed(value))}
-          />
-          
-          <ProgressToggle
-            showProgressDots={showProgressDots}
-            onChange={(value) => dispatch(setShowProgressDots(value))}
           />
           
           <PreviewSection

@@ -7,7 +7,7 @@ interface ProgressToggleProps {
 
 export const ProgressToggle: React.FC<ProgressToggleProps> = ({ showProgressDots, onChange }) => {
   return (
-    <div className="border-t pt-4">
+    <div>
       <label className="flex items-center justify-between">
         <span className="text-sm font-medium text-gray-700">Show Progress Indicators</span>
         <button
