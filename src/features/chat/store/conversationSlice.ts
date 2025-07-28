@@ -168,10 +168,12 @@ export const conversationSlice = createSlice({
       })
       // Switch conversation
       .addCase(switchConversation.pending, (state, action) => {
-        // Just set loading state, keep showing current conversation
+        // Switch immediately to remove perceived delay but show brief loading
+        state.activeConversationId = action.meta.arg;
         state.isLoading = true;
       })
       .addCase(switchConversation.fulfilled, (state, action) => {
+        // Background processing complete, state already updated
         state.activeConversationId = action.payload;
         state.isLoading = false;
       })
