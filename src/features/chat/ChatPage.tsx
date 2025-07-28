@@ -59,7 +59,10 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
-      {activeConversation ? (
+      {isLoading ? (
+        // Blank page while switching conversations (like ChatGPT)
+        <div className="flex-1 bg-white"></div>
+      ) : activeConversation ? (
         <>
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-200 bg-white flex-shrink-0">

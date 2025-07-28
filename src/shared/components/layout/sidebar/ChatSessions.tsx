@@ -74,13 +74,14 @@ const ChatSessions: React.FC = () => {
   const loadMoreSessions = useCallback(() => {
     if (isLoadingMore || displayedSessions >= conversations.length) return;
     
-    setIsLoadingMore(true);
+    dispatch(setIsLoadingMore(true));
     // Simulate loading delay for smooth UX
     setTimeout(() => {
-      setDisplayedSessions(prev => Math.min(prev + SESSIONS_PER_PAGE, conversations.length));
-      setIsLoadingMore(false);
+      const newCount = Math.min(displayedSessions + SESSIONS_PER_PAGE, conversations.length);
+      dispatch(setDisplayedSessions(newCount));
+      dispatch(setIsLoadingMore(false));
     }, 300);
-  }, [isLoadingMore, displayedSessions, conversations.length]);
+  }, [isLoadingMore, displayedSessions, conversations.length, dispatch]);
 
   // Intersection observer for infinite scroll
   useEffect(() => {

@@ -167,11 +167,13 @@ export const conversationSlice = createSlice({
         state.activeConversationId = SAMPLE_CONVERSATIONS[0]?.id || null;
       })
       // Switch conversation
-      .addCase(switchConversation.pending, (state) => {
-        // Don't change anything during pending
+      .addCase(switchConversation.pending, (state, action) => {
+        // Just set loading state, keep showing current conversation
+        state.isLoading = true;
       })
       .addCase(switchConversation.fulfilled, (state, action) => {
         state.activeConversationId = action.payload;
+        state.isLoading = false;
       })
       .addCase(switchConversation.rejected, (state, action) => {
         console.error('Failed to switch conversation:', action.error);
