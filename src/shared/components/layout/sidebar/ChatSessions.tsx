@@ -1,13 +1,16 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useLocation } from 'react-router-dom';
-import { Plus, CircleNotch } from 'phosphor-react';
+import { Plus, CircleNotch, DotsThreeVertical, Pencil, Trash } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectSidebarCollapsed } from '../../../../store/slices/navigationSlice';
 import { 
   selectConversations, 
   selectActiveConversation, 
   switchConversation,
-  createConversation 
+  createConversation,
+  updateConversationTitle,
+  deleteConversation
 } from '../../../../features/chat/store/conversationSlice';
 
 const SESSIONS_PER_PAGE = 14;
@@ -22,8 +25,14 @@ const ChatSessions: React.FC = () => {
   
   const [displayedSessions, setDisplayedSessions] = useState(SESSIONS_PER_PAGE);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+  const [menuPosition, setMenuPosition] = useState<{ top: number; left: number } | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState('');
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const menuButtonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   const handleCreateConversation = () => {
     // Clear active conversation to show topic selection UI
@@ -79,6 +88,69 @@ const ChatSessions: React.FC = () => {
     setDisplayedSessions(SESSIONS_PER_PAGE);
   }, [conversations.length]);
 
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setMenuOpenId(null);
+      setMenuPosition(null);
+    };
+
+    if (menuOpenId) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [menuOpenId]);
+
+  const handleMenuClick = (e: React.MouseEvent, conversationId: string) => {
+    e.stopPropagation();
+    
+    if (menuOpenId === conversationId) {
+      setMenuOpenId(null);
+      setMenuPosition(null);
+    } else {
+      const button = menuButtonRefs.current[conversationId];
+      if (button) {
+        const rect = button.getBoundingClientRect();
+        setMenuPosition({
+          top: rect.top,
+          left: rect.right + 8 // 8px gap from the button
+        });
+        setMenuOpenId(conversationId);
+      }
+    }
+  };
+
+  const handleStartEdit = (conversationId: string, currentTitle: string) => {
+    setEditingId(conversationId);
+    setEditValue(currentTitle);
+    setMenuOpenId(null);
+    setMenuPosition(null);
+  };
+
+  const handleSaveEdit = (conversationId: string) => {
+    if (editValue.trim()) {
+      dispatch(updateConversationTitle({ 
+        conversationId, 
+        title: editValue.trim() 
+      }));
+    }
+    setEditingId(null);
+    setEditValue('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingId(null);
+    setEditValue('');
+  };
+
+  const handleDelete = (conversationId: string) => {
+    if (window.confirm('Are you sure you want to delete this conversation?')) {
+      dispatch(deleteConversation(conversationId));
+    }
+    setMenuOpenId(null);
+    setMenuPosition(null);
+  };
+
   // Don't render if sidebar is collapsed
   if (sidebarCollapsed) {
     return null;
@@ -122,23 +194,61 @@ const ChatSessions: React.FC = () => {
               transitionDelay: isChatPage ? `${100 + index * 50}ms` : '0ms'
             }}
           >
-            <button
-              onClick={async () => {
-                await dispatch(switchConversation(conversation.id));
-              }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ease-out ${
-                activeConversation?.id === conversation.id
-                  ? 'bg-gray-100 text-black transform scale-[1.02] shadow-sm'
-                  : 'text-gray-600 hover:bg-gray-50 hover:text-black hover:transform hover:scale-[1.01]'
-              }`}
+            <div 
+              className="relative group"
+              onMouseEnter={() => setHoveredId(conversation.id)}
+              onMouseLeave={() => setHoveredId(null)}
             >
-              <div className="truncate font-medium">
-                {conversation.title}
-              </div>
-              <div className="text-xs text-gray-500 mt-1">
-                {formatTimestamp(conversation.updatedAt)} • {conversation.messages.length} messages
-              </div>
-            </button>
+              {editingId === conversation.id ? (
+                // Edit mode
+                <div className="px-3 py-2">
+                  <input
+                    type="text"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSaveEdit(conversation.id);
+                      if (e.key === 'Escape') handleCancelEdit();
+                    }}
+                    onBlur={() => handleSaveEdit(conversation.id)}
+                    className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                    autoFocus
+                  />
+                </div>
+              ) : (
+                // Normal mode
+                <>
+                  <button
+                    onClick={async () => {
+                      await dispatch(switchConversation(conversation.id));
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all duration-200 ease-out ${
+                      activeConversation?.id === conversation.id
+                        ? 'bg-gray-100 text-black transform scale-[1.02] shadow-sm'
+                        : 'text-gray-600 hover:bg-gray-50 hover:text-black hover:transform hover:scale-[1.01]'
+                    }`}
+                  >
+                    <div className="truncate font-medium pr-6">
+                      {conversation.title}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">
+                      {formatTimestamp(conversation.updatedAt)} • {conversation.messages.length} messages
+                    </div>
+                  </button>
+
+                  {/* Three dots menu button */}
+                  {(hoveredId === conversation.id || menuOpenId === conversation.id) && (
+                    <button
+                      ref={(el) => { menuButtonRefs.current[conversation.id] = el; }}
+                      onClick={(e) => handleMenuClick(e, conversation.id)}
+                      className="absolute right-2 top-2 p-1 rounded hover:bg-gray-200 transition-colors"
+                    >
+                      <DotsThreeVertical size={16} className="text-gray-600" />
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         ))}
         
@@ -156,6 +266,39 @@ const ChatSessions: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Dropdown menu rendered with portal */}
+      {menuOpenId && menuPosition && createPortal(
+        <div 
+          className="fixed w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-[9999]"
+          style={{ 
+            top: `${menuPosition.top}px`, 
+            left: `${menuPosition.left}px` 
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={() => {
+              const conversation = conversations.find(c => c.id === menuOpenId);
+              if (conversation) {
+                handleStartEdit(conversation.id, conversation.title);
+              }
+            }}
+            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
+          >
+            <Pencil size={16} className="text-gray-600" />
+            <span>Rename</span>
+          </button>
+          <button
+            onClick={() => handleDelete(menuOpenId)}
+            className="w-full px-3 py-2 text-left text-sm hover:bg-red-50 text-red-600 flex items-center gap-2"
+          >
+            <Trash size={16} />
+            <span>Delete</span>
+          </button>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
