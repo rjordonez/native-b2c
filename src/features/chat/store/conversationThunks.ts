@@ -101,8 +101,32 @@ export const switchConversation = createAsyncThunk(
     
     if (hasTopicQuestions) {
       try {
-        // Get topic from conversation title
-        const topicName = conversation.title;
+        // Try to extract topic name from the first topic question message
+        const firstTopicMessage = conversation.messages.find(m => m.isTopicQuestion);
+        let topicName = conversation.title;
+        
+        // If we have a topic question, try to extract the topic from it
+        if (firstTopicMessage && firstTopicMessage.content) {
+          // Look for topic patterns in the message content
+          // Topic questions usually start with the topic name or contain it
+          const topics = await fetchTopics();
+          
+          // Find which topic this question belongs to
+          const matchedTopic = topics.find(topic => {
+            if (topic.questionsList) {
+              return topic.questionsList.some(q => 
+                q.text === firstTopicMessage.content || 
+                firstTopicMessage.content.includes(q.text)
+              );
+            }
+            return false;
+          });
+          
+          if (matchedTopic) {
+            topicName = matchedTopic.title;
+          }
+        }
+        
         const topicQuestionCount = conversation.messages.filter(m => m.isTopicQuestion).length;
         const currentQuestionIndex = topicQuestionCount > 0 ? topicQuestionCount - 1 : 0;
         
