@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import GitHubCalendar from 'react-github-calendar';
 import { Card, CardHeader, CardTitle, CardContent } from '../layout/ui/card';
-import { PracticeStreak } from '../../../store/slices/dashboard/types';
+import { PracticeStreak, PracticeActivity } from '../../../store/slices/dashboard/types';
 import { CircleNotch, Fire } from 'phosphor-react';
 
 interface GitHubCardProps {
   testDate: Date;
   completedDays: Date[];
+  practiceActivities?: PracticeActivity[];
   practiceStreak?: PracticeStreak | null;
   isLoading?: boolean;
 }
@@ -14,61 +15,50 @@ interface GitHubCardProps {
 const GitHubCard: React.FC<GitHubCardProps> = ({ 
   testDate,
   completedDays,
+  practiceActivities = [],
   practiceStreak,
   isLoading = false
 }) => {
-  // Calculate days left using useMemo for performance
-  const daysLeft = useMemo(() => {
-    const today = new Date();
-    return Math.max(0, Math.ceil((testDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
-  }, [testDate]);
+  const [tooltip, setTooltip] = useState<{ show: boolean; content: string; x: number; y: number }>({
+    show: false,
+    content: '',
+    x: 0,
+    y: 0
+  });
+
 
   // Transform completedDays into the format expected by react-github-calendar
   const transformData = useMemo(() => (contributions: any[]) => {
-    // Filter to show only last 6 months
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    // Show last 5 months of data
+    const fiveMonthsAgo = new Date();
+    fiveMonthsAgo.setMonth(fiveMonthsAgo.getMonth() - 5);
+    
+    // Create a map of date strings to practice activity data
+    const activityMap = new Map<string, PracticeActivity>();
+    practiceActivities.forEach(activity => {
+      activityMap.set(activity.date, activity);
+    });
     
     return contributions
-      .filter(day => new Date(day.date) >= sixMonthsAgo)
+      .filter(day => new Date(day.date) >= fiveMonthsAgo)
       .map(day => {
         const dateStr = day.date;
-        const testDateStr = testDate.toISOString().split('T')[0];
         
-        // Check if this is the test date
-        const isTestDate = testDateStr === dateStr;
-        
-        if (isTestDate) {
-          return {
-            ...day,
-            count: 4, // Max level for test date highlighting
-            level: 4
-          };
-        }
-        
-        // Count activities for this date
-        const activityCount = completedDays.filter(cd => {
-          const cdStr = cd.toISOString().split('T')[0];
-          return cdStr === dateStr;
-        }).length;
+        // Get practice activity data for this date
+        const activity = activityMap.get(dateStr);
+        const count = activity ? activity.tasksCompleted : 0;
         
         return {
           ...day,
-          count: activityCount,
-          level: Math.min(activityCount, 4)
+          count: count,
+          level: count > 0 ? Math.min(Math.ceil(count / 3 * 4), 4) : 0 // Scale 0-3 tasks to 0-4 levels
         };
       });
-  }, [testDate, completedDays]);
+  }, [practiceActivities]);
 
-  // Create CSS styles for test date highlighting
-  const testDateStyles = useMemo(() => {
-    const testDateStr = testDate.toISOString().split('T')[0];
+  // Create CSS styles for legend
+  const legendStyles = useMemo(() => {
     return `
-      .react-activity-calendar rect[data-date="${testDateStr}"] {
-        fill: #ffd700 !important;
-        stroke: #ffb700 !important;
-        stroke-width: 2px !important;
-      }
       .github-card .react-activity-calendar__legend {
         display: flex;
         align-items: center;
@@ -76,25 +66,12 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
         flex-wrap: wrap;
         font-size: 11px;
       }
-      .test-date-indicator {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-        margin-right: 0.5rem;
-      }
-      .test-date-box {
-        width: 10px;
-        height: 10px;
-        background: #ffd700;
-        border: 1px solid #ffb700;
-        border-radius: 2px;
-      }
     `;
-  }, [testDate]);
+  }, []);
 
   return (
     <Card className="github-card">
-      <style>{testDateStyles}</style>
+      <style>{legendStyles}</style>
       
       <CardHeader>
         <CardTitle>Practice Activity</CardTitle>
@@ -104,11 +81,6 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
         {/* Custom Legend */}
         <div className="mb-4 flex items-center justify-between gap-4 text-xs text-gray-600 flex-wrap">
           <div className="flex items-center gap-4">
-            <div className="test-date-indicator">
-              <span>Test date:</span>
-              <div className="test-date-box"></div>
-              <span className="font-medium">{daysLeft} days left</span>
-            </div>
             {practiceStreak && practiceStreak.current > 0 && (
               <div className="flex items-center gap-1 text-orange-600">
                 <Fire size={14} weight="fill" />
@@ -161,12 +133,84 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
                 hideColorLegend={false}
                 hideTotalCount={true}
                 hideMonthLabels={false}
+                showWeekdayLabels={true}
                 loading={false}
+                labels={{
+                  totalCount: '{{count}} activities in {{year}}',
+                  legend: {
+                    less: 'Less',
+                    more: 'More'
+                  }
+                }}
+                renderBlock={(block, activity) => {
+                  const date = new Date(activity.date);
+                  const dateStr = date.toLocaleDateString('en-US', { 
+                    weekday: 'long', 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                  });
+                  const count = activity.count || 0;
+                  const tooltipText = count > 0 
+                    ? `${count} ${count === 1 ? 'activity' : 'activities'} on ${dateStr}`
+                    : `No activity on ${dateStr}`;
+                  
+                  return React.cloneElement(block, {
+                    onMouseEnter: (event: React.MouseEvent) => {
+                      const rect = event.currentTarget.getBoundingClientRect();
+                      setTooltip({
+                        show: true,
+                        content: tooltipText,
+                        x: rect.left + rect.width / 2,
+                        y: rect.top
+                      });
+                    },
+                    onMouseLeave: () => {
+                      setTooltip(prev => ({ ...prev, show: false }));
+                    }
+                  });
+                }}
               />
             )}
           </div>
         </div>
       </CardContent>
+      
+      {/* Custom Tooltip */}
+      {tooltip.show && (
+        <div
+          style={{
+            position: 'fixed',
+            left: tooltip.x,
+            top: tooltip.y - 35,
+            transform: 'translateX(-50%)',
+            background: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            padding: '6px 10px',
+            borderRadius: '4px',
+            fontSize: '12px',
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            zIndex: 1000,
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+          }}
+        >
+          {tooltip.content}
+          <div
+            style={{
+              position: 'absolute',
+              bottom: '-4px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              width: 0,
+              height: 0,
+              borderLeft: '4px solid transparent',
+              borderRight: '4px solid transparent',
+              borderTop: '4px solid rgba(0, 0, 0, 0.8)'
+            }}
+          />
+        </div>
+      )}
     </Card>
   );
 };

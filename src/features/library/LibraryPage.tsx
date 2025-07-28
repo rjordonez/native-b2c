@@ -8,6 +8,7 @@ import {
 import {
   selectTestDate,
   selectPracticeActivityDatesFromDB,
+  selectPracticeActivities,
   selectPracticeStreak,
   selectIsLoadingActivities
 } from '../../store/slices/dashboard/dashboardSlice';
@@ -22,6 +23,7 @@ const LibraryPage: React.FC = () => {
   // Home data for sidebar components
   const testDate = useAppSelector(selectTestDate);
   const completedDays = useAppSelector(selectPracticeActivityDatesFromDB);
+  const practiceActivities = useAppSelector(selectPracticeActivities);
   const practiceStreak = useAppSelector(selectPracticeStreak);
   const isLoadingActivities = useAppSelector(selectIsLoadingActivities);
 
@@ -59,6 +61,7 @@ const LibraryPage: React.FC = () => {
           <GitHubCard
             testDate={testDate}
             completedDays={completedDays}
+            practiceActivities={practiceActivities}
             practiceStreak={practiceStreak}
             isLoading={isLoadingActivities}
           />
@@ -71,6 +74,7 @@ const LibraryPage: React.FC = () => {
         <GitHubCard
           testDate={testDate}
           completedDays={completedDays}
+          practiceActivities={practiceActivities}
           practiceStreak={practiceStreak}
           isLoading={isLoadingActivities}
         />
