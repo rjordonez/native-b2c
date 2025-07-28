@@ -218,8 +218,8 @@ const ChatSessions: React.FC = () => {
           >
             <div 
               className="relative group"
-              onMouseEnter={() => setHoveredId(conversation.id)}
-              onMouseLeave={() => setHoveredId(null)}
+              onMouseEnter={() => dispatch(setHoveredId(conversation.id))}
+              onMouseLeave={() => dispatch(setHoveredId(null))}
             >
               {editingId === conversation.id ? (
                 // Edit mode
