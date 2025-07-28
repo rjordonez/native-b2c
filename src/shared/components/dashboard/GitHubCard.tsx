@@ -2,22 +2,20 @@ import React, { useMemo, useState } from 'react';
 import GitHubCalendar from 'react-github-calendar';
 import { Card, CardHeader, CardTitle, CardContent } from '../layout/ui/card';
 import { PracticeStreak, PracticeActivity } from '../../../store/slices/dashboard/types';
-import { CircleNotch, Fire } from 'phosphor-react';
+import { Fire } from 'phosphor-react';
 
 interface GitHubCardProps {
   testDate: Date;
   completedDays: Date[];
   practiceActivities?: PracticeActivity[];
   practiceStreak?: PracticeStreak | null;
-  isLoading?: boolean;
 }
 
 const GitHubCard: React.FC<GitHubCardProps> = ({ 
   testDate,
   completedDays,
   practiceActivities = [],
-  practiceStreak,
-  isLoading = false
+  practiceStreak
 }) => {
   const [tooltip, setTooltip] = useState<{ show: boolean; content: string; x: number; y: number }>({
     show: false,
@@ -97,7 +95,7 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
         </div>
         
         {/* GitHub Calendar */}
-        <div className="overflow-x-auto" style={{ scrollbarWidth: 'thin' }}>
+        <div className="overflow-x-auto flex justify-center" style={{ scrollbarWidth: 'thin' }}>
           <style>{`
             .github-card .overflow-x-auto::-webkit-scrollbar {
               height: 4px;
@@ -114,13 +112,8 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
               background: #a8a8a8;
             }
           `}</style>
-          <div className="min-w-fit">
-            {isLoading ? (
-              <div className="flex items-center justify-center h-32">
-                <CircleNotch size={24} className="animate-spin text-gray-400" />
-              </div>
-            ) : (
-              <GitHubCalendar
+          <div className="min-w-fit flex justify-center">
+            <GitHubCalendar
                 username="any-username" // This won't be used due to transformData
                 transformData={transformData}
                 theme={{
@@ -171,7 +164,6 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
                   });
                 }}
               />
-            )}
           </div>
         </div>
       </CardContent>

@@ -63,7 +63,6 @@ const LibraryPage: React.FC = () => {
             completedDays={completedDays}
             practiceActivities={practiceActivities}
             practiceStreak={practiceStreak}
-            isLoading={isLoadingActivities}
           />
           <ChecklistCard />
         </div>
@@ -76,7 +75,6 @@ const LibraryPage: React.FC = () => {
           completedDays={completedDays}
           practiceActivities={practiceActivities}
           practiceStreak={practiceStreak}
-          isLoading={isLoadingActivities}
         />
         <ChecklistCard />
         <SearchFilters />
