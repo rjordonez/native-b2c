@@ -45,14 +45,15 @@ export const redoTopicQuestion = createAsyncThunk<
         throw new Error(ttsResult.message || 'TTS generation failed');
       }
       
-      // Create a new question message (redo)
+      // Create a new question message (redo) - no content for voice-only messages
       const redoMessage = {
         id: `msg-${Date.now()}`,
-        content: currentQuestion.text,
+        content: '',  // Empty content for voice-only message
         sender: 'assistant' as const,
         timestamp: new Date().toISOString(),
         isTopicQuestion: true,
         audioUrl: ttsResult.data?.audioUrl,
+        audioData: ttsResult.data?.audioData,  // Include audioData for persistence
       };
       
       // Add message to conversation

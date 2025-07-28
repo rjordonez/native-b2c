@@ -17,13 +17,11 @@ export const useTopicPractice = () => {
       // If already on chat page, just start the practice
       dispatch(startTopicPractice({ topicName }));
     } else {
-      // Start the practice session first
-      const result = await dispatch(startTopicPractice({ topicName }));
+      // Navigate to chat page immediately
+      navigate('/chat');
       
-      // If successful, navigate to chat
-      if (startTopicPractice.fulfilled.match(result)) {
-        navigate('/chat');
-      }
+      // Start the practice session in the background
+      dispatch(startTopicPractice({ topicName }));
     }
   };
 

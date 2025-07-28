@@ -72,10 +72,10 @@ export const startTopicPractice = createAsyncThunk<
         // Hide typing indicator
         dispatch(setTyping(false));
         
-        // Create message with audio
+        // Create message with audio (no content for voice-only messages)
         const firstMessage = {
           id: messageId,
-          content: firstQuestion.text,
+          content: '',  // Empty content for voice-only message
           sender: 'assistant' as const,
           timestamp: new Date().toISOString(),
           isTopicQuestion: true,
@@ -95,10 +95,10 @@ export const startTopicPractice = createAsyncThunk<
         // Hide typing indicator
         dispatch(setTyping(false));
         
-        // Still show the message without audio
+        // Still show the message without audio (no content for voice-only messages)
         const firstMessage = {
           id: messageId,
-          content: firstQuestion.text,
+          content: '',  // Empty content for voice-only message
           sender: 'assistant' as const,
           timestamp: new Date().toISOString(),
           isTopicQuestion: true,
