@@ -107,28 +107,28 @@ const ChatSessions: React.FC = () => {
 
   // Reset displayed sessions when conversations change
   useEffect(() => {
-    setDisplayedSessions(SESSIONS_PER_PAGE);
-  }, [conversations.length]);
+    dispatch(setDisplayedSessions(SESSIONS_PER_PAGE));
+  }, [conversations.length, dispatch]);
 
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
-      setMenuOpenId(null);
-      setMenuPosition(null);
+      dispatch(setMenuOpenId(null));
+      dispatch(setMenuPosition(null));
     };
 
     if (menuOpenId) {
       document.addEventListener('click', handleClickOutside);
       return () => document.removeEventListener('click', handleClickOutside);
     }
-  }, [menuOpenId]);
+  }, [menuOpenId, dispatch]);
 
   const handleMenuClick = (e: React.MouseEvent, conversationId: string) => {
     e.stopPropagation();
     
     if (menuOpenId === conversationId) {
-      setMenuOpenId(null);
-      setMenuPosition(null);
+      dispatch(setMenuOpenId(null));
+      dispatch(setMenuPosition(null));
     } else {
       const button = menuButtonRefs.current[conversationId];
       if (button) {
@@ -143,10 +143,10 @@ const ChatSessions: React.FC = () => {
   };
 
   const handleStartEdit = (conversationId: string, currentTitle: string) => {
-    setEditingId(conversationId);
-    setEditValue(currentTitle);
-    setMenuOpenId(null);
-    setMenuPosition(null);
+    dispatch(setEditingId(conversationId));
+    dispatch(setEditValue(currentTitle));
+    dispatch(setMenuOpenId(null));
+    dispatch(setMenuPosition(null));
   };
 
   const handleSaveEdit = (conversationId: string) => {
@@ -156,21 +156,21 @@ const ChatSessions: React.FC = () => {
         title: editValue.trim() 
       }));
     }
-    setEditingId(null);
-    setEditValue('');
+    dispatch(setEditingId(null));
+    dispatch(setEditValue(''));
   };
 
   const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditValue('');
+    dispatch(setEditingId(null));
+    dispatch(setEditValue(''));
   };
 
   const handleDelete = (conversationId: string) => {
     if (window.confirm('Are you sure you want to delete this conversation?')) {
       dispatch(deleteConversation(conversationId));
     }
-    setMenuOpenId(null);
-    setMenuPosition(null);
+    dispatch(setMenuOpenId(null));
+    dispatch(setMenuPosition(null));
   };
 
   // Don't render if sidebar is collapsed
@@ -227,7 +227,7 @@ const ChatSessions: React.FC = () => {
                   <input
                     type="text"
                     value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
+                    onChange={(e) => dispatch(setEditValue(e.target.value))}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleSaveEdit(conversation.id);
                       if (e.key === 'Escape') handleCancelEdit();
