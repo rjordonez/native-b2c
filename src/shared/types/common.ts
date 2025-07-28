@@ -1,7 +1,9 @@
+import { Icon } from 'phosphor-react';
+
 export interface RouteConfig {
   path: string;
   name: string;
-  icon?: string;
+  icon: Icon;
 }
 
 export interface ButtonProps {

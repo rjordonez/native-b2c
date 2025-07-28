@@ -1,19 +1,15 @@
 import { RouteConfig } from '../shared/types/common';
+import { House, ChatCircle, BookOpen } from 'phosphor-react';
 
 export const ROUTES: RouteConfig[] = [
   {
-    path: '/',
-    name: 'Home',
-    icon: '🏠',
+    path: '/library',
+    name: 'Library',
+    icon: BookOpen,
   },
   {
-    path: '/about',
-    name: 'About',
-    icon: '📖',
-  },
-  {
-    path: '/dashboard',
-    name: 'Dashboard',
-    icon: '📊',
+    path: '/chat',
+    name: 'Chat',
+    icon: ChatCircle,
   },
 ];

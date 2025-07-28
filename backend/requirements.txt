@@ -1,0 +1,2 @@
+# Python requirements for phoneme service
+cmudict>=1.0.13
