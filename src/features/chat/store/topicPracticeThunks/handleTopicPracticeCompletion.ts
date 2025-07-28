@@ -4,6 +4,7 @@ import type { AppDispatch } from '../../../../store/types';
 import { addMessage, setTyping } from '../conversationSlice';
 import { updateTopicProgressInDB } from '../../../library/libraryThunks';
 import { setTopicCompleted } from '../topicPracticeSlice';
+import { completeChecklistForPart } from '../../../../store/slices/dashboard/dashboardThunks';
 
 // Handle topic practice completion message
 export const handleTopicPracticeCompletion = createAsyncThunk<
@@ -45,6 +46,9 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
             progress: 100, 
             completed: true 
           })).unwrap();
+          
+          // Update the daily checklist for this part
+          await dispatch(completeChecklistForPart(topicPart)).unwrap();
           
           // Set the flag to prevent duplicate updates
           dispatch(setTopicCompleted());

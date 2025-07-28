@@ -2,6 +2,7 @@ import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import type { RootState } from '../../types';
 import { HomeState, Task } from './types';
 import { DASHBOARD_CONFIG, PRACTICE_ACTIVITY_DATES } from './constants/dashboardData';
+import { fetchTodayChecklist, completeChecklistTask, completeChecklistForPart } from './dashboardThunks';
 
 const initialState: HomeState = {
   welcomeMessage: 'Welcome to the Home Page!',
@@ -38,6 +39,31 @@ export const dashboardSlice = createSlice({
       state.testDate = action.payload;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Handle fetchTodayChecklist
+      .addCase(fetchTodayChecklist.fulfilled, (state, action) => {
+        state.tasks = action.payload;
+      })
+      // Handle completeChecklistTask
+      .addCase(completeChecklistTask.fulfilled, (state, action) => {
+        if (action.payload.success) {
+          const task = state.tasks.find(t => t.id === action.payload.taskId);
+          if (task) {
+            task.completed = true;
+          }
+        }
+      })
+      // Handle completeChecklistForPart
+      .addCase(completeChecklistForPart.fulfilled, (state, action) => {
+        if (action.payload && action.payload.success) {
+          const task = state.tasks.find(t => t.id === action.payload.taskId);
+          if (task) {
+            task.completed = true;
+          }
+        }
+      });
+  }
 });
 
 export const { 

@@ -91,3 +91,21 @@ export interface DBMessageWithRelations extends DBMessage {
 export interface DBConversationWithRelations extends DBConversation {
   messages: DBMessageWithRelations[];
 }
+
+export interface DBDailyChecklistProgress {
+  id: string;
+  user_id: string;
+  task_id: number; // 1 for Part 1, 2 for Part 2, 3 for Part 3
+  task_name: string;
+  completed: boolean;
+  completed_at?: string;
+  date: string; // YYYY-MM-DD format
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DBChecklistSummary {
+  total_tasks: number;
+  completed_tasks: number;
+  progress_percentage: number;
+}
