@@ -5,6 +5,7 @@ import { addMessage, setLoading, setTyping } from '../conversationSlice';
 import { setAutoPlayMessageId } from '../audioPlaybackSlice';
 import { generateTTS } from './ttsService';
 import type { NextQuestionResult } from './types';
+import { generateMessageId } from '../../../../utils/idGenerator';
 
 // Next topic question async thunk
 export const getNextTopicQuestion = createAsyncThunk<
@@ -30,7 +31,7 @@ export const getNextTopicQuestion = createAsyncThunk<
       if (!questions || nextIndex >= questions.length) {
         // No more questions - send text message
         const endMessage = {
-          id: `msg-${Date.now()}`,
+          id: generateMessageId('end'),
           content: 'There are no more questions.',
           sender: 'assistant' as const,
           timestamp: new Date().toISOString(),
@@ -66,7 +67,7 @@ export const getNextTopicQuestion = createAsyncThunk<
 
       // Create the question message (no content for voice-only messages)
       const questionMessage = {
-        id: `msg-${Date.now()}`,
+        id: generateMessageId('question'),
         content: '',  // Empty content for voice-only message
         sender: 'assistant' as const,
         timestamp: new Date().toISOString(),

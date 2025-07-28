@@ -7,6 +7,7 @@ import {
 } from '../types';
 import { SAMPLE_CONVERSATIONS } from '../constants/chatData';
 import { loadConversations, sendMessage, createConversation, switchConversation } from './conversationThunks';
+import { generateMessageId } from '../../../utils/idGenerator';
 
 interface ConversationState {
   conversations: Conversation[];
@@ -37,7 +38,7 @@ export const conversationSlice = createSlice({
       
       if (conversation) {
         const userMessage: Message = {
-          id: messageId || `msg-${Date.now()}-user`,
+          id: messageId || generateMessageId('user'),
           content,
           sender: 'user',
           timestamp: new Date().toISOString(),

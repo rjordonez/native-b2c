@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ArrowCounterClockwise, ArrowRight } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTopicPractice } from '../../store/topicPracticeSlice';
@@ -9,6 +9,7 @@ const ActionButtons: React.FC = () => {
   const dispatch = useAppDispatch();
   const topicPractice = useAppSelector(selectTopicPractice);
   const activeConversation = useAppSelector(selectActiveConversation);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   // Check if this is a topic practice session
   // Either by having currentTopic in state OR by detecting topic questions in messages
@@ -20,13 +21,22 @@ const ActionButtons: React.FC = () => {
     return null;
   }
 
-  const handleRedo = () => {
-    console.log('Redo button clicked');
-    dispatch(redoTopicQuestion({}));
+  const handleRedo = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    await dispatch(redoTopicQuestion({}));
+    // Add a small delay to prevent rapid clicks
+    setTimeout(() => setIsProcessing(false), 500);
   };
 
-  const handleNextQuestion = () => {
-    dispatch(getNextTopicQuestion({}));
+  const handleNextQuestion = async () => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
+    await dispatch(getNextTopicQuestion({}));
+    // Add a small delay to prevent rapid clicks
+    setTimeout(() => setIsProcessing(false), 500);
   };
 
   return (
@@ -34,8 +44,13 @@ const ActionButtons: React.FC = () => {
       {/* Redo Button */}
       <button
         onClick={handleRedo}
-        className="p-3 text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition-all duration-200 shadow-sm hover:shadow-md group relative"
+        className={`p-3 rounded-full transition-all duration-200 shadow-sm group relative ${
+          isProcessing 
+            ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
+            : 'text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 hover:shadow-md'
+        }`}
         aria-label="Redo"
+        disabled={isProcessing}
       >
         <ArrowCounterClockwise size={20} />
         {/* Tooltip */}
@@ -47,8 +62,13 @@ const ActionButtons: React.FC = () => {
       {/* Next Question Button */}
       <button
         onClick={handleNextQuestion}
-        className="p-3 text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full transition-all duration-200 shadow-sm hover:shadow-md group relative"
+        className={`p-3 rounded-full transition-all duration-200 shadow-sm group relative ${
+          isProcessing 
+            ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
+            : 'text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 hover:shadow-md'
+        }`}
         aria-label="Next Question"
+        disabled={isProcessing}
       >
         <ArrowRight size={20} />
         {/* Tooltip */}

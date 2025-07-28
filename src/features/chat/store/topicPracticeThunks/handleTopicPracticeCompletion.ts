@@ -5,6 +5,7 @@ import { addMessage, setTyping } from '../conversationSlice';
 import { updateTopicProgressInDB } from '../../../library/libraryThunks';
 import { setTopicCompleted } from '../topicPracticeSlice';
 import { completeChecklistForPart } from '../../../../store/slices/dashboard/dashboardThunks';
+import { generateMessageId } from '../../../../utils/idGenerator';
 
 // Handle topic practice completion message
 export const handleTopicPracticeCompletion = createAsyncThunk<
@@ -59,7 +60,7 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
       }
       
       const completionMessage = {
-        id: `msg-${Date.now()}`,
+        id: generateMessageId('completion'),
         content: messageContent,
         sender: 'assistant' as const,
         timestamp: new Date().toISOString(),
