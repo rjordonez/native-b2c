@@ -50,6 +50,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
 
       <ErrorMessage error={error} />
 
+      {/* TODO: Manual login form - temporarily commented out
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <input
@@ -91,6 +92,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
       </form>
 
       <FormDivider />
+      */}
       
       <GoogleSignInButton />
 
