@@ -6,6 +6,7 @@ export interface Word {
     phoneme: string;
     score: number;
   }>;
+  ipa?: string; // IPA transcription with stress marks from backend
   audioTimestamp?: {
     start: number;
     end: number;

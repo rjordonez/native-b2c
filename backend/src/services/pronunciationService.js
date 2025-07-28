@@ -1,5 +1,6 @@
 const config = require('../config/config');
 const logger = require('../utils/logger');
+const IPAService = require('./ipaService');
 
 class PronunciationService {
   constructor() {
@@ -42,7 +43,7 @@ class PronunciationService {
       const azureResponse = await this._callAzureSpeechRecognitionAPI(audioBuffer, recognitionConfig, contentType);
       
       // Step 4: Parse and structure the response
-      const result = this._parseAzureRecognitionResponse(azureResponse);
+      const result = await this._parseAzureRecognitionResponse(azureResponse);
       
       logger.info('=== TRANSCRIPTION + PRONUNCIATION ASSESSMENT COMPLETED ===');
       logger.info('Assessment summary:', {
@@ -93,7 +94,7 @@ class PronunciationService {
       const azureResponse = await this._callAzureSpeechAPI(audioBuffer, pronunciationConfig, contentType);
       
       // Step 4: Parse and structure the response
-      const assessmentResult = this._parseAzureResponse(azureResponse);
+      const assessmentResult = await this._parseAzureResponse(azureResponse);
       
       logger.info('=== PRONUNCIATION ASSESSMENT COMPLETED ===');
       logger.info('Assessment summary:', {
@@ -338,7 +339,7 @@ class PronunciationService {
    * Parse Azure Speech API response for recognition + pronunciation into structured result
    * @private
    */
-  _parseAzureRecognitionResponse(azureData) {
+  async _parseAzureRecognitionResponse(azureData) {
     logger.debug('Parsing Azure recognition response...');
     logger.debug('Full Azure response:', JSON.stringify(azureData, null, 2));
     
@@ -388,16 +389,31 @@ class PronunciationService {
     
     // Process word-level scores
     if (nbestResult.Words) {
-      nbestResult.Words.forEach((wordData, index) => {
+      for (let index = 0; index < nbestResult.Words.length; index++) {
+        const wordData = nbestResult.Words[index];
         const word = wordData.Word;
         const score = wordData.AccuracyScore || 0;
         const errorType = wordData.ErrorType;
         
         logger.debug(`Processing word ${index + 1}: ${word} (score: ${score}, error: ${errorType})`);
         
-        // Process phonemes
+        // Process phonemes and convert to IPA
         const phonemes = [];
+        let ipaTranscription = '';
+        
         if (wordData.Phonemes) {
+          // Extract phoneme strings for IPA conversion
+          const phonemeStrings = wordData.Phonemes.map(p => p.Phoneme);
+          
+          // Convert to IPA with stress marks
+          try {
+            ipaTranscription = await IPAService.convertToIPA(phonemeStrings, word);
+            logger.info('IPA conversion successful', { word, phonemes: phonemeStrings, ipa: ipaTranscription });
+          } catch (error) {
+            logger.error('IPA conversion failed', { word, error: error.message });
+            // Continue without IPA if conversion fails
+          }
+          
           wordData.Phonemes.forEach(phonemeData => {
             phonemes.push({
               phoneme: phonemeData.Phoneme,
@@ -413,7 +429,8 @@ class PronunciationService {
           phonemes,
           errorType,
           offset: wordData.Offset,
-          duration: wordData.Duration
+          duration: wordData.Duration,
+          ipa: ipaTranscription
         });
         
         // Mark as weak word if score is below threshold
@@ -421,7 +438,7 @@ class PronunciationService {
           result.pronunciation.weakWords.push(word);
           logger.debug(`Marked as weak word: ${word} (score: ${score})`);
         }
-      });
+      }
     }
     
     logger.debug('Recognition parsing completed:', {
@@ -438,7 +455,7 @@ class PronunciationService {
    * Parse Azure Speech API response into structured result
    * @private
    */
-  _parseAzureResponse(azureData) {
+  async _parseAzureResponse(azureData) {
     logger.debug('Parsing Azure response...');
     logger.debug('Full Azure response:', JSON.stringify(azureData, null, 2));
     
@@ -473,7 +490,8 @@ class PronunciationService {
     
     // Process word-level scores
     if (nbestResult.Words) {
-      nbestResult.Words.forEach((wordData, index) => {
+      for (let index = 0; index < nbestResult.Words.length; index++) {
+        const wordData = nbestResult.Words[index];
         const word = wordData.Word;
         const score = wordData.AccuracyScore || 0;
         const errorType = wordData.ErrorType;
@@ -485,9 +503,23 @@ class PronunciationService {
           logger.debug(`Including omitted word: ${word} with score 0`);
         }
         
-        // Process phonemes
+        // Process phonemes and convert to IPA
         const phonemes = [];
+        let ipaTranscription = '';
+        
         if (wordData.Phonemes) {
+          // Extract phoneme strings for IPA conversion
+          const phonemeStrings = wordData.Phonemes.map(p => p.Phoneme);
+          
+          // Convert to IPA with stress marks
+          try {
+            ipaTranscription = await IPAService.convertToIPA(phonemeStrings, word);
+            logger.info('IPA conversion successful', { word, phonemes: phonemeStrings, ipa: ipaTranscription });
+          } catch (error) {
+            logger.error('IPA conversion failed', { word, error: error.message });
+            // Continue without IPA if conversion fails
+          }
+          
           wordData.Phonemes.forEach(phonemeData => {
             phonemes.push({
               phoneme: phonemeData.Phoneme,
@@ -503,7 +535,8 @@ class PronunciationService {
           phonemes,
           errorType,
           offset: wordData.Offset,
-          duration: wordData.Duration
+          duration: wordData.Duration,
+          ipa: ipaTranscription
         });
         
         // Mark as weak word if score is below threshold
@@ -511,7 +544,7 @@ class PronunciationService {
           result.weakWords.push(word);
           logger.debug(`Marked as weak word: ${word} (score: ${score})`);
         }
-      });
+      }
     }
     
     logger.debug('Parsing completed:', {

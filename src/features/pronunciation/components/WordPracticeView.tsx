@@ -102,12 +102,12 @@ export const WordPracticeView: React.FC<WordPracticeViewProps> = ({
         />
         
         {/* Show IPA phonemes underneath the word */}
-        {word.phonemes && word.phonemes.length > 0 && (
+        {(word.ipa || (word.phonemes && word.phonemes.length > 0)) && (
           <div className="mt-4 text-center">
             {/* Full word IPA transcription */}
             <div className="mb-3">
               <span className="text-2xl font-mono text-secondary">
-                /{arpaArrayToIpa(word.phonemes)}/
+                {word.ipa || `/${arpaArrayToIpa(word.phonemes || [])}/`}
               </span>
             </div>
             {/* Individual phonemes with scoring - only show if word needs improvement */}

@@ -1,5 +1,13 @@
 {
   "version": 2,
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 30
+    },
+    "api/ipa-convert.py": {
+      "maxDuration": 10
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

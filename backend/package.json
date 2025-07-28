@@ -9,7 +9,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix"
+    "lint:fix": "eslint src/ --fix",
+    "setup:python": "pip3 install -r requirements.txt",
+    "postinstall": "echo 'Run npm run setup:python to install Python dependencies for IPA conversion'"
   },
   "keywords": [
     "ielts",

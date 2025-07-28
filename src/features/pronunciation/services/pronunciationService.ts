@@ -76,6 +76,7 @@ export const pronunciationService = {
           phoneme: p.phoneme,
           score: p.score || 0
         })) || [],
+        ipa: wordData.ipa, // IPA transcription with stress marks from backend
         audioTimestamp: wordData.offset && wordData.duration ? {
           start: wordData.offset / 10000000, // Convert from ticks to seconds
           end: (wordData.offset + wordData.duration) / 10000000
