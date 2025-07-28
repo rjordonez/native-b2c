@@ -56,6 +56,7 @@ export interface TopicPracticeState {
   currentTopic: any | null; // Topic from supabase service
   currentQuestionIndex: number;
   questions: any[]; // Question[] from supabase service
+  hasCompletedTopic: boolean; // Track if topic completion has been recorded
 }
 
 export interface ChatState {
