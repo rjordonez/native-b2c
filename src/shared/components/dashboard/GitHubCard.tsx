@@ -28,9 +28,9 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
 
   // Transform completedDays into the format expected by react-github-calendar
   const transformData = useMemo(() => (contributions: any[]) => {
-    // Show last 5 months of data
-    const fiveMonthsAgo = new Date();
-    fiveMonthsAgo.setMonth(fiveMonthsAgo.getMonth() - 5);
+    // Show last 3 months of data
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
     
     // Create a map of date strings to practice activity data
     const activityMap = new Map<string, PracticeActivity>();
@@ -39,7 +39,7 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
     });
     
     return contributions
-      .filter(day => new Date(day.date) >= fiveMonthsAgo)
+      .filter(day => new Date(day.date) >= threeMonthsAgo)
       .map(day => {
         const dateStr = day.date;
         
@@ -82,13 +82,13 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
           <div className="flex items-center gap-4">
             {practiceStreak && practiceStreak.current > 0 && (
               <div className="flex items-center gap-1 text-orange-600">
-                <Fire size={14} weight="fill" />
-                <span className="font-medium">{practiceStreak.current} day streak</span>
+                <Fire size={16} weight="fill" />
+                <span className="font-medium text-sm">{practiceStreak.current} day streak</span>
               </div>
             )}
           </div>
           {practiceStreak && (
-            <div className="text-right">
+            <div className="text-right text-sm">
               <span className="text-gray-500">Total days: </span>
               <span className="font-medium">{practiceStreak.totalDays}</span>
             </div>
@@ -121,8 +121,8 @@ const GitHubCard: React.FC<GitHubCardProps> = ({
                   light: ['#ebedf0', '#ffd7b3', '#ffb366', '#ff8f1a', '#ff6b00']
                 }}
                 colorScheme="light"
-                fontSize={8}
-                blockSize={10}
+                fontSize={12}
+                blockSize={15}
                 blockMargin={3}
                 hideColorLegend={false}
                 hideTotalCount={true}
