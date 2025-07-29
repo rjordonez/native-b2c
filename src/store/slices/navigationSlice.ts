@@ -8,6 +8,7 @@ interface NavigationState {
   userDropdownOpen: boolean;
   hoveredItem: string | null;
   tooltipPosition: { top: number; left: number } | null;
+  mobileMenuOpen: boolean;
 }
 
 const initialState: NavigationState = {
@@ -17,6 +18,7 @@ const initialState: NavigationState = {
   userDropdownOpen: false,
   hoveredItem: null,
   tooltipPosition: null,
+  mobileMenuOpen: false,
 };
 
 export const navigationSlice = createSlice({
@@ -50,6 +52,12 @@ export const navigationSlice = createSlice({
     setTooltipPosition: (state, action: PayloadAction<{ top: number; left: number } | null>) => {
       state.tooltipPosition = action.payload;
     },
+    toggleMobileMenu: (state) => {
+      state.mobileMenuOpen = !state.mobileMenuOpen;
+    },
+    setMobileMenuOpen: (state, action: PayloadAction<boolean>) => {
+      state.mobileMenuOpen = action.payload;
+    },
   },
 });
 
@@ -62,7 +70,9 @@ export const {
   toggleSidebarCollapse, 
   setSidebarCollapsed,
   setHoveredItem,
-  setTooltipPosition
+  setTooltipPosition,
+  toggleMobileMenu,
+  setMobileMenuOpen
 } = navigationSlice.actions;
 
 export const selectCurrentPage = (state: RootState) => state.navigation.currentPage;
@@ -71,5 +81,6 @@ export const selectSidebarCollapsed = (state: RootState) => state.navigation.sid
 export const selectUserDropdownOpen = (state: RootState) => state.navigation.userDropdownOpen;
 export const selectHoveredItem = (state: RootState) => state.navigation.hoveredItem;
 export const selectTooltipPosition = (state: RootState) => state.navigation.tooltipPosition;
+export const selectMobileMenuOpen = (state: RootState) => state.navigation.mobileMenuOpen;
 
 export default navigationSlice.reducer;
