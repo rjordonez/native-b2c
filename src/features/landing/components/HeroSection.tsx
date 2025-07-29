@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/layout/ui/button';
 import { Mic } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
+import dashImg from '../lib/images/dash.png';
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [tiltAngle, setTiltAngle] = useState(15); // Start tilted back
@@ -97,7 +98,7 @@ const HeroSection = () => {
       >
         <div className="cosmic-glow relative rounded-xl overflow-hidden border border-border shadow-lg">
           <img 
-            src="/src/features/landing/lib/images/dash.png" 
+            src={dashImg} 
             alt="Native Library Interface" 
             className="w-full h-auto block"
             style={{ objectFit: 'contain' }}
