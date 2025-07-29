@@ -76,7 +76,7 @@ const Features = () => {
           // Hardcoded English with highlight
           return (
             <>
-              <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">Practice</span> smarter, not harder
+              <span className="text-primary">Practice</span> smarter, not harder
             </>
           );
         }
@@ -86,7 +86,7 @@ const Features = () => {
         const cleanWord = word.replace(/[^a-zA-Z0-9]/g, "");
         if (highlightedWords && highlightedWords.includes(cleanWord)) {
           return (
-            <span key={i} className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">{word}</span>
+            <span key={i} className="text-primary">{word}</span>
           );
         }
         return <span key={i} className="text-foreground">{word}</span>;

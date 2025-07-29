@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/layout/ui/button';
 import Logo from './Logo';
-import { Menu, X, Mic, BarChart3, Trophy, Languages } from 'lucide-react';
+import { Menu, X, Mic, BarChart3, Trophy } from 'lucide-react';
 import { cn } from '../lib/utils';
 import { ToggleGroup, ToggleGroupItem } from '../../../shared/components/layout/ui/toggle-group';
-import { Switch } from '../../../shared/components/layout/ui/switch';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const Header = () => {
@@ -127,21 +126,33 @@ const Header = () => {
               {/* Language toggle for mobile */}
               <div className="flex items-center justify-between px-3 py-2">
                 <span className="text-sm text-muted-foreground">{t('header.language')}</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium">{t('header.vietnamese')}</span>
-                  <Switch 
-                    checked={language === 'en'} 
-                    onCheckedChange={toggleLanguage} 
-                    className="data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-orange-500"
-                  />
-                  <span className="text-xs font-medium">{t('header.english')}</span>
+                <div className="flex items-center gap-1 text-sm font-medium">
+                  <button
+                    onClick={() => setLanguage('vi')}
+                    className={cn(
+                      "px-3 py-2 rounded transition-all",
+                      language === 'vi' ? 'text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    )}
+                  >
+                    VI
+                  </button>
+                  <span className="text-muted-foreground">|</span>
+                  <button
+                    onClick={() => setLanguage('en')}
+                    className={cn(
+                      "px-3 py-2 rounded transition-all",
+                      language === 'en' ? 'text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    )}
+                  >
+                    EN
+                  </button>
                 </div>
               </div>
               
               {/* Login button for mobile */}
               <div className="px-3 py-2">
                 <Link to="/auth" className="block">
-                  <Button variant="ghost" className="w-full font-body text-muted-foreground hover:text-foreground hover:bg-muted interactive-button">{t('header.login')}</Button>
+                  <Button className="w-full font-body bg-primary text-primary-foreground hover:bg-primary/90 interactive-button">{t('header.login')}</Button>
                 </Link>
               </div>
             </div>
@@ -150,18 +161,30 @@ const Header = () => {
         
         <div className="hidden md:flex items-center gap-4">
           {/* Language toggle for desktop */}
-          <div className="flex items-center gap-2 rounded-full px-3 py-2">
-            <span className="text-sm font-medium text-muted-foreground">{t('header.vietnamese')}</span>
-            <Switch 
-              checked={language === 'en'} 
-              onCheckedChange={toggleLanguage} 
-              className="data-[state=checked]:bg-orange-500 data-[state=unchecked]:bg-orange-500"
-            />
-            <span className="text-sm font-medium text-muted-foreground">{t('header.english')}</span>
+          <div className="flex items-center gap-1 text-sm font-medium">
+            <button
+              onClick={() => setLanguage('vi')}
+              className={cn(
+                "px-3 py-2 rounded transition-all",
+                language === 'vi' ? 'text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              )}
+            >
+              VI
+            </button>
+            <span className="text-muted-foreground">|</span>
+            <button
+              onClick={() => setLanguage('en')}
+              className={cn(
+                "px-3 py-2 rounded transition-all",
+                language === 'en' ? 'text-primary' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              )}
+            >
+              EN
+            </button>
           </div>
           <div className="rounded-2xl">
             <Link to="/auth">
-              <Button variant="ghost" className="font-body text-muted-foreground hover:text-foreground hover:bg-muted interactive-button">{t('header.login')}</Button>
+              <Button className="font-body bg-primary text-primary-foreground hover:bg-primary/90 interactive-button">{t('header.login')}</Button>
             </Link>
           </div>
         </div>
