@@ -1,19 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/layout/ui/button';
 import { Mic } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [tiltAngle, setTiltAngle] = useState(15); // Start tilted back
+  const imageRef = useRef<HTMLDivElement>(null);
   const {
     t,
     language
   } = useLanguage();
+  
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 300);
     return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!imageRef.current) return;
+      
+      const scrollY = window.scrollY;
+      const imageTop = imageRef.current.offsetTop;
+      const windowHeight = window.innerHeight;
+      
+      // Calculate when image enters viewport and how far it has scrolled
+      const scrollProgress = Math.max(0, Math.min(1, (scrollY + windowHeight - imageTop) / windowHeight));
+      
+      // Animate from 15deg to 0deg
+      const newTilt = 15 - (15 * scrollProgress);
+      setTiltAngle(Math.max(0, Math.min(15, newTilt)));
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Call once to set initial state
+    
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   return <section className="relative w-full py-12 md:py-20 px-6 md:px-12 flex flex-col items-center justify-center overflow-hidden" style={{
     background: 'var(--hero-gradient)'
@@ -39,7 +64,8 @@ const HeroSection = () => {
             </>
           ) : (
             <>
-              {t('hero.title')} <span className="text-primary">{t('hero.highlight')}</span>
+              <span>{t('hero.title')}</span><br />
+              <span className="mt-3 inline-block"><span className="text-primary">{t('hero.highlight')}</span></span>
             </>
           )}
         </h1>
@@ -60,13 +86,21 @@ const HeroSection = () => {
       </div>
       
       {/* Library Interface Image */}
-      <div className={`w-full max-w-7xl mt-12 z-10 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
-        <div className="cosmic-glow relative rounded-xl overflow-hidden border border-border backdrop-blur-sm bg-card shadow-lg interactive-card">
+      <div 
+        ref={imageRef}
+        className={`w-full max-w-7xl mt-12 z-10 transition-all duration-1000 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+        style={{
+          transform: `perspective(1000px) rotateX(${tiltAngle}deg)`,
+          transformOrigin: 'center bottom',
+          transition: 'transform 0.3s ease-out'
+        }}
+      >
+        <div className="cosmic-glow relative rounded-xl overflow-hidden border border-border shadow-lg">
           <img 
             src="/src/features/landing/lib/images/dash.png" 
             alt="Native Library Interface" 
-            className="w-full h-auto rounded-xl"
-            style={{ maxHeight: '600px', objectFit: 'contain' }}
+            className="w-full h-auto block"
+            style={{ objectFit: 'contain' }}
           />
         </div>
       </div>

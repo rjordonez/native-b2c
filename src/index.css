@@ -172,22 +172,6 @@ body {
   @apply relative inline-block transition-all duration-300;
 }
 
-.nav-link::after {
-  content: '';
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: -4px;
-  left: 50%;
-  background: hsl(var(--primary));
-  transition: all 0.3s ease;
-  transform: translateX(-50%);
-}
-
-.nav-link:hover::after {
-  width: 100%;
-}
-
 .feature-icon {
   @apply transition-all duration-300 ease-in-out hover:scale-110 hover:rotate-3;
 }

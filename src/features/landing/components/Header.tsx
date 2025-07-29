@@ -62,7 +62,7 @@ const Header = () => {
                 value="practice"
                 className={cn(
                   "px-4 py-2 rounded-full transition-all duration-300 relative nav-link hover:scale-105",
-                  activePage === 'practice' ? 'text-accent-foreground bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  activePage === 'practice' ? '!text-primary bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
                 onClick={handlePracticeClick}
               >
@@ -72,7 +72,7 @@ const Header = () => {
                 value="features" 
                 className={cn(
                   "px-4 py-2 rounded-full transition-all duration-300 relative nav-link hover:scale-105",
-                  activePage === 'features' ? 'text-accent-foreground bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  activePage === 'features' ? '!text-primary bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
                 onClick={handleNavClick('features')}
               >
@@ -82,7 +82,7 @@ const Header = () => {
                 value="testimonials" 
                 className={cn(
                   "px-4 py-2 rounded-full transition-all duration-300 relative nav-link hover:scale-105",
-                  activePage === 'testimonials' ? 'text-accent-foreground bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                  activePage === 'testimonials' ? '!text-primary bg-accent' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                 )}
                 onClick={handleNavClick('testimonials')}
               >
