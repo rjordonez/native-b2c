@@ -25,7 +25,8 @@
       "mcp__supabase__list_tables",
       "Bash(chmod:*)",
       "Bash(node:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "mcp__supabase__apply_migration"
     ],
     "deny": []
   },

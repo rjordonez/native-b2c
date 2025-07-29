@@ -98,7 +98,67 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
                   {index + 1}
                 </span>
                 <div className="flex-1">
-                  <div className="text-sm text-gray-700">{question.text}</div>
+                  {question.type === 'part2' ? (
+                    <div className="text-sm text-gray-700">
+                      {/* Parse and format Part 2 questions */}
+                      {(() => {
+                        const lines = topic.questions.split('\n').filter(line => line.trim());
+                        const youShouldSayIndex = lines.findIndex(line => line.includes('You should say:'));
+                        
+                        // If "You should say:" is present, use it to split
+                        if (youShouldSayIndex !== -1) {
+                          const mainQuestion = lines.slice(0, youShouldSayIndex).join(' ').trim();
+                          const bulletPoints = lines.slice(youShouldSayIndex + 1);
+                          
+                          return (
+                            <div className="space-y-2">
+                              <div className="font-medium">{mainQuestion}</div>
+                              <div>
+                                <div className="font-medium text-gray-600 mb-1">You should say:</div>
+                                <ul className="space-y-1 list-none ml-2">
+                                  {bulletPoints.map((point, idx) => {
+                                    const cleanedPoint = point.trim().replace(/^[•\-\*]\s*/, '');
+                                    return cleanedPoint ? (
+                                      <li key={idx} className="flex items-start">
+                                        <span className="mr-2 mt-0.5 text-gray-400">•</span>
+                                        <span className="text-gray-600">{cleanedPoint}</span>
+                                      </li>
+                                    ) : null;
+                                  })}
+                                </ul>
+                              </div>
+                            </div>
+                          );
+                        }
+                        
+                        // If no "You should say:", assume first line is question, rest are bullet points
+                        const mainQuestion = lines[0];
+                        const bulletPoints = lines.slice(1);
+
+                        return (
+                          <div className="space-y-2">
+                            <div className="font-medium">{mainQuestion}</div>
+                            <div>
+                              <div className="font-medium text-gray-600 mb-1">You should say:</div>
+                              <ul className="space-y-1 list-none ml-2">
+                                {bulletPoints.map((point, idx) => {
+                                  const cleanedPoint = point.trim().replace(/^[•\-\*]\s*/, '');
+                                  return cleanedPoint ? (
+                                    <li key={idx} className="flex items-start">
+                                      <span className="mr-2 mt-0.5 text-gray-400">•</span>
+                                      <span className="text-gray-600">{cleanedPoint}</span>
+                                    </li>
+                                  ) : null;
+                                })}
+                              </ul>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-700">{question.text}</div>
+                  )}
                   <div className="text-xs text-gray-500 mt-1 capitalize">
                     {question.type === 'part1' ? 'Part 1' : question.type === 'part2' ? 'Part 2' : 'Part 3'}
                   </div>
