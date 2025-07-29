@@ -189,7 +189,7 @@ const ChatSessions: React.FC = () => {
         <h3 className="text-sm font-medium text-gray-700">Sessions</h3>
         <button
           onClick={handleCreateConversation}
-          className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+          className="p-1 bg-primary text-white hover:bg-primary/90 rounded transition-colors"
           title="New Session"
         >
           <Plus size={16} />
