@@ -1,12 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
 import { selectSidebarCollapsed, selectMobileMenuOpen, setMobileMenuOpen } from '../../../store/slices/navigationSlice';
 import { SidebarLogo, SidebarNavigation, ChatSessions, UserProfile } from './sidebar/index';
+import { useFocusTrap } from '../../hooks/useFocusTrap';
 
 const Sidebar: React.FC = () => {
   const dispatch = useAppDispatch();
   const sidebarCollapsed = useAppSelector(selectSidebarCollapsed);
   const mobileMenuOpen = useAppSelector(selectMobileMenuOpen);
+  const focusTrapRef = useFocusTrap(mobileMenuOpen);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
+
+  // Handle ESC key to close menu
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && mobileMenuOpen) {
+        dispatch(setMobileMenuOpen(false));
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    return () => document.removeEventListener('keydown', handleEscKey);
+  }, [mobileMenuOpen, dispatch]);
 
   const handleOverlayClick = () => {
     dispatch(setMobileMenuOpen(false));
@@ -19,16 +47,23 @@ const Sidebar: React.FC = () => {
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={handleOverlayClick}
+          aria-hidden="true"
         />
       )}
       
       {/* Sidebar */}
-      <div className={`
-        w-screen lg:w-auto ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'} 
-        bg-white lg:border-r border-gray-100 flex flex-col h-full transition-transform duration-300 ease-out
-        fixed lg:relative inset-0 lg:inset-auto z-50
-        ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
+      <aside 
+        ref={focusTrapRef as React.RefObject<HTMLElement>}
+        className={`
+          w-screen lg:w-auto ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'} 
+          bg-white lg:border-r border-gray-100 flex flex-col h-full transition-transform duration-300 ease-out
+          fixed lg:relative inset-0 lg:inset-auto z-50
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        `}
+        aria-label="Main navigation"
+        aria-modal={mobileMenuOpen ? "true" : undefined}
+        role={mobileMenuOpen ? "dialog" : undefined}
+      >
         {/* Logo/Collapse Button at the top */}
         <div className={`flex items-center h-20 ${sidebarCollapsed ? 'lg:px-2 lg:justify-center' : 'px-6 justify-between'} pt-4 pb-2 relative overflow-hidden`}>
           <SidebarLogo />
@@ -42,7 +77,7 @@ const Sidebar: React.FC = () => {
         
         {/* User Profile at the bottom */}
         <UserProfile />
-      </div>
+      </aside>
     </>
   );
 };

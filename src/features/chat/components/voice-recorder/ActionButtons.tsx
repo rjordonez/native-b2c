@@ -58,7 +58,7 @@ const ActionButtons: React.FC = () => {
         {/* Redo Button */}
         <button
           onClick={handleRedo}
-          className={`p-3 rounded-full transition-all duration-200 shadow-sm group relative ${
+          className={`w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 shadow-sm group relative ${
             isLoadingQuestion 
               ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
               : 'text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 hover:shadow-md'
@@ -82,7 +82,7 @@ const ActionButtons: React.FC = () => {
         {/* Next Question Button */}
         <button
           onClick={handleNextQuestion}
-          className={`p-3 rounded-full transition-all duration-200 shadow-sm group relative ${
+          className={`w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 shadow-sm group relative ${
             isLoadingQuestion 
               ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
               : 'text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 hover:shadow-md'

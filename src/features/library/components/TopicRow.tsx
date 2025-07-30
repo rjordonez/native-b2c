@@ -42,8 +42,9 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
 
   return (
     <div>
+      {/* Desktop Layout */}
       <div 
-        className={`grid grid-cols-12 items-center gap-4 px-3 py-2 border-b border-gray-100 text-sm cursor-pointer transition-all duration-200 ease-out ${
+        className={`hidden lg:grid grid-cols-12 items-center gap-4 px-3 py-2 border-b border-gray-100 text-sm cursor-pointer transition-all duration-200 ease-out ${
           topic.expanded
             ? 'bg-gray-100 text-black shadow-sm'
             : 'text-gray-600 hover:bg-gray-50 hover:text-black'
@@ -85,6 +86,44 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
             className={`text-gray-700 transition-transform duration-300 ease-in-out ${topic.expanded ? 'rotate-180' : ''}`} 
           />
         </div>
+      </div>
+
+      {/* Mobile Layout */}
+      <div 
+        className={`lg:hidden flex flex-col gap-2 p-3 border-b border-gray-100 cursor-pointer transition-all duration-200 ease-out ${
+          topic.expanded
+            ? 'bg-gray-100 text-black shadow-sm'
+            : 'text-gray-600 hover:bg-gray-50 hover:text-black'
+        }`}
+        onClick={() => dispatch(toggleTopicExpansion(topic.id))}
+      >
+        <div className="flex items-center justify-between gap-2">
+          {/* Topic */}
+          <div className="flex-1 min-w-0">
+            <div className="font-medium text-sm truncate">{topic.title}</div>
+          </div>
+
+          {/* Part Pill */}
+          <span className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium ${getPartColor(topic.part)}`}>
+            {topic.part === 'part1' ? 'Part 1' : topic.part === 'part2' ? 'Part 2' : 'Part 3'}
+          </span>
+
+          {/* Dropdown Arrow */}
+          <CaretDown 
+            size={20} 
+            className={`text-gray-700 transition-transform duration-300 ease-in-out flex-shrink-0 ${topic.expanded ? 'rotate-180' : ''}`} 
+          />
+        </div>
+
+        {/* Practice Button */}
+        <Button 
+          size="sm" 
+          variant="secondary"
+          className="w-full text-xs"
+          onClick={handlePracticeClick}
+        >
+          Practice
+        </Button>
       </div>
 
       {/* Expanded Questions */}

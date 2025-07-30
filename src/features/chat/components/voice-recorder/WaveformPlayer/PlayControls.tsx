@@ -22,7 +22,8 @@ export const PlayControls: React.FC<PlayControlsProps> = ({
       {/* Play/Pause button */}
       <button
         onClick={onPlayPause}
-        className="flex items-center justify-center w-8 h-8 text-gray-600 hover:text-gray-800 transition-colors"
+        className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-800 transition-colors"
+        style={{ aspectRatio: '1 / 1' }}
       >
         {isPlaying ? (
           <Pause size={16} weight="fill" />

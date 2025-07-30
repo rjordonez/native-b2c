@@ -3,7 +3,8 @@ import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import {
   fetchTopicsFromDB,
   clearError,
-  selectError
+  selectError,
+  setFixedHeight
 } from './librarySlice';
 import {
   selectTestDate,
@@ -29,6 +30,8 @@ const LibraryPage: React.FC = () => {
 
   // Fetch topics and practice activity on component mount
   useEffect(() => {
+    // Reset fixed height when component mounts to recalculate
+    dispatch(setFixedHeight(null));
     dispatch(fetchTopicsFromDB());
     dispatch(fetchPracticeActivity());
   }, [dispatch]);
