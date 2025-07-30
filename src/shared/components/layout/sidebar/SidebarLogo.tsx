@@ -53,7 +53,7 @@ const SidebarLogo: React.FC = () => {
 
   if (sidebarCollapsed) {
     return (
-      <div className="relative">
+      <div className="relative w-10 h-10">
         {/* N Logo - always present */}
         <button 
           onClick={handleClick}
@@ -72,7 +72,7 @@ const SidebarLogo: React.FC = () => {
           onClick={handleClick}
           onMouseEnter={(e) => handleMouseEnter(e, 'logo')}
           onMouseLeave={handleMouseLeave}
-          className={`absolute top-0 left-0 w-10 h-10 rounded-md flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-all duration-200 ${
+          className={`absolute inset-0 w-10 h-10 rounded-md flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-all duration-200 ${
             hoveredItem === 'logo' ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >

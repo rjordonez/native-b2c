@@ -55,9 +55,10 @@ const Sidebar: React.FC = () => {
       <aside 
         ref={focusTrapRef as React.RefObject<HTMLElement>}
         className={`
-          w-screen lg:w-auto ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'} 
-          bg-white lg:border-r border-gray-100 flex flex-col h-full transition-transform duration-300 ease-out
+          w-screen ${sidebarCollapsed ? 'lg:w-16' : 'lg:w-64'} 
+          bg-white lg:border-r border-gray-100 flex flex-col h-full flex-shrink-0
           fixed lg:relative inset-0 lg:inset-auto z-50
+          transition-transform duration-300 ease-out lg:transition-[width] lg:duration-300 lg:ease-out
           ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
         `}
         aria-label="Main navigation"
@@ -65,7 +66,7 @@ const Sidebar: React.FC = () => {
         role={mobileMenuOpen ? "dialog" : undefined}
       >
         {/* Logo/Collapse Button at the top */}
-        <div className={`flex items-center h-20 ${sidebarCollapsed ? 'lg:px-2 lg:justify-center' : 'px-6 justify-between'} pt-4 pb-2 relative overflow-hidden`}>
+        <div className={`flex items-center h-20 ${sidebarCollapsed ? 'lg:px-2 lg:justify-center' : 'px-6 justify-between'} pt-4 pb-2 relative`}>
           <SidebarLogo />
         </div>
         
