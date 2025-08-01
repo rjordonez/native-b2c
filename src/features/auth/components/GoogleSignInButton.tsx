@@ -7,6 +7,9 @@ const GoogleSignInButton: React.FC = () => {
   
   const handleGoogleSignIn = async () => {
     try {
+      // Preserve UTM data during OAuth flow by ensuring it stays in localStorage
+      // The UTM data should already be captured by the landing page
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {

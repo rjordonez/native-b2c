@@ -211,6 +211,7 @@ export const DevDashPage: React.FC = () => {
               
               <TrafficChart
                 data={trafficData?.dailyTraffic || null}
+                trafficData={trafficData}
                 loading={loading.trafficData}
                 error={error.trafficData}
               />

@@ -24,17 +24,13 @@ export interface TrafficSource {
   source: string;
   medium: string;
   campaign: string;
-  visits: number;
-  conversions: number;
-  conversionRate:number;
+  signups: number;
 }
 
 export type TimePeriod = 'all' | '30d' | '7d' | '1d';
 
 export interface TrafficData {
-  totalVisits: number;
-  totalConversions: number;
-  overallConversionRate: number;
+  totalSignups: number;
   sources: TrafficSource[];
   dailyTraffic: DailyTraffic[];
   timePeriod: TimePeriod;
@@ -42,9 +38,8 @@ export interface TrafficData {
 
 export interface DailyTraffic {
   date: string;
-  visits: number;
-  conversions: number;
-  conversionRate: number;
+  signups: number;
+  sources: { [key: string]: number }; // UTM source breakdown for this day
 }
 
 export interface DevDashState {

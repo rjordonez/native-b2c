@@ -92,63 +92,46 @@ export const TrafficCard: React.FC<TrafficCardProps> = ({
       <CardContent>
         <div className="space-y-6">
           {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="flex justify-center">
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
-                {trafficData.totalVisits.toLocaleString()}
+              <div className="text-3xl font-bold text-blue-600">
+                {trafficData.totalSignups.toLocaleString()}
               </div>
-              <div className="text-sm text-gray-600">Total Visits</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
-                {trafficData.totalConversions.toLocaleString()}
-              </div>
-              <div className="text-sm text-gray-600">Conversions</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
-                {trafficData.overallConversionRate.toFixed(1)}%
-              </div>
-              <div className="text-sm text-gray-600">Conversion Rate</div>
+              <div className="text-sm text-gray-600">Total Signups</div>
             </div>
           </div>
 
           {/* Traffic Sources */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">Traffic Sources</h3>
-            <div className="space-y-3">
-              {trafficData.sources.map((source, index) => (
-                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <div>
-                      <div className="font-medium capitalize">{source.source}</div>
-                      <div className="text-sm text-gray-600">
-                        {source.medium} • {source.campaign}
+            <h3 className="text-lg font-semibold mb-3">Signup Sources</h3>
+            {trafficData.sources.length === 0 ? (
+              <div className="text-center py-8 text-gray-500">
+                <p className="text-sm">No UTM tracking data yet</p>
+                <p className="text-xs mt-1">Start using UTM links to see signup attribution</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {trafficData.sources.map((source, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                      <div>
+                        <div className="font-medium capitalize">{source.source}</div>
+                        <div className="text-sm text-gray-600">
+                          {source.medium} • {source.campaign}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-medium">{source.visits.toLocaleString()}</div>
-                    <div className="text-sm text-gray-600">
-                      {source.conversionRate.toFixed(1)}% conv.
+                    <div className="text-right">
+                      <div className="font-medium">{source.signups.toLocaleString()}</div>
+                      <div className="text-sm text-gray-600">signups</div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* UTM Link */}
-          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-            <h4 className="font-semibold text-blue-900 mb-2">Tracking Link</h4>
-            <div className="text-sm text-blue-700 break-all">
-              https://www.nativespeaking.ai?utm_source=threads&utm_medium=social&utm_campaign=productlaunch
-            </div>
-            <div className="text-xs text-blue-600 mt-1">
-              Use this link to track traffic from social media campaigns
-            </div>
-          </div>
         </div>
       </CardContent>
     </Card>

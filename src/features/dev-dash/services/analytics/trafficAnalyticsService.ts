@@ -36,10 +36,10 @@ export const trafficAnalyticsService = {
   async getTrafficData(timePeriod: TimePeriod = '30d'): Promise<TrafficData> {
     const { startDate, daysToShow } = getDateRange(timePeriod);
 
-    // Build the query based on time period
+    // Build the query to get users with UTM data
     let query = supabase
       .from('user_profiles')
-      .select('id, created_at, email')
+      .select('id, created_at, utm_source, utm_medium, utm_campaign, utm_content, utm_term')
       .order('created_at', { ascending: true });
     
     // Only add date filter if not "all time"
@@ -51,34 +51,62 @@ export const trafficAnalyticsService = {
 
     if (error) throw error;
 
-    // Sources - you can add more sources here
-    const trafficSources: TrafficSource[] = [
-      {
-        source: 'threads',
-        medium: 'social',
-        campaign: 'productlaunch',
-        visits: 0,
-        conversions: users?.length || 0,
-        conversionRate: 0
-      }
-    ];
-
-    // Calculate conversion rate
-    const estimatedVisits = (users?.length || 0) * 3;
-    trafficSources[0].visits = estimatedVisits;
-    trafficSources[0].conversionRate = estimatedVisits > 0 ? 
-      ((users?.length || 0) / estimatedVisits) * 100 : 0;
-
-    // Generate daily traffic data
-    const dailyTraffic: DailyTraffic[] = [];
-    const totalVisits = trafficSources.reduce((sum, source) => sum + source.visits, 0);
-    const totalConversions = trafficSources.reduce((sum, source) => sum + source.conversions, 0);
+    // Group users by UTM source, medium, and campaign
+    const sourceGroups: { [key: string]: TrafficSource } = {};
+    let directTraffic = 0;
     
-    // Group users by registration date
-    const usersByDate: { [key: string]: number } = {};
+    users?.forEach(user => {
+      const source = user.utm_source || 'direct';
+      const medium = user.utm_medium || 'none';
+      const campaign = user.utm_campaign || 'none';
+      
+      const key = `${source}-${medium}-${campaign}`;
+      
+      if (source === 'direct') {
+        directTraffic++;
+        return;
+      }
+      
+      if (!sourceGroups[key]) {
+        sourceGroups[key] = {
+          source,
+          medium,
+          campaign,
+          signups: 0
+        };
+      }
+      
+      sourceGroups[key].signups++;
+    });
+
+    // Convert to array - no fake calculations
+    const trafficSources: TrafficSource[] = Object.values(sourceGroups);
+
+    // Add direct traffic as a source if we have any
+    if (directTraffic > 0) {
+      trafficSources.push({
+        source: 'direct',
+        medium: 'none',
+        campaign: 'none',
+        signups: directTraffic
+      });
+    }
+
+    // Generate daily traffic data with UTM source breakdown
+    const dailyTraffic: DailyTraffic[] = [];
+    const totalSignups = trafficSources.reduce((sum, source) => sum + source.signups, 0);
+    
+    // Group users by registration date AND UTM source
+    const usersByDateAndSource: { [key: string]: { [key: string]: number } } = {};
     users?.forEach(user => {
       const date = new Date(user.created_at).toISOString().split('T')[0];
-      usersByDate[date] = (usersByDate[date] || 0) + 1;
+      const source = user.utm_source || 'direct';
+      
+      if (!usersByDateAndSource[date]) {
+        usersByDateAndSource[date] = {};
+      }
+      
+      usersByDateAndSource[date][source] = (usersByDateAndSource[date][source] || 0) + 1;
     });
 
     // Generate daily data using daysToShow from utility function
@@ -87,21 +115,18 @@ export const trafficAnalyticsService = {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
       
-      const dailyConversions = usersByDate[dateStr] || 0;
-      const dailyVisits = dailyConversions * 3;
+      const sourcesForDay = usersByDateAndSource[dateStr] || {};
+      const dailySignups = Object.values(sourcesForDay).reduce((sum, count) => sum + count, 0);
       
       dailyTraffic.push({
         date: dateStr,
-        visits: dailyVisits,
-        conversions: dailyConversions,
-        conversionRate: dailyVisits > 0 ? (dailyConversions / dailyVisits) * 100 : 0
+        signups: dailySignups,
+        sources: sourcesForDay
       });
     }
     
     return {
-      totalVisits,
-      totalConversions,
-      overallConversionRate: totalVisits > 0 ? (totalConversions / totalVisits) * 100 : 0,
+      totalSignups,
       sources: trafficSources,
       dailyTraffic,
       timePeriod
@@ -111,10 +136,13 @@ export const trafficAnalyticsService = {
   async getTrafficBySource(source: string, medium: string, campaign: string, timePeriod: TimePeriod = '30d'): Promise<TrafficSource> {
     const { startDate } = getDateRange(timePeriod);
     
-    // Build query
+    // Build query to filter by specific UTM parameters
     let query = supabase
       .from('user_profiles')
       .select('id, created_at')
+      .eq('utm_source', source)
+      .eq('utm_medium', medium)
+      .eq('utm_campaign', campaign)
       .order('created_at', { ascending: false });
     
     if (startDate) {
@@ -125,16 +153,13 @@ export const trafficAnalyticsService = {
     
     if (error) throw error;
     
-    const conversions = users?.length || 0;
-    const visits = conversions * 3;
+    const signups = users?.length || 0;
     
     return {
       source,
       medium,
       campaign,
-      visits,
-      conversions,
-      conversionRate: visits > 0 ? (conversions / visits) * 100 : 0
+      signups
     };
   }
 };

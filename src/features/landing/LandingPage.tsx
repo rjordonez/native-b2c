@@ -18,7 +18,6 @@ const LandingPage = () => {
   
   useEffect(() => {
     
-    // Check if user is authenticated and redirect to library
     const captureUTMParams = () => {
       const urlParams = new URLSearchParams(window.location.search);
 
@@ -33,7 +32,6 @@ const LandingPage = () => {
       // Only store if we have UTM data
       if (utmData.utm_source || utmData.utm_medium || utmData.utm_campaign) {
         localStorage.setItem('utm_data', JSON.stringify(utmData));
-        console.log('UTM data captured:', utmData);
       }
     };
 
