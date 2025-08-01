@@ -5,3 +5,5 @@ export { UserGrowthChart } from './UserGrowthChart';
 export { PracticeSessionChart } from './PracticeSessionChart';
 export { UserListPage } from './UserListPage';
 export { UserDetailModal } from './UserDetailModal';
+export { TrafficCard } from './TrafficCard';
+export { TrafficChart } from './TrafficChart';

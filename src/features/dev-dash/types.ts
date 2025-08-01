@@ -20,6 +20,33 @@ export interface SystemStats {
   lastUpdated: string;
 }
 
+export interface TrafficSource {
+  source: string;
+  medium: string;
+  campaign: string;
+  visits: number;
+  conversions: number;
+  conversionRate:number;
+}
+
+export type TimePeriod = 'all' | '30d' | '7d' | '1d';
+
+export interface TrafficData {
+  totalVisits: number;
+  totalConversions: number;
+  overallConversionRate: number;
+  sources: TrafficSource[];
+  dailyTraffic: DailyTraffic[];
+  timePeriod: TimePeriod;
+}
+
+export interface DailyTraffic {
+  date: string;
+  visits: number;
+  conversions: number;
+  conversionRate: number;
+}
+
 export interface DevDashState {
   userAnalytics: UserAnalytics | null;
   databaseMetrics: DatabaseMetrics | null;
@@ -28,6 +55,7 @@ export interface DevDashState {
   userGrowthData: UserGrowthData[] | null;
   practiceSessionData: PracticeSessionData[] | null;
   topicData: TopicData[] | null;
+  trafficData: TrafficData | null;
   userDetailModal: UserDetailModalState;
   loading: {
     userAnalytics: boolean;
@@ -38,6 +66,7 @@ export interface DevDashState {
     practiceSessionData: boolean;
     topicData: boolean;
     completeUserData: boolean;
+    trafficData: boolean
   };
   error: {
     userAnalytics: string | null;
@@ -48,6 +77,7 @@ export interface DevDashState {
     practiceSessionData: string | null;
     topicData: string | null;
     completeUserData: string | null;
+    trafficData: string | null;
   };
 }
 
@@ -167,3 +197,4 @@ export interface UserDetailModalState {
   isOpen: boolean;
   view: 'conversations' | 'messages';
 }
+

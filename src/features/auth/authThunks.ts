@@ -109,6 +109,8 @@ export const completeOnboarding = createAsyncThunk<
       throw new Error('User not authenticated');
     }
 
+    // Get UTM data from localStorage
+
     // Generate default gradient avatar
     const avatarUrl = generateDefaultAvatar(user.email || user.id, onboardingData.fullName);
 

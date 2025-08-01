@@ -9,7 +9,8 @@ import {
   fetchPracticeSessionData,
   fetchTopicData,
   fetchCompleteUserData,
-  fetchConversationMessages
+  fetchConversationMessages,
+  fetchTrafficData,
 } from './devDashThunks';
 
 const initialState: DevDashState = {
@@ -31,6 +32,7 @@ const initialState: DevDashState = {
     isOpen: false,
     view: 'conversations',
   },
+  trafficData: null,
   loading: {
     userAnalytics: false,
     databaseMetrics: false,
@@ -40,6 +42,7 @@ const initialState: DevDashState = {
     practiceSessionData: false,
     topicData: false,
     completeUserData: false,
+    trafficData: false,
   },
   error: {
     userAnalytics: null,
@@ -50,6 +53,7 @@ const initialState: DevDashState = {
     practiceSessionData: null,
     topicData: null,
     completeUserData: null,
+    trafficData: null,
   },
 };
 
@@ -67,6 +71,7 @@ const devDashSlice = createSlice({
         practiceSessionData: null,
         topicData: null,
         completeUserData: null,
+        trafficData: null,
       };
     },
     refreshAllData: () => {
@@ -231,7 +236,21 @@ const devDashSlice = createSlice({
       .addCase(fetchConversationMessages.rejected, (state, action) => {
         state.userDetailModal.messagesLoading = false;
         state.userDetailModal.messagesError = action.payload as string;
-      });
+      })
+
+    // Traffic Data
+      .addCase(fetchTrafficData.pending, (state) => {
+        state.loading.trafficData = true;
+        state.error.trafficData = null;
+      })
+      .addCase(fetchTrafficData.fulfilled, (state, action) => {
+        state.loading.trafficData = false;
+        state.trafficData = action.payload;
+      })
+      .addCase(fetchTrafficData.rejected, (state, action) => {
+        state.loading.trafficData = false;
+        state.error.trafficData = action.payload as string;
+      })
   },
 });
 
@@ -247,7 +266,8 @@ export {
   fetchPracticeSessionData,
   fetchTopicData,
   fetchCompleteUserData,
-  fetchConversationMessages
+  fetchConversationMessages,
+  fetchTrafficData,
 } from './devDashThunks';
 
 export default devDashSlice.reducer;

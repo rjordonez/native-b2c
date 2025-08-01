@@ -1,6 +1,8 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import { devDashService } from './services/devDashService';
 import { UserAnalytics, DatabaseMetrics, SystemStats, UserDetail, PracticeSessionData, TopicData, CompleteUserData } from './types';
+import { TrafficData, TimePeriod } from './types';
+import { createAvatarScope } from '@radix-ui/react-avatar';
 
 // Async thunks
 export const fetchUserAnalytics = createAsyncThunk(
@@ -139,6 +141,18 @@ export const fetchConversationMessages = createAsyncThunk(
       return { conversationId, messages };
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch conversation messages');
+    }
+  }
+);
+
+export const fetchTrafficData = createAsyncThunk(
+  'devDash/fetchTrafficData',
+  async (timePeriod: TimePeriod = '30d', { rejectWithValue }) => {
+    try {
+      const trafficData = await devDashService.getTrafficData(timePeriod);
+      return trafficData as TrafficData;
+    } catch (error) {
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch traffic data');
     }
   }
 );

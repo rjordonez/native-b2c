@@ -17,7 +17,27 @@ const LandingPage = () => {
   const navigate = useNavigate();
   
   useEffect(() => {
+    
     // Check if user is authenticated and redirect to library
+    const captureUTMParams = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+
+      const utmData = {
+        utm_source: urlParams.get('utm_source'),
+        utm_medium: urlParams.get('utm_medium'),
+        utm_campaign: urlParams.get('utm_campaign'),
+        utm_content: urlParams.get('utm_content'),
+        utm_term: urlParams.get('utm_term')
+      };
+
+      // Only store if we have UTM data
+      if (utmData.utm_source || utmData.utm_medium || utmData.utm_campaign) {
+        localStorage.setItem('utm_data', JSON.stringify(utmData));
+        console.log('UTM data captured:', utmData);
+      }
+    };
+
+    captureUTMParams();
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {

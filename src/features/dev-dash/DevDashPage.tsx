@@ -8,16 +8,30 @@ import {
   fetchUserGrowthData,
   fetchPracticeSessionData,
   fetchTopicData,
+  fetchTrafficData,
   clearErrors 
 } from './devDashSlice';
-import { UserAnalyticsCard, DatabaseMetricsCard, SystemStatsCard, UserGrowthChart, PracticeSessionChart, UserListPage, UserDetailModal } from './components';
+import { 
+  UserAnalyticsCard, 
+  DatabaseMetricsCard, 
+  SystemStatsCard, 
+  UserGrowthChart, 
+  PracticeSessionChart, 
+  UserListPage, 
+  UserDetailModal,
+  TrafficCard,
+  TrafficChart
+} from './components';
 import { Button } from '../../shared/components/layout/ui/button';
+import { TimePeriod } from './types';
 
-type TabType = 'overview' | 'users';
+type TabType = 'overview' | 'users' | 'traffic';
 
 export const DevDashPage: React.FC = () => {
   const dispatch = useAppDispatch();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
+  const [trafficTimePeriod, setTrafficTimePeriod] = useState<TimePeriod>('30d');
+  
   const { 
     userAnalytics, 
     databaseMetrics, 
@@ -26,6 +40,7 @@ export const DevDashPage: React.FC = () => {
     userGrowthData,
     practiceSessionData,
     topicData,
+    trafficData,
     loading, 
     error 
   } = useAppSelector((state) => state.devDash);
@@ -38,10 +53,11 @@ export const DevDashPage: React.FC = () => {
     dispatch(fetchUserGrowthData());
     dispatch(fetchPracticeSessionData());
     dispatch(fetchTopicData());
+    dispatch(fetchTrafficData(trafficTimePeriod));
 
     // Clear any previous errors
     dispatch(clearErrors());
-  }, [dispatch]);
+  }, [dispatch, trafficTimePeriod]);
 
   const handleRefresh = () => {
     dispatch(clearErrors());
@@ -51,12 +67,18 @@ export const DevDashPage: React.FC = () => {
     dispatch(fetchUserGrowthData());
     dispatch(fetchPracticeSessionData());
     dispatch(fetchTopicData());
+    dispatch(fetchTrafficData(trafficTimePeriod));
   };
 
-  const isAnyLoading = loading.userAnalytics || loading.databaseMetrics || loading.systemStats || loading.userGrowthData || loading.practiceSessionData || loading.topicData;
+  const isAnyLoading = loading.userAnalytics || loading.databaseMetrics || loading.systemStats || loading.userGrowthData || loading.practiceSessionData || loading.topicData || loading.trafficData;
 
   const handleFetchUserDetails = () => {
     dispatch(fetchUserDetails());
+  };
+
+  const handleTrafficPeriodChange = (period: TimePeriod) => {
+    setTrafficTimePeriod(period);
+    dispatch(fetchTrafficData(period));
   };
 
   return (
@@ -99,6 +121,16 @@ export const DevDashPage: React.FC = () => {
               }`}
             >
               User List
+            </button>
+            <button
+              onClick={() => setActiveTab('traffic')}
+              className={`px-6 py-3 text-sm font-medium rounded-md transition-colors ${
+                activeTab === 'traffic'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Traffic
             </button>
           </div>
         </div>
@@ -163,6 +195,27 @@ export const DevDashPage: React.FC = () => {
             error={error.userDetails}
             onFetchUserDetails={handleFetchUserDetails}
           />
+        )}
+
+        {activeTab === 'traffic' && (
+          <div className="space-y-6">
+            {/* Traffic Overview */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TrafficCard
+                trafficData={trafficData}
+                loading={loading.trafficData}
+                error={error.trafficData}
+                selectedPeriod={trafficTimePeriod}
+                onPeriodChange={handleTrafficPeriodChange}
+              />
+              
+              <TrafficChart
+                data={trafficData?.dailyTraffic || null}
+                loading={loading.trafficData}
+                error={error.trafficData}
+              />
+            </div>
+          </div>
         )}
 
         {/* Additional Info */}
