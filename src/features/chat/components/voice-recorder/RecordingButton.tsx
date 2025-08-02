@@ -84,7 +84,7 @@ const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop, onCa
             onCancel();
           }
         }}
-        className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors mr-2"
+        className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors mr-2"
         title="Cancel recording"
       >
         <X size={16} />

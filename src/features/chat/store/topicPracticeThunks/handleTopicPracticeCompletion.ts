@@ -8,6 +8,26 @@ import { completeChecklistForPart } from '../../../../store/slices/dashboard/das
 import { generateMessageId } from '../../../../utils/idGenerator';
 import { getIeltsScore } from '../../services/ieltsService';
 
+// Helper function to get conversational completion messages
+const getCompletionMessage = (currentQuestionIndex: number, totalQuestions: number): string => {
+  const questionNumber = currentQuestionIndex + 1;
+  const remaining = totalQuestions - questionNumber;
+  
+  const messages = [
+    `Nice! You've finished question ${questionNumber}. Hit the next arrow whenever you're ready to keep going - ${remaining} more to go!`,
+    `Great job on question ${questionNumber}! When you feel ready, just tap that next arrow and we'll jump into question ${questionNumber + 1}.`,
+    `You're done with question ${questionNumber} - that's ${questionNumber} down, ${remaining} to go! Take your time, and click next when you want to continue.`,
+    `Question ${questionNumber} complete! 🎯 Ready for the next one? Just hit the arrow when you are.`,
+    `Question ${questionNumber} is in the books! Feel free to move on to question ${questionNumber + 1} whenever - just click that next arrow.`,
+    `Awesome work on question ${questionNumber}! ${remaining} more to tackle. Click next when you're ready to continue.`,
+    `That's question ${questionNumber} done! ✓ Take a moment if you need, then hit next for question ${questionNumber + 1}.`,
+  ];
+  
+  // Use question index to pick a message (cycling through available messages)
+  const messageIndex = currentQuestionIndex % messages.length;
+  return messages[messageIndex];
+};
+
 // Handle topic practice completion message
 export const handleTopicPracticeCompletion = createAsyncThunk<
   void,
@@ -98,16 +118,14 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
           dispatch(setTopicCompleted());
         }
       } else {
-        // Not the last question - regular completion message
-        messageContent = `You have completed question ${currentIndex + 1} out of ${totalQuestions}.`;
+        // Not the last question - use conversational completion message
+        messageContent = getCompletionMessage(currentIndex, totalQuestions);
         
         // Add IELTS score if available
         if (ieltsScore) {
           const bandEmoji = ieltsScore.overallBand >= 7 ? '🌟' : ieltsScore.overallBand >= 6 ? '✨' : '💪';
-          messageContent += `\n\n${bandEmoji} Your IELTS Band Score: ${ieltsScore.overallBand}`;
+          messageContent = `${bandEmoji} Your IELTS Band Score: ${ieltsScore.overallBand}\n\n${messageContent}`;
         }
-        
-        messageContent += `\n\nWhenever you're ready, just click the next arrow to move on to the next question.`;
       }
       
       const completionMessage = {
