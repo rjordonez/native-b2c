@@ -9,7 +9,7 @@ const VoiceRecorder: React.FC = () => {
   const recordingState = useAppSelector(selectRecordingState);
   
   const { mediaRecorderRef, durationRef, initializeRecorder } = useMediaRecorder();
-  const { handleClear } = useRecordingHandlers({
+  const { handleStartRecording, handleStopRecording, handleClear } = useRecordingHandlers({
     mediaRecorderRef,
     durationRef,
     initializeRecorder
@@ -17,11 +17,11 @@ const VoiceRecorder: React.FC = () => {
 
   // Render different states
   if (recordingState === 'idle') {
-    return <IdleState />;
+    return <IdleState onStartRecording={handleStartRecording} onStopRecording={handleStopRecording} />;
   }
 
   if (recordingState === 'recording') {
-    return <RecordingState />;
+    return <RecordingState onStartRecording={handleStartRecording} onStopRecording={handleStopRecording} />;
   }
 
   if (recordingState === 'recorded' || recordingState === 'playing') {

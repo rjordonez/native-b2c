@@ -4,7 +4,6 @@ import {
   selectRecordingState,
   startRecording,
   updateRecordingDuration,
-  setIsPressed,
   clearRecording
 } from '../../store/voiceRecordingSlice';
 
@@ -23,11 +22,9 @@ export const useRecordingHandlers = ({
   const recordingState = useAppSelector(selectRecordingState);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Start recording when space is pressed
-  const handleMouseDown = async () => {
+  // Start recording when clicked
+  const handleStartRecording = async () => {
     if (recordingState !== 'idle') return;
-    
-    dispatch(setIsPressed(true));
     
     // Reset duration before starting
     durationRef.current = 0;
@@ -37,7 +34,8 @@ export const useRecordingHandlers = ({
     
     if (success && mediaRecorderRef.current) {
       dispatch(startRecording());
-      mediaRecorderRef.current.start();
+      // Start with 100ms timeslice to ensure data is collected regularly
+      mediaRecorderRef.current.start(100);
       
       // Start timer
       recordingTimerRef.current = setInterval(() => {
@@ -47,46 +45,20 @@ export const useRecordingHandlers = ({
     }
   };
 
-  // Stop recording when space is released
-  const handleMouseUp = () => {
+  // Stop recording when clicked
+  const handleStopRecording = () => {
     if (recordingState !== 'recording') return;
-    
-    dispatch(setIsPressed(false));
-    
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
     
     if (recordingTimerRef.current) {
       clearInterval(recordingTimerRef.current);
       recordingTimerRef.current = null;
     }
+    
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      // Stop the recording
+      mediaRecorderRef.current.stop();
+    }
   };
-
-  // Handle keyboard events
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && !event.repeat && recordingState === 'idle') {
-        event.preventDefault();
-        handleMouseDown();
-      }
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && recordingState === 'recording') {
-        event.preventDefault();
-        handleMouseUp();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [recordingState]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -104,8 +76,8 @@ export const useRecordingHandlers = ({
   };
 
   return {
-    handleMouseDown,
-    handleMouseUp,
+    handleStartRecording,
+    handleStopRecording,
     handleClear
   };
 };
