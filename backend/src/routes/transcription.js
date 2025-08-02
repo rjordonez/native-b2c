@@ -96,8 +96,8 @@ router.post('/transcribe-with-pronunciation', upload.single('audio'), async (req
     if (transcriptionResult.text && transcriptionResult.text.trim().length > 0) {
       try {
         const pronunciationStartTime = Date.now();
-        // Use provided reference text if available, otherwise use transcribed text
-        const referenceText = req.body.referenceText || transcriptionResult.text.trim();
+        // Use transcribed text as reference
+        const referenceText = transcriptionResult.text.trim();
         
         logger.info(`[${requestId}] Using reference text for pronunciation: "${referenceText}"`);
         
@@ -116,9 +116,12 @@ router.post('/transcribe-with-pronunciation', upload.single('audio'), async (req
           const pronunciationTime = Date.now() - pronunciationStartTime;
           
           // Transform the pronunciation result to match chat message format
+          // Use the transcribed text to maintain proper capitalization
+          const transcribedWords = referenceText.split(' ');
           pronunciationResult = {
-            words: rawPronunciationResult.wordScores.map(wordScore => ({
-              text: wordScore.word,
+            words: rawPronunciationResult.wordScores.map((wordScore, index) => ({
+              // Use the word from transcribed text if available to preserve capitalization
+              text: transcribedWords[index] || wordScore.word,
               score: wordScore.score,
               phonemes: wordScore.phonemes || []
             })),

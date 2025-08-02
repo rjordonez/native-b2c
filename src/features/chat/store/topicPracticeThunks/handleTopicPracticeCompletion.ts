@@ -9,7 +9,7 @@ import { generateMessageId } from '../../../../utils/idGenerator';
 import { getIeltsScore } from '../../services/ieltsService';
 
 // Helper function to get conversational completion messages
-const getCompletionMessage = (currentQuestionIndex: number, totalQuestions: number): string => {
+const getCompletionMessage = (currentQuestionIndex: number, totalQuestions: number, messageCount: number = 0): string => {
   const questionNumber = currentQuestionIndex + 1;
   const remaining = totalQuestions - questionNumber;
   
@@ -23,8 +23,9 @@ const getCompletionMessage = (currentQuestionIndex: number, totalQuestions: numb
     `That's question ${questionNumber} done! ✓ Take a moment if you need, then hit next for question ${questionNumber + 1}.`,
   ];
   
-  // Use question index to pick a message (cycling through available messages)
-  const messageIndex = currentQuestionIndex % messages.length;
+  // Use the total message count to pick a message (cycling through available messages)
+  // This ensures variety even when multiple recordings are made for the same question
+  const messageIndex = messageCount % messages.length;
   return messages[messageIndex];
 };
 
@@ -67,9 +68,14 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
           // Get IELTS score for the transcript
           if (latestVoiceMessage.transcription?.text) {
             try {
+              // Get the current question text
+              const currentQuestion = topicPractice.questions[currentIndex];
+              const questionText = currentQuestion?.text || '';
+              
               const scoreResult = await getIeltsScore(
                 latestVoiceMessage.transcription.text,
-                topicPart
+                topicPart,
+                questionText
               );
               
               if (scoreResult.success && scoreResult.score) {
@@ -119,7 +125,14 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
         }
       } else {
         // Not the last question - use conversational completion message
-        messageContent = getCompletionMessage(currentIndex, totalQuestions);
+        // Count how many completion messages we've sent for variety
+        const completionMessageCount = activeConversation ? 
+          activeConversation.messages.filter(msg => 
+            msg.sender === 'assistant' && 
+            msg.content.includes('finished question')
+          ).length : 0;
+        
+        messageContent = getCompletionMessage(currentIndex, totalQuestions, completionMessageCount);
         
         // Add IELTS score if available
         if (ieltsScore) {

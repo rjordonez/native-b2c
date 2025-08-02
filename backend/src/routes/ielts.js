@@ -13,7 +13,7 @@ router.post('/score', async (req, res) => {
   logger.info(`[${requestId}] IELTS scoring request received`);
   
   try {
-    const { transcript, questionType } = req.body;
+    const { transcript, questionType, questionText } = req.body;
     
     // Validate input
     if (!transcript) {
@@ -26,7 +26,7 @@ router.post('/score', async (req, res) => {
     const startTime = Date.now();
     
     // Score the transcript
-    const score = await scoreTranscript(transcript, questionType);
+    const score = await scoreTranscript(transcript, questionType, questionText);
     
     const processingTime = Date.now() - startTime;
     

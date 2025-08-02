@@ -40,10 +40,11 @@ export interface IeltsScoreResponse {
  */
 export const getIeltsScore = async (
   transcript: string,
-  questionType: string = 'Part 1'
+  questionType: string = 'Part 1',
+  questionText?: string
 ): Promise<IeltsScoreResponse> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/ielts/score`, {
+    const response = await fetch(`${API_BASE_URL}/ielts/score`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -51,6 +52,7 @@ export const getIeltsScore = async (
       body: JSON.stringify({
         transcript,
         questionType,
+        questionText,
       }),
     });
 

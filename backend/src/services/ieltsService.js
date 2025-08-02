@@ -10,9 +10,10 @@ const openai = new OpenAI({
  * Analyze transcript and provide IELTS band score
  * @param {string} transcript - The transcript text to analyze
  * @param {string} questionType - Type of IELTS question (Part 1, Part 2, Part 3)
+ * @param {string} questionText - The actual question asked (optional)
  * @returns {Promise<Object>} - IELTS score with detailed feedback
  */
-const scoreTranscript = async (transcript, questionType = 'Part 1') => {
+const scoreTranscript = async (transcript, questionType = 'Part 1', questionText = '') => {
   try {
     if (!transcript || transcript.trim().length === 0) {
       throw new Error('Transcript is required and cannot be empty');
@@ -23,6 +24,7 @@ const scoreTranscript = async (transcript, questionType = 'Part 1') => {
     const prompt = `You are an expert IELTS Speaking examiner. Analyze this student's response and provide a band score.
 
 Question Type: ${questionType}
+${questionText ? `Question: "${questionText}"` : ''}
 Student Response: "${transcript}"
 
 Evaluate based on IELTS Speaking criteria:
@@ -30,6 +32,8 @@ Evaluate based on IELTS Speaking criteria:
 2. Lexical Resource (25%)
 3. Grammatical Range and Accuracy (25%)
 4. Pronunciation indicators from text (25%)
+
+${questionText ? 'Also consider: Is the response relevant and appropriate to the question asked?' : ''}
 
 Provide your response in this exact JSON format:
 {
