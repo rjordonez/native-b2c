@@ -127,7 +127,16 @@ export const PronunciationModal: React.FC = () => {
         {/* Header */}
         <div className="px-6 py-4 flex justify-between items-center border-b border-gray-200">
           <div className="flex items-center gap-4">
-            {/* Empty div for layout consistency */}
+            {/* Skip button for word practice */}
+            {modalState.type === 'word' && !modalState.showResults && (
+              <button
+                onClick={handleSkip}
+                className="px-3 py-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+                title="Skip this word"
+              >
+                Skip
+              </button>
+            )}
           </div>
           <button
             onClick={closeModalHandler}
@@ -173,18 +182,6 @@ export const PronunciationModal: React.FC = () => {
                 </div>
               )}
               
-              {/* Skip button - positioned at bottom right for word practice */}
-              {modalState.type === 'word' && !modalState.showResults && (
-                <div className="absolute right-6 bottom-6">
-                  <button
-                    onClick={handleSkip}
-                    className="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
-                    title="Skip this word"
-                  >
-                    Skip
-                  </button>
-                </div>
-              )}
             </>
           )}
         </div>

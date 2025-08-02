@@ -52,7 +52,7 @@ export const WordPracticeView: React.FC<WordPracticeViewProps> = ({
         body: JSON.stringify({
           text: word.text,
           voiceName: 'en-US-Journey-F',
-          speakingRate: 1.0 // Normal speed
+          speakingRate: 0.95 // Slower speed for word practice
         }),
       });
 
