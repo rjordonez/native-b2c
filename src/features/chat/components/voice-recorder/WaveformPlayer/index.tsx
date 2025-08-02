@@ -15,6 +15,7 @@ import {
   sendMessage,
   updateMessage
 } from '../../../store/conversationSlice';
+import { selectTopicPractice } from '../../../store/topicPracticeSlice';
 import { PlayControls } from './PlayControls';
 import { ActionButtons } from './ActionButtons';
 import { DurationWarning } from './DurationWarning';
@@ -31,6 +32,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
   const mimeType = useAppSelector(selectMimeType);
   const recordingDuration = useAppSelector(selectRecordingDuration);
   const activeConversationId = useAppSelector(selectActiveConversationId);
+  const topicPractice = useAppSelector(selectTopicPractice);
   
   const {
     waveformRef,
@@ -59,12 +61,13 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
     // Generate unique message ID for tracking transcription
     const messageId = `msg-${Date.now()}-user`;
 
-    // Add voice message to chat with the generated ID
+    // Add voice message to chat with the generated ID and question index
     dispatch(addUserMessage({
       conversationId: activeConversationId,
       content: 'Voice message',
       audioData: audioData || undefined,
-      messageId
+      messageId,
+      questionIndex: topicPractice.currentQuestionIndex
     }));
 
     // Update message with initial loading states for transcription and pronunciation

@@ -5,6 +5,7 @@ import { Conversation } from '../types';
 import { enhanceTranscript } from '../store/topicPracticeThunks';
 import { openModalWithSentences } from '../../pronunciation/pronunciationSlice';
 import VoiceMessage from './VoiceMessage';
+import MessageContent from './MessageContent';
 
 
 interface ChatMessagesProps {
@@ -81,9 +82,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                     : msg.isEnhanced ? 'bg-gray-50 border border-gray-100 text-gray-900 rounded-bl-sm' : 'bg-gray-100 text-gray-900 rounded-bl-sm'
                 }`}
               >
-                <div className="text-sm leading-relaxed">
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                </div>
+                <MessageContent content={msg.content} />
                 
                 {/* Shadow sentence and Enhance transcript buttons for enhanced messages */}
                 {msg.isEnhanced && msg.sender === 'assistant' && (
@@ -92,7 +91,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                       onClick={() => handleShadowSentence(msg.content)}
                       className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors"
                     >
-                      Shadow sentence
+                      Shadow response
                     </button>
                     <button
                       onClick={() => handleEnhanceTranscript(msg.content)}

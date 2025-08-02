@@ -32,8 +32,8 @@ export const conversationSlice = createSlice({
     setActiveConversation: (state, action: PayloadAction<string | null>) => {
       state.activeConversationId = action.payload;
     },
-    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string; audioData?: string; messageId?: string }>) => {
-      const { conversationId, content, audioUrl, audioData, messageId } = action.payload;
+    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string; audioData?: string; messageId?: string; questionIndex?: number }>) => {
+      const { conversationId, content, audioUrl, audioData, messageId, questionIndex } = action.payload;
       const conversation = state.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
@@ -44,6 +44,7 @@ export const conversationSlice = createSlice({
           timestamp: new Date().toISOString(),
           audioUrl,
           audioData,
+          questionIndex,
         };
         
         conversation.messages.push(userMessage);
