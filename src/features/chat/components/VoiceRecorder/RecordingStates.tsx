@@ -20,12 +20,13 @@ export const IdleState: React.FC<IdleStateProps> = ({ onStartRecording, onStopRe
 interface RecordingStateProps {
   onStartRecording: () => void;
   onStopRecording: () => void;
+  onCancelRecording: () => void;
 }
 
-export const RecordingState: React.FC<RecordingStateProps> = ({ onStartRecording, onStopRecording }) => {
+export const RecordingState: React.FC<RecordingStateProps> = ({ onStartRecording, onStopRecording, onCancelRecording }) => {
   return (
     <div className="flex flex-col items-center gap-4 animate-fade-in w-full max-w-md">
-      <RecordingButton onStart={onStartRecording} onStop={onStopRecording} />
+      <RecordingButton onStart={onStartRecording} onStop={onStopRecording} onCancel={onCancelRecording} />
     </div>
   );
 };

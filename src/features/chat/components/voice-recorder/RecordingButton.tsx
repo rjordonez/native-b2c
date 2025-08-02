@@ -8,9 +8,10 @@ import { formatDuration } from '@/shared/utils/audio';
 interface RecordingButtonProps {
   onStart: () => void;
   onStop: () => void;
+  onCancel?: () => void;
 }
 
-const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop }) => {
+const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop, onCancel }) => {
   const dispatch = useAppDispatch();
   const recordingState = useAppSelector(selectRecordingState);
   const recordingDuration = useAppSelector(selectRecordingDuration);
@@ -46,19 +47,8 @@ const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop }) =>
   // Clean inline design when recording (similar to waveform player)
   return (
     <div className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm">
-      {/* Cancel button (X) */}
-      <button
-        onClick={() => {
-          dispatch(clearRecording());
-        }}
-        className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-        title="Cancel recording"
-      >
-        <X size={16} />
-      </button>
-
       {/* Stop button */}
-      <div className="relative group ml-2">
+      <div className="relative group">
         <button
           onClick={handleClick}
           disabled={!hasMetMinimum}
@@ -87,9 +77,22 @@ const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop }) =>
         <span className="text-sm text-gray-600">Recording</span>
       </div>
 
+      {/* Cancel button (X) */}
+      <button
+        onClick={() => {
+          if (onCancel) {
+            onCancel();
+          }
+        }}
+        className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors mr-2"
+        title="Cancel recording"
+      >
+        <X size={16} />
+      </button>
+
       {/* Timer */}
       <span className="text-xs text-gray-500">
-        {formatDuration(recordingDuration)} / {formatDuration(minimumDuration)}
+        {recordingDuration}s
       </span>
     </div>
   );

@@ -17,26 +17,26 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({ onClick }) => {
   return (
     <div className="flex flex-col items-center gap-4">
       <div className="flex items-center gap-3">
-        {/* Cancel button */}
-        <button
-          onClick={() => dispatch(clearRecording())}
-          className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
-          title="Cancel recording"
-        >
-          <X size={20} />
-        </button>
-
-        {/* Recording time display */}
+        {/* Recording time display with cancel button */}
         <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${
           hasMetMinimum 
             ? 'bg-green-50 text-green-700' 
             : 'bg-gray-100 text-gray-700'
         }`}>
+          {/* Cancel button inside the time display */}
+          <button
+            onClick={() => dispatch(clearRecording())}
+            className="flex items-center justify-center w-5 h-5 rounded-full hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors -ml-1"
+            title="Cancel recording"
+          >
+            <X size={16} />
+          </button>
+          
           <div className={`w-2 h-2 rounded-full animate-pulse ${
             hasMetMinimum ? 'bg-green-500' : 'bg-red-500'
           }`} />
           <span className="text-lg font-medium font-mono">
-            {formatDuration(recordingDuration)}
+            {recordingDuration}s
           </span>
           {hasMetMinimum && <span className="text-green-600">✓</span>}
         </div>

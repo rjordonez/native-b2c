@@ -75,9 +75,38 @@ export const useRecordingHandlers = ({
     durationRef.current = 0;
   };
 
+  // Handle canceling recording (stops everything before clearing)
+  const handleCancelRecording = () => {
+    // Stop the timer
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    
+    // Stop the media recorder
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      try {
+        // Remove the onstop handler to prevent saving
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.stop();
+        
+        // Stop all tracks
+        const stream = mediaRecorderRef.current.stream;
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+      }
+    }
+    
+    // Clear the state
+    dispatch(clearRecording());
+    durationRef.current = 0;
+  };
+
   return {
     handleStartRecording,
     handleStopRecording,
-    handleClear
+    handleClear,
+    handleCancelRecording
   };
 };
