@@ -107,7 +107,7 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
           messageContent += `\n\n${bandEmoji} Your IELTS Band Score: ${ieltsScore.overallBand}`;
         }
         
-        messageContent += `\n\nLet me know when you want to go to the next question.`;
+        messageContent += `\n\nWhenever you're ready, just click the next arrow to move on to the next question.`;
       }
       
       const completionMessage = {
