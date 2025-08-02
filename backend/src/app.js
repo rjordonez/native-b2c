@@ -12,9 +12,36 @@ const app = express();
 // Security middleware
 app.use(helmet());
 
-// CORS configuration
+// CORS configuration with dynamic origin support
 const corsOptions = {
-  origin: config.allowedOrigins,
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or Postman)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (config.allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow Cloudflare tunnel domains
+    if (origin.includes('trycloudflare.com')) {
+      return callback(null, true);
+    }
+    
+    // Allow local network IPs for mobile testing
+    if (origin.match(/^https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/)) {
+      return callback(null, true);
+    }
+    
+    // Allow localhost variations
+    if (origin.match(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/)) {
+      return callback(null, true);
+    }
+    
+    // Log rejected origins for debugging
+    logger.warn(`CORS: Rejected origin ${origin}`);
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };

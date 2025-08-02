@@ -34,13 +34,17 @@ export const useRecordingHandlers = ({
     
     if (success && mediaRecorderRef.current) {
       dispatch(startRecording());
-      // Start with 100ms timeslice to ensure data is collected regularly
-      mediaRecorderRef.current.start(100);
       
-      // Start timer
+      // Use a larger timeslice for mobile (1 second) to ensure data collection
+      const timeslice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 1000 : 100;
+      mediaRecorderRef.current.start(timeslice);
+      
+      // Start timer - use Date.now() for more accurate timing on mobile
+      const startTime = Date.now();
       recordingTimerRef.current = setInterval(() => {
-        durationRef.current += 1;
-        dispatch(updateRecordingDuration(durationRef.current));
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        durationRef.current = elapsed;
+        dispatch(updateRecordingDuration(elapsed));
       }, 1000);
     }
   };

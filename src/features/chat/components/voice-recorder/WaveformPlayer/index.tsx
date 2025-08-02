@@ -123,7 +123,7 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
           minimumDuration={minimumDuration}
         />
       )}
-      <div className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm">
+      <div className="flex items-center justify-between w-full px-2 sm:px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm">
         <PlayControls
           isPlaying={isPlaying}
           currentTime={currentTime}

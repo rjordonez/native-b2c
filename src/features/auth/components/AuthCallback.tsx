@@ -10,6 +10,22 @@ const AuthCallback: React.FC = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        // Handle the hash fragment from OAuth callback
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        const accessToken = hashParams.get('access_token');
+        
+        if (accessToken) {
+          // Exchange the token for a session
+          const { data: { user }, error: userError } = await supabase.auth.getUser(accessToken);
+          
+          if (userError) {
+            console.error('User error:', userError);
+            setError('Authentication failed');
+            setTimeout(() => navigate('/auth'), 2000);
+            return;
+          }
+        }
+        
         // Get the session from the URL hash
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
         

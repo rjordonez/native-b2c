@@ -32,17 +32,17 @@ export const PlayControls: React.FC<PlayControlsProps> = ({
         )}
       </button>
 
-      {/* Wavesurfer Waveform */}
+      {/* Wavesurfer Waveform - responsive width */}
       <div className="flex-1 flex items-center justify-center">
         <div 
           ref={waveformRef}
-          className="w-40 h-8"
-          style={{ minWidth: '160px' }}
+          className="w-32 sm:w-40 h-8"
+          style={{ minWidth: '120px' }}
         />
       </div>
 
-      {/* Duration */}
-      <span className="text-xs text-gray-500 mx-2">
+      {/* Duration - smaller on mobile */}
+      <span className="text-[10px] sm:text-xs text-gray-500 mx-1 sm:mx-2 whitespace-nowrap">
         {formatDuration(currentTime)} / {formatDuration(totalDuration)}
       </span>
     </>
