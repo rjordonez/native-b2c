@@ -83,11 +83,11 @@ export const transcribeAudio = createAsyncThunk<
 
 export const transcribeWithPronunciation = createAsyncThunk<
   { messageId: string; transcription: TranscriptionData; pronunciation: PronunciationData },
-  { messageId: string; audioData: string; contentType?: string },
+  { messageId: string; audioData: string; contentType?: string; referenceText?: string },
   { dispatch: AppDispatch; state: RootState }
 >(
   'voiceRecording/transcribeWithPronunciation',
-  async ({ messageId, audioData, contentType }, { getState, dispatch, rejectWithValue }) => {
+  async ({ messageId, audioData, contentType, referenceText }, { getState, dispatch, rejectWithValue }) => {
     try {
       
       const result = await transcriptionApi.transcribeWithPronunciation(
@@ -96,7 +96,8 @@ export const transcribeWithPronunciation = createAsyncThunk<
         {
           speechModel: 'universal',
           punctuate: true,
-          formatText: true
+          formatText: true,
+          referenceText: referenceText
         }
       );
       

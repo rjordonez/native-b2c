@@ -89,14 +89,15 @@ router.post('/transcribe-with-pronunciation', upload.single('audio'), async (req
     
     logger.info(`[${requestId}] Transcription completed in ${transcriptionTime}ms, starting pronunciation analysis...`);
     
-    // Step 2: Run pronunciation analysis using the transcribed text
+    // Step 2: Run pronunciation analysis using the transcribed text or provided reference text
     let pronunciationResult = null;
     let pronunciationError = null;
     
     if (transcriptionResult.text && transcriptionResult.text.trim().length > 0) {
       try {
         const pronunciationStartTime = Date.now();
-        const referenceText = transcriptionResult.text.trim();
+        // Use provided reference text if available, otherwise use transcribed text
+        const referenceText = req.body.referenceText || transcriptionResult.text.trim();
         
         logger.info(`[${requestId}] Using reference text for pronunciation: "${referenceText}"`);
         

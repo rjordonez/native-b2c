@@ -92,11 +92,21 @@ const WaveformPlayer: React.FC<WaveformPlayerProps> = ({ onClear }) => {
       }
     }));
 
+    // Get current question text for pronunciation reference
+    let referenceText = undefined;
+    if (topicPractice.currentTopic && topicPractice.questions && topicPractice.currentQuestionIndex >= 0) {
+      const currentQuestion = topicPractice.questions[topicPractice.currentQuestionIndex];
+      if (currentQuestion) {
+        referenceText = currentQuestion.text;
+      }
+    }
+
     // Start transcription + pronunciation analysis process
     dispatch(transcribeWithPronunciation({
       messageId,
       audioData: audioData,
-      contentType: mimeType || 'audio/webm' // Use actual MIME type from recording
+      contentType: mimeType || 'audio/webm', // Use actual MIME type from recording
+      referenceText: referenceText
     }));
 
     // Send to AI (simulate)
