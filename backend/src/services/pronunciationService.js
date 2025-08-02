@@ -71,15 +71,18 @@ class PronunciationService {
    * @param {Buffer} audioBuffer - Audio data buffer
    * @param {string} referenceText - Text that should have been spoken
    * @param {string} contentType - MIME type of audio
+   * @param {Object} options - Additional options
+   * @param {boolean} options.skipIPA - Skip IPA conversion for performance (default: false)
    * @returns {Promise<Object>} Pronunciation assessment results
    */
-  async assessPronunciation(audioBuffer, referenceText, contentType = 'audio/wav') {
+  async assessPronunciation(audioBuffer, referenceText, contentType = 'audio/wav', options = {}) {
     logger.info('=== PRONUNCIATION ASSESSMENT STARTED ===');
     logger.info('Assessment parameters:', {
       audioSize: audioBuffer.length,
       referenceText: referenceText.substring(0, 100) + (referenceText.length > 100 ? '...' : ''),
       referenceTextLength: referenceText.length,
-      contentType
+      contentType,
+      options
     });
 
     try {
@@ -94,7 +97,7 @@ class PronunciationService {
       const azureResponse = await this._callAzureSpeechAPI(audioBuffer, pronunciationConfig, contentType);
       
       // Step 4: Parse and structure the response
-      const assessmentResult = await this._parseAzureResponse(azureResponse);
+      const assessmentResult = await this._parseAzureResponse(azureResponse, options);
       
       logger.info('=== PRONUNCIATION ASSESSMENT COMPLETED ===');
       logger.info('Assessment summary:', {
@@ -405,13 +408,17 @@ class PronunciationService {
           // Extract phoneme strings for IPA conversion
           const phonemeStrings = wordData.Phonemes.map(p => p.Phoneme);
           
-          // Convert to IPA with stress marks
-          try {
-            ipaTranscription = await IPAService.convertToIPA(phonemeStrings, word);
-            logger.info('IPA conversion successful', { word, phonemes: phonemeStrings, ipa: ipaTranscription });
-          } catch (error) {
-            logger.error('IPA conversion failed', { word, error: error.message });
-            // Continue without IPA if conversion fails
+          // Convert to IPA with stress marks (skip if option is set)
+          if (!options.skipIPA) {
+            try {
+              ipaTranscription = await IPAService.convertToIPA(phonemeStrings, word);
+              logger.info('IPA conversion successful', { word, phonemes: phonemeStrings, ipa: ipaTranscription });
+            } catch (error) {
+              logger.error('IPA conversion failed', { word, error: error.message });
+              // Continue without IPA if conversion fails
+            }
+          } else {
+            logger.debug('Skipping IPA conversion for performance', { word });
           }
           
           wordData.Phonemes.forEach(phonemeData => {
@@ -455,7 +462,7 @@ class PronunciationService {
    * Parse Azure Speech API response into structured result
    * @private
    */
-  async _parseAzureResponse(azureData) {
+  async _parseAzureResponse(azureData, options = {}) {
     logger.debug('Parsing Azure response...');
     logger.debug('Full Azure response:', JSON.stringify(azureData, null, 2));
     
@@ -511,13 +518,17 @@ class PronunciationService {
           // Extract phoneme strings for IPA conversion
           const phonemeStrings = wordData.Phonemes.map(p => p.Phoneme);
           
-          // Convert to IPA with stress marks
-          try {
-            ipaTranscription = await IPAService.convertToIPA(phonemeStrings, word);
-            logger.info('IPA conversion successful', { word, phonemes: phonemeStrings, ipa: ipaTranscription });
-          } catch (error) {
-            logger.error('IPA conversion failed', { word, error: error.message });
-            // Continue without IPA if conversion fails
+          // Convert to IPA with stress marks (skip if option is set)
+          if (!options.skipIPA) {
+            try {
+              ipaTranscription = await IPAService.convertToIPA(phonemeStrings, word);
+              logger.info('IPA conversion successful', { word, phonemes: phonemeStrings, ipa: ipaTranscription });
+            } catch (error) {
+              logger.error('IPA conversion failed', { word, error: error.message });
+              // Continue without IPA if conversion fails
+            }
+          } else {
+            logger.debug('Skipping IPA conversion for performance', { word });
           }
           
           wordData.Phonemes.forEach(phonemeData => {

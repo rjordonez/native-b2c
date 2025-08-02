@@ -109,7 +109,8 @@ router.post('/transcribe-with-pronunciation', upload.single('audio'), async (req
           const rawPronunciationResult = await pronunciationService.assessPronunciation(
             audioBuffer, 
             referenceText, 
-            azureContentType
+            azureContentType,
+            { skipIPA: true } // Skip IPA conversion for chat - not used in UI
           );
           const pronunciationTime = Date.now() - pronunciationStartTime;
           
