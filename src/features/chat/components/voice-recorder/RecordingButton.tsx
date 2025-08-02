@@ -1,7 +1,7 @@
 import React from 'react';
-import { Microphone, Square } from 'phosphor-react';
-import { useAppSelector } from '../../../../store/hooks';
-import { selectRecordingState, selectRecordingDuration } from '../../store/voiceRecordingSlice';
+import { Microphone, Square, X } from 'phosphor-react';
+import { useAppSelector, useAppDispatch } from '../../../../store/hooks';
+import { selectRecordingState, selectRecordingDuration, clearRecording } from '../../store/voiceRecordingSlice';
 import { cn } from '../../../../utils/cn';
 import { formatDuration } from '@/shared/utils/audio';
 
@@ -11,6 +11,7 @@ interface RecordingButtonProps {
 }
 
 const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop }) => {
+  const dispatch = useAppDispatch();
   const recordingState = useAppSelector(selectRecordingState);
   const recordingDuration = useAppSelector(selectRecordingDuration);
   const isRecording = recordingState === 'recording';
@@ -45,13 +46,37 @@ const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop }) =>
   // Clean inline design when recording (similar to waveform player)
   return (
     <div className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm">
-      {/* Stop button */}
+      {/* Cancel button (X) */}
       <button
-        onClick={handleClick}
-        className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors"
+        onClick={() => {
+          dispatch(clearRecording());
+        }}
+        className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+        title="Cancel recording"
       >
-        <Square size={16} weight="fill" />
+        <X size={16} />
       </button>
+
+      {/* Stop button */}
+      <div className="relative group ml-2">
+        <button
+          onClick={handleClick}
+          disabled={!hasMetMinimum}
+          className={cn(
+            "flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full transition-colors",
+            hasMetMinimum 
+              ? "bg-red-500 hover:bg-red-600 text-white cursor-pointer" 
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+          )}
+        >
+          <Square size={16} weight="fill" />
+        </button>
+        {!hasMetMinimum && (
+          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            Keep speaking (10s minimum)
+          </div>
+        )}
+      </div>
 
       {/* Recording indicator */}
       <div className="flex-1 flex items-center justify-center">
