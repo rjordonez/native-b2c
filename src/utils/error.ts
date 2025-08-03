@@ -55,11 +55,13 @@ export const ErrorMessages = {
   
   // Pronunciation errors
   PRONUNCIATION_FAILED: 'Failed to analyze pronunciation. Please try again.',
+  PRONUNCIATION_SAVE_FAILED: 'Failed to save pronunciation analysis. Please try again.',
   
   // Save errors
   SAVE_FAILED: 'Failed to save. Your changes may not be preserved.',
   CONVERSATION_SAVE_FAILED: 'Failed to save conversation. Please try again.',
   MESSAGE_SAVE_FAILED: 'Failed to save message. Please try again.',
+  TRANSCRIPTION_SAVE_FAILED: 'Failed to save transcription. Please try again.',
   
   // Load errors
   LOAD_FAILED: 'Failed to load data. Please refresh the page.',

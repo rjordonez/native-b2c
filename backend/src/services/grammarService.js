@@ -14,10 +14,23 @@ const openai = new OpenAI({
  */
 async function analyzeGrammarAndVocab(transcript, questionText) {
   try {
+    // Input validation
+    if (!transcript || typeof transcript !== 'string') {
+      logger.warn('Invalid transcript provided for grammar analysis');
+      return {
+        nice_point: "Keep practicing your speaking skills",
+        grammar_tip: "Focus on clear articulation for better analysis",
+        vocab_tip: "Try using more varied vocabulary"
+      };
+    }
+    
+    // Sanitize inputs - limit length to prevent abuse
+    const sanitizedTranscript = transcript.substring(0, 2000);
+    const sanitizedQuestion = (questionText || 'General conversation').substring(0, 500);
     const prompt = `You're an IELTS speaking tutor providing brief, helpful feedback to improve band scores.
 
-Student's response: "${transcript}"
-(Question was: "${questionText || 'General conversation'}")
+Student's response: "${sanitizedTranscript}"
+(Question was: "${sanitizedQuestion}")
 
 IMPORTANT:
 - This is SPOKEN English - ignore punctuation/capitalization
@@ -105,7 +118,7 @@ function formatFeedbackMessages(feedback) {
   
   // If no feedback available, add a default encouraging message
   if (messages.length === 0) {
-    messages.push("Nice work on that answer! 👍");
+    messages.push("Nice work on that answer!");
   }
   
   return messages;

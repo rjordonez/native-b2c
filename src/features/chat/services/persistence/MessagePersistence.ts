@@ -17,7 +17,14 @@ export class MessagePersistence extends PersistenceBase {
         .maybeSingle();
 
       if (existing) {
-        // Message already exists, return its ID
+        // Message already exists
+        // Update question_index if it's missing but provided in the message
+        if (existing.question_index === null && message.questionIndex !== undefined) {
+          await this.supabase
+            .from('messages')
+            .update({ question_index: message.questionIndex })
+            .eq('id', existing.id);
+        }
         // Transcription and pronunciation will be saved separately
         return existing.id;
       }
@@ -46,9 +53,26 @@ export class MessagePersistence extends PersistenceBase {
         .select('*')
         .single();
 
-      if (error || !data) {
+      if (error) {
+        // Handle duplicate key error gracefully
+        if (error.code === '23505') {
+          // Message was inserted by another process, fetch it
+          const { data: existingMsg } = await this.supabase
+            .from('messages')
+            .select('*')
+            .eq('client_id', message.id)
+            .single();
+          
+          if (existingMsg) {
+            return existingMsg.id;
+          }
+        }
         console.error('[MessagePersistence] Save error:', error);
-        throw error || new Error('Failed to save message');
+        throw error;
+      }
+      
+      if (!data) {
+        throw new Error('Failed to save message');
       }
       
       
