@@ -61,25 +61,25 @@ const LibraryPage: React.FC = () => {
         
         {/* Right Column - Sidebar Components (35%) */}
         <div className="flex flex-col gap-4" style={{ flex: '0 0 35%' }}>
+          <ChecklistCard />
           <GitHubCard
             testDate={testDate}
             completedDays={completedDays}
             practiceActivities={practiceActivities}
             practiceStreak={practiceStreak}
           />
-          <ChecklistCard />
         </div>
       </div>
       
       {/* Mobile: Stacked layout */}
       <div className="lg:hidden space-y-6">
+        <ChecklistCard />
         <GitHubCard
           testDate={testDate}
           completedDays={completedDays}
           practiceActivities={practiceActivities}
           practiceStreak={practiceStreak}
         />
-        <ChecklistCard />
         <SearchFilters />
         <TopicList />
         <Pagination />
