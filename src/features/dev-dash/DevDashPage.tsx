@@ -20,12 +20,13 @@ import {
   UserListPage, 
   UserDetailModal,
   TrafficCard,
-  TrafficChart
+  TrafficChart,
+  SupportTickets
 } from './components';
 import { Button } from '../../shared/components/layout/ui/button';
 import { TimePeriod } from './types';
 
-type TabType = 'overview' | 'users' | 'traffic';
+type TabType = 'overview' | 'users' | 'traffic' | 'tickets';
 
 export const DevDashPage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -132,6 +133,16 @@ export const DevDashPage: React.FC = () => {
             >
               Traffic
             </button>
+            <button
+              onClick={() => setActiveTab('tickets')}
+              className={`px-6 py-3 text-sm font-medium rounded-md transition-colors ${
+                activeTab === 'tickets'
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              Support Tickets
+            </button>
           </div>
         </div>
 
@@ -217,6 +228,10 @@ export const DevDashPage: React.FC = () => {
               />
             </div>
           </div>
+        )}
+
+        {activeTab === 'tickets' && (
+          <SupportTickets />
         )}
 
         {/* Additional Info */}

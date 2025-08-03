@@ -1,6 +1,7 @@
 import React from 'react';
 import Sidebar from './Sidebar';
 import TopNav from './TopNav';
+import HelpModal from '../HelpModal';
 import { ErrorToast } from './ui/ErrorToast';
 import { useAppDispatch } from '../../../store/hooks';
 import { toggleMobileMenu } from '../../../store/slices/navigationSlice';
@@ -49,6 +50,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       
       {/* Global error toast */}
       <ErrorToast />
+      
+      {/* Help Modal */}
+      <HelpModal />
     </div>
   );
 };
