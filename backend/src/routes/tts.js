@@ -112,19 +112,37 @@ router.post('/synthesize', ttsLimit, [
     logger.error('Text-to-speech conversion failed', {
       requestId,
       error: error.message,
+      errorStack: error.stack,
       processingTimeMs: processingTime
     });
 
-    // Return user-friendly error message
-    const statusCode = error.message.includes('API key') ? 503 : 500;
-    const message = error.message.includes('API key') 
-      ? 'Text-to-speech service temporarily unavailable'
-      : 'Failed to convert text to speech. Please try again.';
+    // Determine appropriate status code and message
+    let statusCode = 500;
+    let message = 'Failed to convert text to speech. Please try again.';
+    
+    if (error.message.includes('API key')) {
+      statusCode = 503;
+      message = 'Text-to-speech service configuration error';
+    } else if (error.message.includes('permission denied')) {
+      statusCode = 503;
+      message = 'Text-to-speech service authorization error';
+    } else if (error.message.includes('quota exceeded')) {
+      statusCode = 503;
+      message = 'Text-to-speech service quota exceeded';
+    } else if (error.message.includes('Invalid request')) {
+      statusCode = 400;
+      message = 'Invalid text-to-speech parameters';
+    }
 
     res.status(statusCode).json({
       success: false,
       message,
-      requestId
+      requestId,
+      // Include more details in development
+      ...(process.env.NODE_ENV === 'development' && { 
+        error: error.message,
+        stack: error.stack 
+      })
     });
   }
 });

@@ -63,8 +63,25 @@ const textToSpeechConversion = async (text, options = {}) => {
   } catch (error) {
     logger.error('Error converting text to speech:', {
       error: error.message,
+      errorCode: error.code,
+      errorDetails: error.details || error.response?.data || error.stack,
       text: text?.substring(0, 100) + '...' // Log first 100 chars for debugging
     });
+    
+    // Provide more specific error messages
+    if (error.code === 7 || error.message?.includes('PERMISSION_DENIED')) {
+      throw new Error('Google TTS API permission denied. Please check API key permissions.');
+    }
+    if (error.code === 3 || error.message?.includes('INVALID_ARGUMENT')) {
+      throw new Error('Invalid request to Google TTS API. Please check voice name and parameters.');
+    }
+    if (error.code === 8 || error.message?.includes('RESOURCE_EXHAUSTED')) {
+      throw new Error('Google TTS API quota exceeded. Please check your billing and quotas.');
+    }
+    if (error.message?.includes('API key not valid')) {
+      throw new Error('Google TTS API key is not valid. Please check the API key.');
+    }
+    
     throw error;
   }
 };
