@@ -9,6 +9,9 @@ const routes = require('./routes');
 
 const app = express();
 
+// Trust proxy - needed for rate limiting and IP detection behind load balancers/CDNs
+app.set('trust proxy', 1);
+
 // Security middleware
 app.use(helmet());
 
@@ -53,7 +56,11 @@ const limiter = rateLimit({
   max: 100, // limit each IP to 100 requests per windowMs
   message: {
     error: 'Too many requests from this IP, please try again later.'
-  }
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Skip rate limiting for health checks
+  skip: (req) => req.path === '/health'
 });
 app.use(limiter);
 
