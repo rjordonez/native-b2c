@@ -15,21 +15,22 @@ const GoogleSignInButton: React.FC = () => {
       const currentHost = window.location.host;
       
       // Store the origin in sessionStorage to preserve it across OAuth redirect
-      sessionStorage.setItem('oauth_origin', currentOrigin);
-      sessionStorage.setItem('oauth_host', currentHost);
+      // Only store in development to avoid exposing internal network info
+      if (import.meta.env.DEV) {
+        sessionStorage.setItem('oauth_origin', currentOrigin);
+        sessionStorage.setItem('oauth_host', currentHost);
+      }
       
       // For Cloudflare tunnel or network access, ensure we use the correct redirect URL
       let redirectUrl = `${currentOrigin}/auth/callback`;
       
-      // If using Cloudflare tunnel, the redirect needs to match the tunnel URL
-      if (currentHost.includes('trycloudflare.com')) {
-        // Cloudflare tunnel - use the full tunnel URL
-        redirectUrl = `${currentOrigin}/auth/callback`;
-        console.log('Using Cloudflare tunnel redirect:', redirectUrl);
-      } else if (currentHost.match(/^\d+\.\d+\.\d+\.\d+/)) {
-        // Local IP address - use the IP for redirect
-        redirectUrl = `${currentOrigin}/auth/callback`;
-        console.log('Using local IP redirect:', redirectUrl);
+      // Log redirect URL only in development
+      if (import.meta.env.DEV) {
+        if (currentHost.includes('trycloudflare.com')) {
+          console.log('Using Cloudflare tunnel redirect:', redirectUrl);
+        } else if (currentHost.match(/^\d+\.\d+\.\d+\.\d+/)) {
+          console.log('Using local IP redirect:', redirectUrl);
+        }
       }
       
       const { error } = await supabase.auth.signInWithOAuth({

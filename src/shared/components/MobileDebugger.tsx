@@ -61,8 +61,8 @@ const MobileDebugger: React.FC = () => {
     };
   }, []);
 
-  // Don't render in production
-  if (!import.meta.env.DEV) return null;
+  // Don't render in production or if explicitly disabled
+  if (!import.meta.env.DEV || import.meta.env.VITE_DISABLE_DEBUG) return null;
 
   return (
     <>

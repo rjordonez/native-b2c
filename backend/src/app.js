@@ -23,13 +23,13 @@ const corsOptions = {
       return callback(null, true);
     }
     
-    // Allow Cloudflare tunnel domains
-    if (origin.includes('trycloudflare.com')) {
+    // Allow Cloudflare tunnel domains (only in development)
+    if (config.nodeEnv === 'development' && origin.includes('trycloudflare.com')) {
       return callback(null, true);
     }
     
-    // Allow local network IPs for mobile testing
-    if (origin.match(/^https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/)) {
+    // Allow local network IPs for mobile testing (only in development)
+    if (config.nodeEnv === 'development' && origin.match(/^https?:\/\/(192\.168\.|10\.|172\.(1[6-9]|2[0-9]|3[01])\.)/)) {
       return callback(null, true);
     }
     
