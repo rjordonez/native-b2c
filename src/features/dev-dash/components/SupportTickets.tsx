@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Clock, CheckCircle, Warning, ArrowRight, Tag, User, Calendar, MessageCircle, TrendingUp } from 'phosphor-react';
-import { supabase } from '../../../lib/supabase';
+import { Clock, CheckCircle, Warning, ArrowRight, Tag, User, Calendar, ChatCircle, ChartLine } from 'phosphor-react';
+import { supabase } from '../../../shared/services/supabase';
 
 interface Ticket {
   id: string;
@@ -40,21 +40,32 @@ export const SupportTickets: React.FC = () => {
 
   const fetchTickets = async () => {
     try {
-      const { data, error } = await supabase
+      // First fetch tickets
+      const { data: ticketsData, error: ticketsError } = await supabase
         .from('support_tickets')
-        .select(`
-          *,
-          user:user_profiles!user_id(email),
-          message_count:ticket_messages(count)
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      
-      // Calculate unread counts
-      const ticketsWithUnread = await Promise.all(
-        (data || []).map(async (ticket) => {
-          const { count } = await supabase
+      if (ticketsError) throw ticketsError;
+
+      // Then fetch user emails separately
+      const ticketsWithDetails = await Promise.all(
+        (ticketsData || []).map(async (ticket) => {
+          // Get user email
+          const { data: userData } = await supabase
+            .from('user_profiles')
+            .select('email')
+            .eq('auth_user_id', ticket.user_id)
+            .single();
+
+          // Get message count
+          const { count: messageCount } = await supabase
+            .from('ticket_messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('ticket_id', ticket.id);
+
+          // Get unread count
+          const { count: unreadCount } = await supabase
             .from('ticket_messages')
             .select('*', { count: 'exact', head: true })
             .eq('ticket_id', ticket.id)
@@ -62,14 +73,14 @@ export const SupportTickets: React.FC = () => {
           
           return {
             ...ticket,
-            user_email: ticket.user?.email,
-            unread_count: count || 0,
-            message_count: ticket.message_count?.[0]?.count || 0
+            user_email: userData?.email || 'Unknown',
+            unread_count: unreadCount || 0,
+            message_count: messageCount || 0
           };
         })
       );
 
-      setTickets(ticketsWithUnread);
+      setTickets(ticketsWithDetails);
     } catch (error) {
       console.error('Error fetching tickets:', error);
     } finally {
@@ -192,7 +203,7 @@ export const SupportTickets: React.FC = () => {
                 <p className="text-sm text-gray-600">Total Tickets</p>
                 <p className="text-2xl font-semibold text-gray-900">{stats.total}</p>
               </div>
-              <MessageCircle size={24} className="text-gray-400" />
+              <ChatCircle size={24} className="text-gray-400" />
             </div>
           </div>
 
@@ -232,7 +243,7 @@ export const SupportTickets: React.FC = () => {
                 <p className="text-sm text-gray-600">Avg Resolution</p>
                 <p className="text-2xl font-semibold text-gray-900">{stats.avg_resolution_time}</p>
               </div>
-              <TrendingUp size={24} className="text-gray-400" />
+              <ChartLine size={24} className="text-gray-400" />
             </div>
           </div>
         </div>
@@ -305,7 +316,7 @@ export const SupportTickets: React.FC = () => {
                         <span>{new Date(ticket.created_at).toLocaleDateString()}</span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <MessageCircle size={12} />
+                        <ChatCircle size={12} />
                         <span>{ticket.message_count} messages</span>
                       </div>
                     </div>
