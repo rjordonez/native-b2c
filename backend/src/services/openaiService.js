@@ -20,7 +20,7 @@ const enhanceTranscript = async (transcript) => {
     // Count words in original transcript
     const originalWordCount = transcript.split(/\s+/).filter(word => word.length > 0).length;
 
-    const prompt = `Improve this transcript to target a 0.5 IELTS band increase with natural enhancements.
+    const prompt = `Improve this transcript to target a 0.5 IELTS band increase with natural enhancements. Make sure you are ONLY using spoken language and not written language.
 
 CRITICAL REQUIREMENTS:
 - Keep the SAME LENGTH as the original (around ${originalWordCount} words)

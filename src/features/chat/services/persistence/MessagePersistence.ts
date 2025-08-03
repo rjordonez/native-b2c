@@ -40,6 +40,7 @@ export class MessagePersistence extends PersistenceBase {
           audio_duration: audioData.duration,
           audio_mime_type: audioData.storageUrl ? 'audio/webm' : null,
           is_topic_question: message.isTopicQuestion || false,
+          question_index: message.questionIndex ?? null, // Add question_index
           created_at: message.timestamp,
         })
         .select('*')

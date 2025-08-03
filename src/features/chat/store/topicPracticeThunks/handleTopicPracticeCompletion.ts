@@ -6,7 +6,9 @@ import { updateTopicProgressInDB } from '../../../library/libraryThunks';
 import { setTopicCompleted } from '../topicPracticeSlice';
 import { completeChecklistForPart } from '../../../../store/slices/dashboard/dashboardThunks';
 import { generateMessageId } from '../../../../utils/idGenerator';
-import { getIeltsScore } from '../../services/ieltsService';
+import { getTopicIeltsScore } from '../../services/ieltsService';
+import { getGrammarFeedback } from '../../services/grammarService';
+import { collectTopicResponses } from '../../utils/collectTopicResponses';
 
 // Helper function to get conversational completion messages
 const getCompletionMessage = (currentQuestionIndex: number, totalQuestions: number, messageCount: number = 0): string => {
@@ -50,7 +52,7 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
       
       // Find the latest voice message for the current question
       let latestVoiceMessage = null;
-      let ieltsScore = null;
+      let grammarMessages: string[] = [];
       
       if (activeConversation) {
         // Get all voice messages for the current question index
@@ -65,24 +67,23 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
         if (voiceMessagesForQuestion.length > 0) {
           latestVoiceMessage = voiceMessagesForQuestion[voiceMessagesForQuestion.length - 1];
           
-          // Get IELTS score for the transcript
+          // Get grammar and vocabulary feedback for the transcript
           if (latestVoiceMessage.transcription?.text) {
             try {
               // Get the current question text
               const currentQuestion = topicPractice.questions[currentIndex];
               const questionText = currentQuestion?.text || '';
               
-              const scoreResult = await getIeltsScore(
+              const feedbackResult = await getGrammarFeedback(
                 latestVoiceMessage.transcription.text,
-                topicPart,
                 questionText
               );
               
-              if (scoreResult.success && scoreResult.score) {
-                ieltsScore = scoreResult.score;
+              if (feedbackResult.success && feedbackResult.messages) {
+                grammarMessages = feedbackResult.messages;
               }
             } catch (error) {
-              console.error('Failed to get IELTS score:', error);
+              console.error('Failed to get grammar feedback:', error);
             }
           }
         }
@@ -96,14 +97,50 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
       
       // Create appropriate completion message
       let messageContent: string;
+      let ieltsScore = null;
+      
       if (isLastQuestion) {
         // Final question completed - congratulations message
-        messageContent = `🎉 Congratulations! You have completed "${topicTitle}" - ${topicPart}. Great job practicing all ${totalQuestions} questions!`;
+        messageContent = `Excellent work! You have completed "${topicTitle}" - ${topicPart}. You've practiced all ${totalQuestions} questions successfully.`;
         
-        // Add IELTS score if available
-        if (ieltsScore) {
-          const bandEmoji = ieltsScore.overallBand >= 7 ? '🌟' : ieltsScore.overallBand >= 6 ? '✨' : '💪';
-          messageContent += `\n\n${bandEmoji} Your IELTS Band Score for the last response: ${ieltsScore.overallBand}`;
+        // Collect ALL responses from the topic for comprehensive IELTS scoring
+        if (activeConversation && topicPractice.questions) {
+          const allResponses = collectTopicResponses(
+            activeConversation.messages,
+            topicPractice.questions
+          );
+          
+          // Only score if we have responses for most questions
+          console.log(`[IELTS] Collected ${allResponses.length} responses out of ${totalQuestions} questions`);
+          
+          if (allResponses.length >= Math.ceil(totalQuestions * 0.75)) {
+            try {
+              console.log('[IELTS] Sending responses for scoring...');
+              const scoringResponses = allResponses.map(r => ({
+                questionText: r.questionText,
+                userResponse: r.userResponse
+              }));
+              
+              const ieltsResult = await getTopicIeltsScore(
+                scoringResponses,
+                topicTitle,
+                topicPart
+              );
+              
+              console.log('[IELTS] Result:', ieltsResult);
+              
+              if (ieltsResult.success && ieltsResult.score) {
+                ieltsScore = ieltsResult.score;
+                console.log('[IELTS] Score received:', ieltsScore.overallBand);
+              } else {
+                console.error('[IELTS] No score in result:', ieltsResult);
+              }
+            } catch (error) {
+              console.error('[IELTS] Failed to get comprehensive IELTS score:', error);
+            }
+          } else {
+            console.log(`[IELTS] Not enough responses to score (need at least ${Math.ceil(totalQuestions * 0.75)})`);
+          }
         }
         
         // Check if we haven't already marked this topic as completed
@@ -133,12 +170,6 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
           ).length : 0;
         
         messageContent = getCompletionMessage(currentIndex, totalQuestions, completionMessageCount);
-        
-        // Add IELTS score if available
-        if (ieltsScore) {
-          const bandEmoji = ieltsScore.overallBand >= 7 ? '🌟' : ieltsScore.overallBand >= 6 ? '✨' : '💪';
-          messageContent = `${bandEmoji} Your IELTS Band Score: ${ieltsScore.overallBand}\n\n${messageContent}`;
-        }
       }
       
       const completionMessage = {
@@ -150,21 +181,43 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
       
       dispatch(addMessage({ conversationId, message: completionMessage }));
       
-      // Send detailed IELTS feedback as a separate message if score is available
-      if (ieltsScore) {
+      // Send grammar feedback as separate conversational messages
+      if (grammarMessages.length > 0) {
+        // Filter out null/empty messages
+        const validMessages = grammarMessages.filter(msg => msg && msg.trim());
+        
+        // Wait a bit between messages for natural feel
+        for (let i = 0; i < validMessages.length; i++) {
+          await new Promise(resolve => setTimeout(resolve, 1000 + (i * 800)));
+          
+          const feedbackMessage = {
+            id: generateMessageId(`feedback-${i}`),
+            content: validMessages[i],
+            sender: 'assistant' as const,
+            timestamp: new Date().toISOString(),
+          };
+          
+          dispatch(addMessage({ conversationId, message: feedbackMessage }));
+        }
+      }
+      
+      // Send comprehensive IELTS feedback ONLY at topic completion
+      console.log('[IELTS] isLastQuestion:', isLastQuestion, 'ieltsScore:', !!ieltsScore);
+      if (isLastQuestion && ieltsScore) {
+        console.log('[IELTS] Preparing to send IELTS feedback message...');
         // Wait a bit before sending the detailed feedback
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
         let feedbackContent = `**IELTS Speaking Assessment**\n\n`;
         feedbackContent += `**Overall Band Score: ${ieltsScore.overallBand}**\n\n`;
         
-        feedbackContent += `**Breakdown:**\n`;
+        feedbackContent += `**Your Scores:**\n`;
         feedbackContent += `• Fluency & Coherence: ${ieltsScore.fluencyCoherence.score}\n`;
         feedbackContent += `• Lexical Resource: ${ieltsScore.lexicalResource.score}\n`;
         feedbackContent += `• Grammar: ${ieltsScore.grammaticalRange.score}\n`;
         feedbackContent += `• Pronunciation: ${ieltsScore.pronunciation.score}\n\n`;
         
-        feedbackContent += `**Summary:** ${ieltsScore.summary}\n\n`;
+        feedbackContent += `${ieltsScore.summary}\n\n`;
         
         if (ieltsScore.strengths && ieltsScore.strengths.length > 0) {
           feedbackContent += `**Strengths:**\n`;
@@ -180,6 +233,8 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
             feedbackContent += `• ${improvement}\n`;
           });
         }
+        
+        feedbackContent += `\n—\n*Based on all ${totalQuestions} questions in this topic*`;
         
         const feedbackMessage = {
           id: generateMessageId('ielts-feedback'),

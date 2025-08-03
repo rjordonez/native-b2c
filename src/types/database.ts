@@ -27,6 +27,7 @@ export interface DBMessage {
   audio_duration?: number;
   audio_mime_type?: string;
   is_topic_question?: boolean;
+  question_index?: number;
 }
 
 export interface DBTranscription {

@@ -41,7 +41,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({ onClick }) => {
           disabled={!hasMetMinimum}
           className={`relative flex items-center justify-center w-16 h-16 rounded-2xl shadow-lg transition-all duration-200 ${
             hasMetMinimum 
-              ? 'bg-red-500 hover:bg-red-600 transform hover:scale-105 active:scale-95 cursor-pointer' 
+              ? 'bg-secondary hover:bg-secondary/90 transform hover:scale-105 active:scale-95 cursor-pointer' 
               : 'bg-gray-300 cursor-not-allowed'
           }`}
           aria-label="Stop recording"

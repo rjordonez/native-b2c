@@ -20,7 +20,8 @@ export default defineConfig({
     port: 5173,
     // https: true, // Temporarily disabled for testing
     hmr: {
-      clientPort: 443 // For Cloudflare tunnel
+      // Only use port 443 when actually using Cloudflare tunnel
+      clientPort: process.env.CLOUDFLARE_TUNNEL ? 443 : 5173
     },
     allowedHosts: [
       'localhost',

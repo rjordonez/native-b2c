@@ -55,7 +55,7 @@ const RecordingButton: React.FC<RecordingButtonProps> = ({ onStart, onStop, onCa
           className={cn(
             "flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full transition-colors",
             hasMetMinimum 
-              ? "bg-red-500 hover:bg-red-600 text-white cursor-pointer" 
+              ? "bg-secondary hover:bg-secondary/90 text-white cursor-pointer" 
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           )}
         >

@@ -71,6 +71,7 @@ export class TopicPersistence extends PersistenceBase {
           audioUrl: msg.audio_storage_url || msg.audio_url || msg.audio_data,
           audioData: msg.audio_data, // Keep for fallback
           isTopicQuestion: msg.is_topic_question,
+          questionIndex: msg.question_index ?? undefined, // Add question_index
         };
         
         // Add transcription if available

@@ -33,7 +33,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         disabled={!canSend}
         className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
           canSend 
-            ? 'text-white bg-blue-500 hover:bg-blue-600 cursor-pointer' 
+            ? 'text-white bg-secondary hover:bg-secondary/90 cursor-pointer' 
             : 'text-gray-400 bg-gray-200 cursor-not-allowed'
         }`}
         title={canSend 
