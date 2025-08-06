@@ -28,6 +28,7 @@ export interface DBMessage {
   audio_mime_type?: string;
   is_topic_question?: boolean;
   question_index?: number;
+  metadata?: any; // JSONB field for storing action buttons and other data
 }
 
 export interface DBTranscription {

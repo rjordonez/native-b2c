@@ -33,6 +33,11 @@ export class MessagePersistence extends PersistenceBase {
       const audioData = await this.handleAudioUpload(message, userId);
       
 
+      // Prepare metadata if action button exists
+      const metadata = message.actionButton ? {
+        actionButton: message.actionButton
+      } : null;
+
       // Insert new message
       const { data, error } = await this.supabase
         .from('messages')
@@ -48,6 +53,7 @@ export class MessagePersistence extends PersistenceBase {
           audio_mime_type: audioData.storageUrl ? 'audio/webm' : null,
           is_topic_question: message.isTopicQuestion || false,
           question_index: message.questionIndex ?? null, // Add question_index
+          metadata: metadata, // Add metadata for action button
           created_at: message.timestamp,
         })
         .select('*')

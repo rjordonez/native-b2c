@@ -70,6 +70,7 @@ export interface Conversation {
   id: string;
   title: string;
   messages: Message[];
+  messageCount?: number; // For displaying count without loading all messages
   createdAt: string; // ISO string for Redux serialization
   updatedAt: string; // ISO string for Redux serialization
 }

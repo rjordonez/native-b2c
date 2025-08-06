@@ -261,7 +261,7 @@ const ChatSessions: React.FC = () => {
                           {conversation.title}
                         </div>
                         <div className="text-xs text-gray-500 truncate">
-                          {formatTimestamp(conversation.updatedAt)} • {conversation.messages.length} messages
+                          {formatTimestamp(conversation.updatedAt)} • {conversation.messageCount ?? conversation.messages.length} messages
                         </div>
                       </div>
                     </div>

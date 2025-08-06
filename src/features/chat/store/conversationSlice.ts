@@ -49,6 +49,10 @@ export const conversationSlice = createSlice({
         
         conversation.messages.push(userMessage);
         conversation.updatedAt = new Date().toISOString();
+        // Update message count if it exists
+        if (conversation.messageCount !== undefined) {
+          conversation.messageCount++;
+        }
       }
     },
     addMessage: (state, action: PayloadAction<{ conversationId: string; message: Message }>) => {
@@ -58,6 +62,10 @@ export const conversationSlice = createSlice({
       if (conversation) {
         conversation.messages.push(message);
         conversation.updatedAt = new Date().toISOString();
+        // Update message count if it exists
+        if (conversation.messageCount !== undefined) {
+          conversation.messageCount++;
+        }
       }
     },
     updateConversationTitle: (state, action: PayloadAction<UpdateConversationPayload>) => {
@@ -174,9 +182,18 @@ export const conversationSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(switchConversation.fulfilled, (state, action) => {
-        // Background processing complete, state already updated
-        state.activeConversationId = action.payload;
+        // Background processing complete, update with loaded messages
+        const { conversationId, messages } = action.payload;
+        state.activeConversationId = conversationId;
         state.isLoading = false;
+        
+        // Update the conversation's messages if they were loaded
+        if (conversationId && messages && messages.length > 0) {
+          const conversation = state.conversations.find(c => c.id === conversationId);
+          if (conversation && conversation.messages.length === 0) {
+            conversation.messages = messages;
+          }
+        }
       })
       .addCase(switchConversation.rejected, (state, action) => {
         console.error('Failed to switch conversation:', action.error);

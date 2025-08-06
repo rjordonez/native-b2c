@@ -110,12 +110,20 @@ export const switchConversation = createAsyncThunk(
     
     if (!conversationId) {
       dispatch(resetTopicPractice());
-      return null;
+      return { conversationId: null, messages: [] };
     }
     
-    const conversation = state.conversation.conversations.find(c => c.id === conversationId);
+    let conversation = state.conversation.conversations.find(c => c.id === conversationId);
     if (!conversation) {
-      return conversationId;
+      return { conversationId, messages: [] };
+    }
+    
+    // Load messages if they haven't been loaded yet (messages array is empty)
+    if (conversation.messages.length === 0) {
+      const loadedConversation = await chatPersistence.loadConversationWithMessages(conversationId);
+      if (loadedConversation) {
+        conversation = loadedConversation;
+      }
     }
     
     // Check if this is a topic practice conversation
@@ -174,6 +182,6 @@ export const switchConversation = createAsyncThunk(
       dispatch(resetTopicPractice());
     }
     
-    return conversationId;
+    return { conversationId, messages: conversation.messages };
   }
 );

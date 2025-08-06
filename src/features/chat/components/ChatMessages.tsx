@@ -120,7 +120,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                           handleContinueToNextTopic(msg.actionButton.part);
                         }
                       }}
-                      className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-medium transition-colors"
+                      className="w-full flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 font-medium transition-colors"
                     >
                       {msg.actionButton.text}
                       <ArrowRight size={16} weight="bold" />

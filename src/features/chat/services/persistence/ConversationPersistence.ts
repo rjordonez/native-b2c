@@ -131,19 +131,34 @@ export class ConversationPersistence extends PersistenceBase {
    */
   async loadWithMessages(conversationId: string): Promise<Conversation | null> {
     return this.executeDbOperation(async () => {
-      // Get conversation from DB
-      const { data: conversationData, error: convError } = await this.supabase
+      // First try to get conversation by client_id (for client-generated IDs)
+      let { data: conversationData, error: convError } = await this.supabase
         .from('conversations')
         .select('*')
-        .eq('id', conversationId)
+        .eq('client_id', conversationId)
         .single();
+      
+      // If not found by client_id, try by id (for UUID-based IDs)
+      if (!conversationData) {
+        const uuidResult = await this.supabase
+          .from('conversations')
+          .select('*')
+          .eq('id', conversationId)
+          .single();
+        
+        conversationData = uuidResult.data;
+        convError = uuidResult.error;
+      }
       
       if (convError || !conversationData) {
         console.error('Failed to load conversation:', convError);
         return null;
       }
 
-      // Get messages from DB
+      // Get the actual database ID for loading messages
+      const dbConversationId = conversationData.id;
+
+      // Get messages from DB using the database ID
       const { data: messagesData, error: msgError } = await this.supabase
         .from('messages')
         .select(`
@@ -153,7 +168,7 @@ export class ConversationPersistence extends PersistenceBase {
             confidence
           )
         `)
-        .eq('conversation_id', conversationId)
+        .eq('conversation_id', dbConversationId)
         .order('created_at', { ascending: true });
       
       if (msgError) {
@@ -167,6 +182,7 @@ export class ConversationPersistence extends PersistenceBase {
         title: conversationData.title || 'Untitled',
         createdAt: conversationData.created_at,
         updatedAt: conversationData.updated_at,
+        messageCount: messagesData?.length || 0,
         messages: (messagesData || []).map(msg => ({
           id: msg.client_id || msg.id,
           content: msg.content,
@@ -176,6 +192,7 @@ export class ConversationPersistence extends PersistenceBase {
           audioData: msg.audio_data,
           isTopicQuestion: msg.is_topic_question,
           questionIndex: msg.question_index,
+          actionButton: msg.metadata?.actionButton, // Load action button from metadata
           transcription: msg.transcriptions?.[0] ? {
             text: msg.transcriptions[0].text,
             confidence: msg.transcriptions[0].confidence,

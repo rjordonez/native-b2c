@@ -27,13 +27,29 @@ export class TopicPersistence extends PersistenceBase {
       if (error) throw error;
       if (!conversations) return { conversations: [] };
 
-      // Transform DB data to Redux format (without messages for now)
+      // Get message counts for each conversation
+      const conversationIds = conversations.map(c => c.id);
+      const { data: messages, error: msgError } = await this.supabase
+        .from('messages')
+        .select('conversation_id')
+        .in('conversation_id', conversationIds);
+      
+      // Count messages per conversation
+      const messageCounts: { [key: string]: number } = {};
+      if (messages) {
+        messages.forEach(msg => {
+          messageCounts[msg.conversation_id] = (messageCounts[msg.conversation_id] || 0) + 1;
+        });
+      }
+
+      // Transform DB data to Redux format (without messages for now, but with count)
       const transformedConversations = conversations.map(conv => ({
         id: conv.client_id || conv.id,
         title: conv.title || 'Untitled',
         createdAt: conv.created_at,
         updatedAt: conv.updated_at,
-        messages: [] // Messages will be loaded separately
+        messages: [], // Messages will be loaded separately
+        messageCount: messageCounts[conv.id] || 0
       }));
       
       // Find the active conversation (first one) and extract its topic practice state
@@ -72,6 +88,7 @@ export class TopicPersistence extends PersistenceBase {
           audioData: msg.audio_data, // Keep for fallback
           isTopicQuestion: msg.is_topic_question,
           questionIndex: msg.question_index ?? undefined, // Add question_index
+          actionButton: msg.metadata?.actionButton, // Load action button from metadata
         };
         
         // Add transcription if available
