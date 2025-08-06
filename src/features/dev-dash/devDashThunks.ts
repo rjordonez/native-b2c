@@ -91,7 +91,6 @@ export const fetchUserDetails = createAsyncThunk(
       const userDetails = await devDashService.getAllUserDetails();
       return userDetails as UserDetail[];
     } catch (error) {
-      console.error('❌ [fetchUserDetails] Redux thunk error:', error);
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch user details');
     }
   }

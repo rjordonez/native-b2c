@@ -177,10 +177,6 @@ export interface CompleteUserData {
   };
 }
 
-export interface ConversationWithMessages extends Conversation {
-  messages: Message[];
-}
-
 export interface UserDetailModalState {
   selectedUser: UserDetail | null;
   completeUserData: CompleteUserData | null;

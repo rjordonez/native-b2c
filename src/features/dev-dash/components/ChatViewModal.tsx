@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { X } from 'phosphor-react';
 import { supabase } from '../../../shared/services/supabase';
 import ChatMessages from '../../chat/components/ChatMessages';
-import { formatDistanceToNow } from '../../../utils/dateUtils';
 
 interface Message {
   id: string;
@@ -55,7 +54,6 @@ export const ChatViewModal: React.FC<ChatViewModalProps> = ({
         .order('created_at', { ascending: true });
 
       if (msgError) {
-        console.error('Failed to load messages:', msgError);
         return;
       }
 
@@ -77,7 +75,7 @@ export const ChatViewModal: React.FC<ChatViewModalProps> = ({
 
       setMessages(transformedMessages);
     } catch (error) {
-      console.error('Error loading messages:', error);
+      // Error loading messages
     } finally {
       setLoading(false);
     }

@@ -140,7 +140,6 @@ const devDashSlice = createSlice({
         state.userDetails = action.payload;
       })
       .addCase(fetchUserDetails.rejected, (state, action) => {
-        console.error('❌ [Redux] fetchUserDetails.rejected - Error:', action.payload);
         state.loading.userDetails = false;
         state.error.userDetails = action.payload as string;
       })

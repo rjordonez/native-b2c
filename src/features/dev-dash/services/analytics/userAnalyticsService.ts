@@ -85,7 +85,6 @@ export const userAnalyticsService = {
     
     
     if (usersError) {
-      console.error('❌ [getAllUserDetails] Error fetching users:', usersError);
       throw usersError;
     }
     if (!users || users.length === 0) {
@@ -110,7 +109,6 @@ export const userAnalyticsService = {
         .in('user_id', batchUserIds);
       
       if (batchError) {
-        console.error(`❌ [getAllUserDetails] Error fetching batch ${i}:`, batchError);
         continue; // Skip this batch but continue with others
       }
       

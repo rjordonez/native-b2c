@@ -104,7 +104,7 @@ export const PracticeSessionsList: React.FC<PracticeSessionsListProps> = ({ limi
 
       setSessions(sessionsWithDetails);
     } catch (error) {
-      console.error('Error fetching practice sessions:', error);
+      // Error fetching practice sessions
     } finally {
       setLoading(false);
     }
