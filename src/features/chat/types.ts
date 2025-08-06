@@ -59,6 +59,11 @@ export interface Message {
       timestamp: string;
     };
   };
+  actionButton?: {
+    text: string;
+    action: string;
+    part?: string;
+  };
 }
 
 export interface Conversation {

@@ -21,11 +21,11 @@ const scoreTranscript = async (transcript, questionType = 'Part 1', questionText
 
     const wordCount = transcript.split(/\s+/).filter(word => word.length > 0).length;
 
-    const prompt = `You are an expert IELTS Speaking examiner. Analyze this student's response and provide a band score.
+    const prompt = `You are an expert IELTS Speaking examiner. Analyze this response and provide a band score.
 
 Question Type: ${questionType}
 ${questionText ? `Question: "${questionText}"` : ''}
-Student Response: "${transcript}"
+Your Response: "${transcript}"
 
 Evaluate based on IELTS Speaking criteria:
 1. Fluency and Coherence (25%)
@@ -35,28 +35,28 @@ Evaluate based on IELTS Speaking criteria:
 
 ${questionText ? 'Also consider: Is the response relevant and appropriate to the question asked?' : ''}
 
-Provide your response in this exact JSON format:
+Provide your response in this exact JSON format (use "you" when addressing the speaker, not "the student"):
 {
   "overallBand": 6.5,
   "fluencyCoherence": {
     "score": 6.5,
-    "feedback": "Brief specific feedback"
+    "feedback": "Brief specific feedback using 'you' not 'the student'"
   },
   "lexicalResource": {
     "score": 6.5,
-    "feedback": "Brief specific feedback"
+    "feedback": "Brief specific feedback using 'you' not 'the student'"
   },
   "grammaticalRange": {
     "score": 6.5,
-    "feedback": "Brief specific feedback"
+    "feedback": "Brief specific feedback using 'you' not 'the student'"
   },
   "pronunciation": {
     "score": 6.5,
-    "feedback": "Based on fluency patterns and word choice"
+    "feedback": "Based on fluency patterns and word choice using 'you'"
   },
-  "strengths": ["strength 1", "strength 2"],
-  "improvements": ["improvement 1", "improvement 2"],
-  "summary": "2-3 sentence overall assessment"
+  "strengths": ["strength using 'you' not 'the student'", "strength 2"],
+  "improvements": ["improvement using 'you' not 'the student'", "improvement 2"],
+  "summary": "2-3 sentence overall assessment using 'you' to address the speaker"
 }
 
 Be realistic and constructive. Consider:

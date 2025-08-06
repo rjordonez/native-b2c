@@ -1,11 +1,12 @@
 import React, { useRef, useEffect } from 'react';
-import { CircleNotch } from 'phosphor-react';
+import { CircleNotch, ArrowRight } from 'phosphor-react';
 import { useAppDispatch } from '../../../store/hooks';
 import { Conversation } from '../types';
-import { enhanceTranscript } from '../store/topicPracticeThunks';
+import { enhanceTranscript, startTopicPractice } from '../store/topicPracticeThunks';
 import { openModalWithSentences } from '../../pronunciation/pronunciationSlice';
 import VoiceMessage from './VoiceMessage';
 import MessageContent from './MessageContent';
+import { TopicService } from '../../dashboard/services/topicService';
 
 
 interface ChatMessagesProps {
@@ -38,6 +39,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       .map(sentence => sentence.replace(/^[^a-zA-Z0-9]*/, '').replace(/[^a-zA-Z0-9]*$/, ''));
     
     dispatch(openModalWithSentences(sentences));
+  };
+
+  const handleContinueToNextTopic = async (part: string) => {
+    // Get a random topic for the same part
+    const randomTopic = await TopicService.getRandomTopicForPart(part);
+    if (randomTopic) {
+      dispatch(startTopicPractice({ topicName: randomTopic.title }));
+    }
   };
 
   // Auto-scroll to bottom when new messages arrive
@@ -98,6 +107,23 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                       className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors ml-2"
                     >
                       Enhance Again
+                    </button>
+                  </div>
+                )}
+                
+                {/* Action button for completion messages */}
+                {msg.actionButton && msg.sender === 'assistant' && (
+                  <div className="mt-3 pt-2 border-t border-gray-200">
+                    <button
+                      onClick={() => {
+                        if (msg.actionButton?.action === 'continue_next_topic' && msg.actionButton.part) {
+                          handleContinueToNextTopic(msg.actionButton.part);
+                        }
+                      }}
+                      className="w-full flex items-center justify-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 font-medium transition-colors"
+                    >
+                      {msg.actionButton.text}
+                      <ArrowRight size={16} weight="bold" />
                     </button>
                   </div>
                 )}

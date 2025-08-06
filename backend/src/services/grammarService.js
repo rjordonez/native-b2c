@@ -29,7 +29,7 @@ async function analyzeGrammarAndVocab(transcript, questionText) {
     const sanitizedQuestion = (questionText || 'General conversation').substring(0, 500);
     const prompt = `You're an IELTS speaking tutor providing brief, helpful feedback to improve band scores.
 
-Student's response: "${sanitizedTranscript}"
+Your response: "${sanitizedTranscript}"
 (Question was: "${sanitizedQuestion}")
 
 IMPORTANT:

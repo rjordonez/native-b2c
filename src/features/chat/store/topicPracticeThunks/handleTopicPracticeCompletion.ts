@@ -244,6 +244,23 @@ export const handleTopicPracticeCompletion = createAsyncThunk<
         };
         
         dispatch(addMessage({ conversationId, message: feedbackMessage }));
+        
+        // Send completion message with continue button
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const completionActionMessage = {
+          id: generateMessageId('completion-action'),
+          content: `Great job completing this topic! Ready to continue improving your speaking skills?`,
+          sender: 'assistant' as const,
+          timestamp: new Date().toISOString(),
+          actionButton: {
+            text: 'Continue to Next Topic',
+            action: 'continue_next_topic',
+            part: topicPart.toLowerCase().replace(' ', '')
+          }
+        };
+        
+        dispatch(addMessage({ conversationId, message: completionActionMessage }));
       }
       
       dispatch(setTyping(false));
