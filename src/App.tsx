@@ -18,7 +18,6 @@ import { DevDashPage } from './features/dev-dash/DevDashPage';
 import { LanguageProvider } from './features/landing/contexts/LanguageContext';
 import './styles/App.css';
 import BlockSpinner from './shared/components/layout/BlockSpinner';
-import MobileDebugger from './shared/components/MobileDebugger';
 
 const AppRoutes: React.FC = () => {
   const { user, isLoading, needsOnboarding } = useAppSelector((state) => state.auth);
@@ -98,7 +97,6 @@ const App: React.FC = () => {
       <AuthProvider>
         <Router>
           <AppRoutes />
-          <MobileDebugger />
         </Router>
       </AuthProvider>
     </Provider>
