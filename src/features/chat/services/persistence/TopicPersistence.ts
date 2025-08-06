@@ -15,26 +15,26 @@ export class TopicPersistence extends PersistenceBase {
     }
   }> {
     return this.executeDbOperation(async () => {
-      // Fetch conversations with their messages and related data
+      // Fetch conversations WITHOUT messages to avoid timeout
+      // Messages will be loaded separately when a conversation is selected
       const { data: conversations, error } = await this.supabase
         .from('conversations')
-        .select(`
-          *,
-          messages (
-            *,
-            transcriptions (*),
-            pronunciation_scores (*),
-            enhanced_transcripts (*)
-          )
-        `)
+        .select('*')
         .eq('user_id', userId)
-        .order('updated_at', { ascending: false });
+        .order('updated_at', { ascending: false })
+        .limit(20); // Limit to recent conversations
 
       if (error) throw error;
       if (!conversations) return { conversations: [] };
 
-      // Transform DB data to Redux format
-      const transformedConversations = conversations.map(conv => this.transformConversation(conv));
+      // Transform DB data to Redux format (without messages for now)
+      const transformedConversations = conversations.map(conv => ({
+        id: conv.client_id || conv.id,
+        title: conv.title || 'Untitled',
+        createdAt: conv.created_at,
+        updatedAt: conv.updated_at,
+        messages: [] // Messages will be loaded separately
+      }));
       
       // Find the active conversation (first one) and extract its topic practice state
       const activeConversation = conversations[0];

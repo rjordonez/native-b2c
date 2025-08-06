@@ -9,7 +9,6 @@ import {
   fetchPracticeSessionData,
   fetchTopicData,
   fetchCompleteUserData,
-  fetchConversationMessages,
   fetchTrafficData,
 } from './devDashThunks';
 
@@ -24,13 +23,9 @@ const initialState: DevDashState = {
   userDetailModal: {
     selectedUser: null,
     completeUserData: null,
-    selectedConversation: null,
     loading: false,
-    messagesLoading: false,
     error: null,
-    messagesError: null,
     isOpen: false,
-    view: 'conversations',
   },
   trafficData: null,
   loading: {
@@ -78,28 +73,17 @@ const devDashSlice = createSlice({
       // This will be handled by calling all fetch thunks in the component
     },
     openUserDetailModal: (state, action) => {
-      state.userDetailModal.selectedUser = action.payload;
+      state.userDetailModal.selectedUser = action.payload.user || action.payload;
       state.userDetailModal.isOpen = true;
       state.userDetailModal.error = null;
+      // Track if we came from practice sessions
+      state.userDetailModal.previousView = action.payload.source || null;
     },
     closeUserDetailModal: (state) => {
       state.userDetailModal.isOpen = false;
       state.userDetailModal.selectedUser = null;
       state.userDetailModal.completeUserData = null;
-      state.userDetailModal.selectedConversation = null;
       state.userDetailModal.error = null;
-      state.userDetailModal.messagesError = null;
-      state.userDetailModal.view = 'conversations';
-    },
-    selectConversation: (state, action) => {
-      state.userDetailModal.selectedConversation = action.payload;
-      state.userDetailModal.view = 'messages';
-      state.userDetailModal.messagesError = null;
-    },
-    backToConversations: (state) => {
-      state.userDetailModal.view = 'conversations';
-      state.userDetailModal.selectedConversation = null;
-      state.userDetailModal.messagesError = null;
     },
   },
   extraReducers: (builder) => {
@@ -222,22 +206,6 @@ const devDashSlice = createSlice({
         state.error.userGrowthData = action.payload as string;
       })
 
-    // Conversation Messages
-      .addCase(fetchConversationMessages.pending, (state) => {
-        state.userDetailModal.messagesLoading = true;
-        state.userDetailModal.messagesError = null;
-      })
-      .addCase(fetchConversationMessages.fulfilled, (state, action) => {
-        state.userDetailModal.messagesLoading = false;
-        if (state.userDetailModal.selectedConversation) {
-          state.userDetailModal.selectedConversation.messages = action.payload.messages;
-        }
-      })
-      .addCase(fetchConversationMessages.rejected, (state, action) => {
-        state.userDetailModal.messagesLoading = false;
-        state.userDetailModal.messagesError = action.payload as string;
-      })
-
     // Traffic Data
       .addCase(fetchTrafficData.pending, (state) => {
         state.loading.trafficData = true;
@@ -254,7 +222,7 @@ const devDashSlice = createSlice({
   },
 });
 
-export const { clearErrors, refreshAllData, openUserDetailModal, closeUserDetailModal, selectConversation, backToConversations } = devDashSlice.actions;
+export const { clearErrors, refreshAllData, openUserDetailModal, closeUserDetailModal } = devDashSlice.actions;
 
 // Re-export thunks for convenience
 export {
@@ -266,7 +234,6 @@ export {
   fetchPracticeSessionData,
   fetchTopicData,
   fetchCompleteUserData,
-  fetchConversationMessages,
   fetchTrafficData,
 } from './devDashThunks';
 

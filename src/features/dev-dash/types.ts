@@ -184,12 +184,8 @@ export interface ConversationWithMessages extends Conversation {
 export interface UserDetailModalState {
   selectedUser: UserDetail | null;
   completeUserData: CompleteUserData | null;
-  selectedConversation: ConversationWithMessages | null;
   loading: boolean;
-  messagesLoading: boolean;
   error: string | null;
-  messagesError: string | null;
   isOpen: boolean;
-  view: 'conversations' | 'messages';
 }
 

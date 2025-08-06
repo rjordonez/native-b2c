@@ -6,7 +6,7 @@ import {
   UpdateConversationPayload 
 } from '../types';
 import { SAMPLE_CONVERSATIONS } from '../constants/chatData';
-import { loadConversations, sendMessage, createConversation, switchConversation } from './conversationThunks';
+import { loadConversations, sendMessage, createConversation, switchConversation, loadExistingConversation } from './conversationThunks';
 import { generateMessageId } from '../../../utils/idGenerator';
 
 interface ConversationState {
@@ -180,6 +180,27 @@ export const conversationSlice = createSlice({
       })
       .addCase(switchConversation.rejected, (state, action) => {
         console.error('Failed to switch conversation:', action.error);
+      })
+      // Load existing conversation (for dev dashboard navigation)
+      .addCase(loadExistingConversation.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loadExistingConversation.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Add the conversation if it doesn't exist
+        const existingIndex = state.conversations.findIndex(c => c.id === action.payload.id);
+        if (existingIndex === -1) {
+          state.conversations.unshift(action.payload);
+        } else {
+          // Update existing conversation
+          state.conversations[existingIndex] = action.payload;
+        }
+        state.activeConversationId = action.payload.id;
+      })
+      .addCase(loadExistingConversation.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

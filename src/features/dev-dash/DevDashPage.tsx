@@ -21,7 +21,8 @@ import {
   UserDetailModal,
   TrafficCard,
   TrafficChart,
-  SupportTickets
+  SupportTickets,
+  PracticeSessionsList
 } from './components';
 import { Button } from '../../shared/components/layout/ui/button';
 import { TimePeriod } from './types';
@@ -55,6 +56,7 @@ export const DevDashPage: React.FC = () => {
     dispatch(fetchPracticeSessionData());
     dispatch(fetchTopicData());
     dispatch(fetchTrafficData(trafficTimePeriod));
+    dispatch(fetchUserDetails()); // Load user details on mount
 
     // Clear any previous errors
     dispatch(clearErrors());
@@ -69,6 +71,7 @@ export const DevDashPage: React.FC = () => {
     dispatch(fetchPracticeSessionData());
     dispatch(fetchTopicData());
     dispatch(fetchTrafficData(trafficTimePeriod));
+    dispatch(fetchUserDetails()); // Also refresh user details
   };
 
   const isAnyLoading = loading.userAnalytics || loading.databaseMetrics || loading.systemStats || loading.userGrowthData || loading.practiceSessionData || loading.topicData || loading.trafficData;
@@ -195,6 +198,11 @@ export const DevDashPage: React.FC = () => {
                 loading={loading.databaseMetrics}
                 error={error.databaseMetrics}
               />
+            </div>
+
+            {/* Practice Sessions List */}
+            <div>
+              <PracticeSessionsList limit={10} />
             </div>
           </div>
         )}

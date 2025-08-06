@@ -125,4 +125,66 @@ export class ConversationPersistence extends PersistenceBase {
   async exists(clientId: string): Promise<boolean> {
     return this.recordExists('conversations', 'client_id', clientId);
   }
+
+  /**
+   * Load a conversation with all its messages
+   */
+  async loadWithMessages(conversationId: string): Promise<Conversation | null> {
+    return this.executeDbOperation(async () => {
+      // Get conversation from DB
+      const { data: conversationData, error: convError } = await this.supabase
+        .from('conversations')
+        .select('*')
+        .eq('id', conversationId)
+        .single();
+      
+      if (convError || !conversationData) {
+        console.error('Failed to load conversation:', convError);
+        return null;
+      }
+
+      // Get messages from DB
+      const { data: messagesData, error: msgError } = await this.supabase
+        .from('messages')
+        .select(`
+          *,
+          transcriptions (
+            text,
+            confidence
+          )
+        `)
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+      
+      if (msgError) {
+        console.error('Failed to load messages:', msgError);
+        return null;
+      }
+
+      // Transform DB data to app format
+      const conversation: Conversation = {
+        id: conversationData.client_id || conversationData.id,
+        title: conversationData.title || 'Untitled',
+        createdAt: conversationData.created_at,
+        updatedAt: conversationData.updated_at,
+        messages: (messagesData || []).map(msg => ({
+          id: msg.client_id || msg.id,
+          content: msg.content,
+          sender: msg.sender,
+          timestamp: msg.created_at,
+          audioUrl: msg.audio_storage_url || msg.audio_url,
+          audioData: msg.audio_data,
+          isTopicQuestion: msg.is_topic_question,
+          questionIndex: msg.question_index,
+          transcription: msg.transcriptions?.[0] ? {
+            text: msg.transcriptions[0].text,
+            confidence: msg.transcriptions[0].confidence,
+            isLoading: false,
+          } : undefined,
+        }))
+      };
+
+      return conversation;
+    }, 'loadConversationWithMessages');
+  }
 }

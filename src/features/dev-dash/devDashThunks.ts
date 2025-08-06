@@ -133,18 +133,6 @@ export const fetchCompleteUserData = createAsyncThunk(
   }
 );
 
-export const fetchConversationMessages = createAsyncThunk(
-  'devDash/fetchConversationMessages',
-  async (conversationId: string, { rejectWithValue }) => {
-    try {
-      const messages = await devDashService.getConversationMessages(conversationId);
-      return { conversationId, messages };
-    } catch (error) {
-      return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch conversation messages');
-    }
-  }
-);
-
 export const fetchTrafficData = createAsyncThunk(
   'devDash/fetchTrafficData',
   async (timePeriod: TimePeriod = '30d', { rejectWithValue }) => {

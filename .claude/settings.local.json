@@ -26,7 +26,8 @@
       "Bash(chmod:*)",
       "Bash(node:*)",
       "Bash(python3:*)",
-      "mcp__supabase__apply_migration"
+      "mcp__supabase__apply_migration",
+      "Bash(npx supabase db execute:*)"
     ],
     "deny": []
   },

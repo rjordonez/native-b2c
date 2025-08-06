@@ -79,21 +79,38 @@ export const databaseAnalyticsService = {
   },
 
   async getTopicAnalytics() {
-    // Get topic practice counts
-    const { data, error } = await supabase
+    // Get topic practice counts from user_topic_progress
+    const { data: progressData, error: progressError } = await supabase
       .from('user_topic_progress')
-      .select(`
-        topic_id,
-        topics(title)
-      `)
-      .not('topics', 'is', null);
+      .select('topic_id, completed');
     
-    if (error) throw error;
+    if (progressError) throw progressError;
+    
+    if (!progressData || progressData.length === 0) {
+      return [];
+    }
+    
+    // Get unique topic IDs
+    const topicIds = [...new Set(progressData.map(p => p.topic_id))];
+    
+    // Fetch topic titles separately
+    const { data: topicsData, error: topicsError } = await supabase
+      .from('topics')
+      .select('id, title')
+      .in('id', topicIds);
+    
+    if (topicsError) throw topicsError;
+    
+    // Create a map of topic ID to title
+    const topicTitleMap: { [key: string]: string } = {};
+    topicsData?.forEach(topic => {
+      topicTitleMap[topic.id] = topic.title;
+    });
     
     // Count sessions per topic
     const topicCounts: { [key: string]: number } = {};
-    data?.forEach(session => {
-      const topicTitle = (session.topics as any)?.title || 'Unknown Topic';
+    progressData.forEach(session => {
+      const topicTitle = topicTitleMap[session.topic_id] || 'Unknown Topic';
       topicCounts[topicTitle] = (topicCounts[topicTitle] || 0) + 1;
     });
     
