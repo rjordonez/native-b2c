@@ -1,5 +1,5 @@
 import React from 'react';
-import { CaretDown } from 'phosphor-react';
+import { CaretDown, CheckCircle } from 'phosphor-react';
 import { useAppDispatch } from '../../../store/hooks';
 import { toggleTopicExpansion } from '../librarySlice';
 import { Button } from '../../../shared/components/layout/ui/button';
@@ -44,16 +44,24 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
     <div>
       {/* Desktop Layout */}
       <div 
-        className={`hidden lg:grid grid-cols-12 items-center gap-4 px-3 py-2 border-b border-gray-100 text-sm cursor-pointer transition-all duration-200 ease-out ${
+        className={`hidden lg:grid grid-cols-12 items-center gap-4 px-3 py-2 border-b text-sm cursor-pointer transition-all duration-200 ease-out ${
+          topic.completed
+            ? 'bg-gradient-to-r from-green-50 to-transparent border-green-200'
+            : 'border-gray-100'
+        } ${
           topic.expanded
             ? 'bg-gray-100 text-black shadow-sm'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-black'
+            : topic.completed 
+              ? 'text-gray-700 hover:from-green-100'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-black'
         }`}
         onClick={() => dispatch(toggleTopicExpansion(topic.id))}
       >
         {/* Topic */}
-        <div className="col-span-6">
-          <div className="truncate font-medium">{topic.title}</div>
+        <div className="col-span-4">
+          <div className="flex items-center gap-2">
+            <div className="truncate font-medium">{topic.title}</div>
+          </div>
         </div>
 
         {/* Part */}
@@ -63,19 +71,38 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
           </span>
         </div>
 
-        {/* Empty space to push right elements to the right */}
-        <div className="col-span-2">
+        {/* Empty space */}
+        <div className="col-span-1">
+        </div>
+
+        {/* Completion indicator */}
+        <div className="col-span-2 flex justify-center items-center">
+          {topic.completed ? (
+            <div className="flex items-center gap-1">
+              <CheckCircle 
+                size={20} 
+                weight="fill" 
+                className="text-green-600" 
+                title="Topic completed"
+              />
+              <span className="text-xs font-semibold text-green-600">Completed</span>
+            </div>
+          ) : null}
         </div>
 
         {/* Practice Button */}
-        <div className="col-span-1 flex justify-end">
+        <div className="col-span-2 flex justify-end">
           <Button 
             size="sm" 
-            variant="secondary"
-            className="text-xs px-3 py-1"
+            variant={topic.completed ? "outline" : "secondary"}
+            className={`text-xs px-3 py-1 ${
+              topic.completed 
+                ? 'border-green-500 text-green-600 hover:bg-green-50' 
+                : ''
+            }`}
             onClick={handlePracticeClick}
           >
-            Practice
+            {topic.completed ? 'Review' : 'Practice'}
           </Button>
         </div>
 
@@ -90,10 +117,16 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
 
       {/* Mobile Layout */}
       <div 
-        className={`lg:hidden flex flex-col gap-2 p-3 border-b border-gray-100 cursor-pointer transition-all duration-200 ease-out ${
+        className={`lg:hidden flex flex-col gap-2 p-3 border-b cursor-pointer transition-all duration-200 ease-out ${
+          topic.completed
+            ? 'bg-gradient-to-r from-green-50 to-transparent border-green-200'
+            : 'border-gray-100'
+        } ${
           topic.expanded
             ? 'bg-gray-100 text-black shadow-sm'
-            : 'text-gray-600 hover:bg-gray-50 hover:text-black'
+            : topic.completed
+              ? 'text-gray-700'
+              : 'text-gray-600 hover:bg-gray-50 hover:text-black'
         }`}
         onClick={() => dispatch(toggleTopicExpansion(topic.id))}
       >
@@ -115,15 +148,32 @@ const TopicRow: React.FC<TopicRowProps> = ({ topic }) => {
           />
         </div>
 
-        {/* Practice Button */}
-        <Button 
-          size="sm" 
-          variant="secondary"
-          className="w-full text-xs"
-          onClick={handlePracticeClick}
-        >
-          Practice
-        </Button>
+        {/* Practice Button with completion indicator */}
+        <div className="flex items-center gap-2 w-full">
+          {topic.completed && (
+            <div className="flex items-center gap-1 bg-green-100 px-2 py-1 rounded-full">
+              <CheckCircle 
+                size={16} 
+                weight="fill" 
+                className="text-green-600" 
+                title="Topic completed"
+              />
+              <span className="text-xs font-semibold text-green-600">Completed</span>
+            </div>
+          )}
+          <Button 
+            size="sm" 
+            variant={topic.completed ? "outline" : "secondary"}
+            className={`flex-1 text-xs ${
+              topic.completed 
+                ? 'border-green-500 text-green-600 hover:bg-green-50' 
+                : ''
+            }`}
+            onClick={handlePracticeClick}
+          >
+            {topic.completed ? 'Review' : 'Practice'}
+          </Button>
+        </div>
       </div>
 
       {/* Expanded Questions */}

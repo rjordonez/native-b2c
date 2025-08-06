@@ -77,7 +77,7 @@ const TopicList: React.FC = () => {
       {/* Header Row - Hidden on mobile */}
       <div className="hidden lg:block bg-white rounded-xl p-3 border border-gray-200 mb-2">
         <div className="grid grid-cols-12 items-center gap-4">
-          <div className="col-span-6">
+          <div className="col-span-4">
             <div className="flex items-center gap-2 pl-2">
               <span className="text-sm font-medium text-gray-600">Topic</span>
               <CaretDown size={12} className="text-gray-400" />
@@ -86,11 +86,14 @@ const TopicList: React.FC = () => {
           <div className="col-span-2">
             <span className="text-sm font-medium text-gray-600">Part</span>
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1">
             <span className="text-sm font-medium text-gray-600"></span>
           </div>
-          <div className="col-span-1 flex justify-end">
-            <span className="text-sm font-medium text-gray-600">Practice</span>
+          <div className="col-span-2 flex justify-center">
+            <span className="text-sm font-medium text-gray-600">Status</span>
+          </div>
+          <div className="col-span-2 flex justify-end">
+            <span className="text-sm font-medium text-gray-600">Action</span>
           </div>
           <div className="col-span-1">
             <span className="text-sm font-medium text-gray-600"></span>
