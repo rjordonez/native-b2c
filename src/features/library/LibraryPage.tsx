@@ -14,7 +14,7 @@ import {
   selectIsLoadingActivities
 } from '../../store/slices/dashboard/dashboardSlice';
 import { fetchPracticeActivity } from '../../store/slices/dashboard/dashboardThunks';
-import { GitHubCard, ChecklistCard } from '../../shared/components/dashboard';
+import { GitHubCard, ChecklistCard, TopicProgressCard } from '../../shared/components/dashboard';
 import { SearchFilters, TopicList, Pagination } from './components';
 
 const LibraryPage: React.FC = () => {
@@ -68,6 +68,7 @@ const LibraryPage: React.FC = () => {
             practiceActivities={practiceActivities}
             practiceStreak={practiceStreak}
           />
+          <TopicProgressCard />
         </div>
       </div>
       
@@ -80,6 +81,7 @@ const LibraryPage: React.FC = () => {
           practiceActivities={practiceActivities}
           practiceStreak={practiceStreak}
         />
+        <TopicProgressCard />
         <SearchFilters />
         <TopicList />
         <Pagination />
