@@ -190,7 +190,8 @@ export const conversationSlice = createSlice({
         // Update the conversation's messages if they were loaded
         if (conversationId && messages && messages.length > 0) {
           const conversation = state.conversations.find(c => c.id === conversationId);
-          if (conversation && conversation.messages.length === 0) {
+          if (conversation) {
+            // Always update messages to ensure we have the latest data including pronunciation
             conversation.messages = messages;
           }
         }

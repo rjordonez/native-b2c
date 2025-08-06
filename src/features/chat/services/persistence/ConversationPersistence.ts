@@ -165,11 +165,20 @@ export class ConversationPersistence extends PersistenceBase {
           *,
           transcriptions (
             text,
-            confidence
+            confidence,
+            transcript_id
+          ),
+          pronunciation_scores (
+            overall_score,
+            accuracy_score,
+            fluency_score,
+            completeness_score,
+            word_scores
           )
         `)
         .eq('conversation_id', dbConversationId)
         .order('created_at', { ascending: true });
+      
       
       if (msgError) {
         console.error('Failed to load messages:', msgError);
@@ -183,22 +192,67 @@ export class ConversationPersistence extends PersistenceBase {
         createdAt: conversationData.created_at,
         updatedAt: conversationData.updated_at,
         messageCount: messagesData?.length || 0,
-        messages: (messagesData || []).map(msg => ({
-          id: msg.client_id || msg.id,
-          content: msg.content,
-          sender: msg.sender,
-          timestamp: msg.created_at,
-          audioUrl: msg.audio_storage_url || msg.audio_url,
-          audioData: msg.audio_data,
-          isTopicQuestion: msg.is_topic_question,
-          questionIndex: msg.question_index,
-          actionButton: msg.metadata?.actionButton, // Load action button from metadata
-          transcription: msg.transcriptions?.[0] ? {
-            text: msg.transcriptions[0].text,
-            confidence: msg.transcriptions[0].confidence,
-            isLoading: false,
-          } : undefined,
-        }))
+        messages: (messagesData || []).map(msg => {
+          const message: any = {
+            id: msg.client_id || msg.id,
+            content: msg.content,
+            sender: msg.sender,
+            timestamp: msg.created_at,
+            audioUrl: msg.audio_storage_url || msg.audio_url,
+            audioData: msg.audio_data,
+            isTopicQuestion: msg.is_topic_question,
+            questionIndex: msg.question_index,
+            actionButton: msg.metadata?.actionButton, // Load action button from metadata
+          };
+          
+          // Add transcription if available
+          if (msg.transcriptions) {
+            if (Array.isArray(msg.transcriptions) && msg.transcriptions.length > 0) {
+              message.transcription = {
+                text: msg.transcriptions[0].text,
+                confidence: msg.transcriptions[0].confidence,
+                transcriptId: msg.transcriptions[0].transcript_id,
+                isLoading: false,
+              };
+            } else if (!Array.isArray(msg.transcriptions) && msg.transcriptions.text) {
+              // Handle non-array format
+              message.transcription = {
+                text: msg.transcriptions.text,
+                confidence: msg.transcriptions.confidence,
+                transcriptId: msg.transcriptions.transcript_id,
+                isLoading: false,
+              };
+            }
+          }
+          
+          // Add pronunciation if available
+          if (msg.pronunciation_scores) {
+            if (Array.isArray(msg.pronunciation_scores) && msg.pronunciation_scores.length > 0) {
+              const pron = msg.pronunciation_scores[0];
+              message.pronunciation = {
+                overallScore: pron.overall_score,
+                accuracy: pron.accuracy_score,
+                fluency: pron.fluency_score,
+                completeness: pron.completeness_score,
+                words: pron.word_scores || [],
+                isLoading: false,
+              };
+            } else if (!Array.isArray(msg.pronunciation_scores) && msg.pronunciation_scores.overall_score !== undefined) {
+              // Handle non-array format
+              const pron = msg.pronunciation_scores;
+              message.pronunciation = {
+                overallScore: pron.overall_score,
+                accuracy: pron.accuracy_score,
+                fluency: pron.fluency_score,
+                completeness: pron.completeness_score,
+                words: pron.word_scores || [],
+                isLoading: false,
+              };
+            }
+          }
+          
+          return message;
+        })
       };
 
       return conversation;
