@@ -7,10 +7,41 @@ const GoogleSignInButton: React.FC = () => {
   
   const handleGoogleSignIn = async () => {
     try {
+      // Preserve UTM data during OAuth flow by ensuring it stays in localStorage
+      // The UTM data should already be captured by the landing page
+      
+      // Store the current origin before OAuth redirect
+      const currentOrigin = window.location.origin;
+      const currentHost = window.location.host;
+      
+      // Store the origin in sessionStorage to preserve it across OAuth redirect
+      // Only store in development to avoid exposing internal network info
+      if (import.meta.env.DEV) {
+        sessionStorage.setItem('oauth_origin', currentOrigin);
+        sessionStorage.setItem('oauth_host', currentHost);
+      }
+      
+      // For Cloudflare tunnel or network access, ensure we use the correct redirect URL
+      let redirectUrl = `${currentOrigin}/auth/callback`;
+      
+      // Log redirect URL only in development
+      if (import.meta.env.DEV) {
+        if (currentHost.includes('trycloudflare.com')) {
+          console.log('Using Cloudflare tunnel redirect:', redirectUrl);
+        } else if (currentHost.match(/^\d+\.\d+\.\d+\.\d+/)) {
+          console.log('Using local IP redirect:', redirectUrl);
+        }
+      }
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`
+          redirectTo: redirectUrl,
+          queryParams: {
+            redirect_to: '/library'
+          },
+          scopes: 'openid profile email',
+          skipBrowserRedirect: false
         }
       });
       if (error) throw error;

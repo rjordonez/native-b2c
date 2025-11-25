@@ -109,6 +109,13 @@ export const completeOnboarding = createAsyncThunk<
       throw new Error('User not authenticated');
     }
 
+    // Get UTM data from localStorage
+    const utmDataString = localStorage.getItem('utm_data');
+    const utmData = utmDataString ? JSON.parse(utmDataString) : {};
+    
+    // Clear UTM data from localStorage after use
+    localStorage.removeItem('utm_data');
+
     // Generate default gradient avatar
     const avatarUrl = generateDefaultAvatar(user.email || user.id, onboardingData.fullName);
 
@@ -133,6 +140,11 @@ export const completeOnboarding = createAsyncThunk<
           how_did_you_hear: onboardingData.howDidYouHear,
           avatar_url: avatarUrl,
           onboarding_completed: true,
+          utm_source: utmData.utm_source || null,
+          utm_medium: utmData.utm_medium || null,
+          utm_campaign: utmData.utm_campaign || null,
+          utm_content: utmData.utm_content || null,
+          utm_term: utmData.utm_term || null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         });
@@ -152,6 +164,11 @@ export const completeOnboarding = createAsyncThunk<
           how_did_you_hear: onboardingData.howDidYouHear,
           avatar_url: avatarUrl,
           onboarding_completed: true,
+          utm_source: utmData.utm_source || null,
+          utm_medium: utmData.utm_medium || null,
+          utm_campaign: utmData.utm_campaign || null,
+          utm_content: utmData.utm_content || null,
+          utm_term: utmData.utm_term || null,
           updated_at: new Date().toISOString(),
         })
         .eq('auth_user_id', user.id);

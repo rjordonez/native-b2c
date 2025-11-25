@@ -1,7 +1,7 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { RootState } from '../../../../store/types';
 import type { AppDispatch } from '../../../../store/types';
-import { addMessage, setLoading, setTyping } from '../conversationSlice';
+import { addMessage, setTyping } from '../conversationSlice';
 import { setAutoPlayMessageId } from '../audioPlaybackSlice';
 import { generateTTS } from './ttsService';
 import type { NextQuestionResult } from './types';
@@ -16,7 +16,6 @@ export const getNextTopicQuestion = createAsyncThunk<
   'topicPractice/getNextTopicQuestion',
   async ({}, { getState, dispatch, rejectWithValue }) => {
     try {
-      dispatch(setLoading(true));
       dispatch(setTyping(true));
       const state = getState();
       const { currentQuestionIndex, questions } = state.topicPractice;
@@ -39,7 +38,6 @@ export const getNextTopicQuestion = createAsyncThunk<
         
         dispatch(addMessage({ conversationId: activeConversationId, message: endMessage }));
         
-        dispatch(setLoading(false));
         dispatch(setTyping(false));
         
         return {
@@ -82,7 +80,6 @@ export const getNextTopicQuestion = createAsyncThunk<
       // Set autoplay
       dispatch(setAutoPlayMessageId(questionMessage.id));
 
-      dispatch(setLoading(false));
       dispatch(setTyping(false));
 
       return {
@@ -93,7 +90,6 @@ export const getNextTopicQuestion = createAsyncThunk<
         autoPlayMessageId: questionMessage.id
       };
     } catch (error) {
-      dispatch(setLoading(false));
       dispatch(setTyping(false));
       
       // Provide user-friendly error messages

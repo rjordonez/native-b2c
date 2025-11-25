@@ -3,7 +3,8 @@ import { useAppSelector, useAppDispatch } from '../../store/hooks';
 import {
   fetchTopicsFromDB,
   clearError,
-  selectError
+  selectError,
+  setFixedHeight
 } from './librarySlice';
 import {
   selectTestDate,
@@ -13,7 +14,7 @@ import {
   selectIsLoadingActivities
 } from '../../store/slices/dashboard/dashboardSlice';
 import { fetchPracticeActivity } from '../../store/slices/dashboard/dashboardThunks';
-import { GitHubCard, ChecklistCard } from '../../shared/components/dashboard';
+import { GitHubCard, ChecklistCard, TopicProgressCard } from '../../shared/components/dashboard';
 import { SearchFilters, TopicList, Pagination } from './components';
 
 const LibraryPage: React.FC = () => {
@@ -29,6 +30,8 @@ const LibraryPage: React.FC = () => {
 
   // Fetch topics and practice activity on component mount
   useEffect(() => {
+    // Reset fixed height when component mounts to recalculate
+    dispatch(setFixedHeight(null));
     dispatch(fetchTopicsFromDB());
     dispatch(fetchPracticeActivity());
   }, [dispatch]);
@@ -58,25 +61,27 @@ const LibraryPage: React.FC = () => {
         
         {/* Right Column - Sidebar Components (35%) */}
         <div className="flex flex-col gap-4" style={{ flex: '0 0 35%' }}>
+          <ChecklistCard />
           <GitHubCard
             testDate={testDate}
             completedDays={completedDays}
             practiceActivities={practiceActivities}
             practiceStreak={practiceStreak}
           />
-          <ChecklistCard />
+          <TopicProgressCard />
         </div>
       </div>
       
       {/* Mobile: Stacked layout */}
       <div className="lg:hidden space-y-6">
+        <ChecklistCard />
         <GitHubCard
           testDate={testDate}
           completedDays={completedDays}
           practiceActivities={practiceActivities}
           practiceStreak={practiceStreak}
         />
-        <ChecklistCard />
+        <TopicProgressCard />
         <SearchFilters />
         <TopicList />
         <Pagination />

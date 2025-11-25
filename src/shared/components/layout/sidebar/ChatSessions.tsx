@@ -74,13 +74,14 @@ const ChatSessions: React.FC = () => {
   const loadMoreSessions = useCallback(() => {
     if (isLoadingMore || displayedSessions >= conversations.length) return;
     
-    setIsLoadingMore(true);
+    dispatch(setIsLoadingMore(true));
     // Simulate loading delay for smooth UX
     setTimeout(() => {
-      setDisplayedSessions(prev => Math.min(prev + SESSIONS_PER_PAGE, conversations.length));
-      setIsLoadingMore(false);
+      const newCount = Math.min(displayedSessions + SESSIONS_PER_PAGE, conversations.length);
+      dispatch(setDisplayedSessions(newCount));
+      dispatch(setIsLoadingMore(false));
     }, 300);
-  }, [isLoadingMore, displayedSessions, conversations.length]);
+  }, [isLoadingMore, displayedSessions, conversations.length, dispatch]);
 
   // Intersection observer for infinite scroll
   useEffect(() => {
@@ -107,28 +108,28 @@ const ChatSessions: React.FC = () => {
 
   // Reset displayed sessions when conversations change
   useEffect(() => {
-    setDisplayedSessions(SESSIONS_PER_PAGE);
-  }, [conversations.length]);
+    dispatch(setDisplayedSessions(SESSIONS_PER_PAGE));
+  }, [conversations.length, dispatch]);
 
   // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = () => {
-      setMenuOpenId(null);
-      setMenuPosition(null);
+      dispatch(setMenuOpenId(null));
+      dispatch(setMenuPosition(null));
     };
 
     if (menuOpenId) {
       document.addEventListener('click', handleClickOutside);
       return () => document.removeEventListener('click', handleClickOutside);
     }
-  }, [menuOpenId]);
+  }, [menuOpenId, dispatch]);
 
   const handleMenuClick = (e: React.MouseEvent, conversationId: string) => {
     e.stopPropagation();
     
     if (menuOpenId === conversationId) {
-      setMenuOpenId(null);
-      setMenuPosition(null);
+      dispatch(setMenuOpenId(null));
+      dispatch(setMenuPosition(null));
     } else {
       const button = menuButtonRefs.current[conversationId];
       if (button) {
@@ -143,10 +144,10 @@ const ChatSessions: React.FC = () => {
   };
 
   const handleStartEdit = (conversationId: string, currentTitle: string) => {
-    setEditingId(conversationId);
-    setEditValue(currentTitle);
-    setMenuOpenId(null);
-    setMenuPosition(null);
+    dispatch(setEditingId(conversationId));
+    dispatch(setEditValue(currentTitle));
+    dispatch(setMenuOpenId(null));
+    dispatch(setMenuPosition(null));
   };
 
   const handleSaveEdit = (conversationId: string) => {
@@ -156,21 +157,21 @@ const ChatSessions: React.FC = () => {
         title: editValue.trim() 
       }));
     }
-    setEditingId(null);
-    setEditValue('');
+    dispatch(setEditingId(null));
+    dispatch(setEditValue(''));
   };
 
   const handleCancelEdit = () => {
-    setEditingId(null);
-    setEditValue('');
+    dispatch(setEditingId(null));
+    dispatch(setEditValue(''));
   };
 
   const handleDelete = (conversationId: string) => {
     if (window.confirm('Are you sure you want to delete this conversation?')) {
       dispatch(deleteConversation(conversationId));
     }
-    setMenuOpenId(null);
-    setMenuPosition(null);
+    dispatch(setMenuOpenId(null));
+    dispatch(setMenuPosition(null));
   };
 
   // Don't render if sidebar is collapsed
@@ -188,7 +189,7 @@ const ChatSessions: React.FC = () => {
         <h3 className="text-sm font-medium text-gray-700">Sessions</h3>
         <button
           onClick={handleCreateConversation}
-          className="p-1 text-gray-400 hover:text-gray-600 rounded transition-colors"
+          className="p-1 bg-primary text-white hover:bg-primary/90 rounded transition-colors"
           title="New Session"
         >
           <Plus size={16} />
@@ -218,8 +219,8 @@ const ChatSessions: React.FC = () => {
           >
             <div 
               className="relative group"
-              onMouseEnter={() => setHoveredId(conversation.id)}
-              onMouseLeave={() => setHoveredId(null)}
+              onMouseEnter={() => dispatch(setHoveredId(conversation.id))}
+              onMouseLeave={() => dispatch(setHoveredId(null))}
             >
               {editingId === conversation.id ? (
                 // Edit mode
@@ -227,7 +228,7 @@ const ChatSessions: React.FC = () => {
                   <input
                     type="text"
                     value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
+                    onChange={(e) => dispatch(setEditValue(e.target.value))}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') handleSaveEdit(conversation.id);
                       if (e.key === 'Escape') handleCancelEdit();
@@ -260,7 +261,7 @@ const ChatSessions: React.FC = () => {
                           {conversation.title}
                         </div>
                         <div className="text-xs text-gray-500 truncate">
-                          {formatTimestamp(conversation.updatedAt)} • {conversation.messages.length} messages
+                          {formatTimestamp(conversation.updatedAt)} • {conversation.messageCount ?? conversation.messages.length} messages
                         </div>
                       </div>
                     </div>

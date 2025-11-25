@@ -1,10 +1,12 @@
 import React, { useRef, useEffect } from 'react';
-import { CircleNotch } from 'phosphor-react';
+import { CircleNotch, ArrowRight } from 'phosphor-react';
 import { useAppDispatch } from '../../../store/hooks';
 import { Conversation } from '../types';
-import { enhanceTranscript } from '../store/topicPracticeThunks';
+import { enhanceTranscript, startTopicPractice } from '../store/topicPracticeThunks';
 import { openModalWithSentences } from '../../pronunciation/pronunciationSlice';
 import VoiceMessage from './VoiceMessage';
+import MessageContent from './MessageContent';
+import { TopicService } from '../../dashboard/services/topicService';
 
 
 interface ChatMessagesProps {
@@ -37,6 +39,14 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
       .map(sentence => sentence.replace(/^[^a-zA-Z0-9]*/, '').replace(/[^a-zA-Z0-9]*$/, ''));
     
     dispatch(openModalWithSentences(sentences));
+  };
+
+  const handleContinueToNextTopic = async (part: string) => {
+    // Get a random topic for the same part
+    const randomTopic = await TopicService.getRandomTopicForPart(part);
+    if (randomTopic) {
+      dispatch(startTopicPractice({ topicName: randomTopic.title }));
+    }
   };
 
   // Auto-scroll to bottom when new messages arrive
@@ -81,9 +91,7 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                     : msg.isEnhanced ? 'bg-gray-50 border border-gray-100 text-gray-900 rounded-bl-sm' : 'bg-gray-100 text-gray-900 rounded-bl-sm'
                 }`}
               >
-                <div className="text-sm leading-relaxed">
-                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                </div>
+                <MessageContent content={msg.content} />
                 
                 {/* Shadow sentence and Enhance transcript buttons for enhanced messages */}
                 {msg.isEnhanced && msg.sender === 'assistant' && (
@@ -92,13 +100,30 @@ const ChatMessages: React.FC<ChatMessagesProps> = ({
                       onClick={() => handleShadowSentence(msg.content)}
                       className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors"
                     >
-                      Shadow sentence
+                      Shadow response
                     </button>
                     <button
                       onClick={() => handleEnhanceTranscript(msg.content)}
                       className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors ml-2"
                     >
                       Enhance Again
+                    </button>
+                  </div>
+                )}
+                
+                {/* Action button for completion messages */}
+                {msg.actionButton && msg.sender === 'assistant' && (
+                  <div className="mt-3 pt-2 border-t border-gray-200">
+                    <button
+                      onClick={() => {
+                        if (msg.actionButton?.action === 'continue_next_topic' && msg.actionButton.part) {
+                          handleContinueToNextTopic(msg.actionButton.part);
+                        }
+                      }}
+                      className="w-full flex items-center justify-center gap-2 bg-primary text-white px-4 py-2 rounded-lg hover:bg-primary/90 font-medium transition-colors"
+                    >
+                      {msg.actionButton.text}
+                      <ArrowRight size={16} weight="bold" />
                     </button>
                   </div>
                 )}

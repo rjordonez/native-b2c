@@ -20,6 +20,28 @@ export interface SystemStats {
   lastUpdated: string;
 }
 
+export interface TrafficSource {
+  source: string;
+  medium: string;
+  campaign: string;
+  signups: number;
+}
+
+export type TimePeriod = 'all' | '30d' | '7d' | '1d';
+
+export interface TrafficData {
+  totalSignups: number;
+  sources: TrafficSource[];
+  dailyTraffic: DailyTraffic[];
+  timePeriod: TimePeriod;
+}
+
+export interface DailyTraffic {
+  date: string;
+  signups: number;
+  sources: { [key: string]: number }; // UTM source breakdown for this day
+}
+
 export interface DevDashState {
   userAnalytics: UserAnalytics | null;
   databaseMetrics: DatabaseMetrics | null;
@@ -28,6 +50,7 @@ export interface DevDashState {
   userGrowthData: UserGrowthData[] | null;
   practiceSessionData: PracticeSessionData[] | null;
   topicData: TopicData[] | null;
+  trafficData: TrafficData | null;
   userDetailModal: UserDetailModalState;
   loading: {
     userAnalytics: boolean;
@@ -38,6 +61,7 @@ export interface DevDashState {
     practiceSessionData: boolean;
     topicData: boolean;
     completeUserData: boolean;
+    trafficData: boolean
   };
   error: {
     userAnalytics: string | null;
@@ -48,6 +72,7 @@ export interface DevDashState {
     practiceSessionData: string | null;
     topicData: string | null;
     completeUserData: string | null;
+    trafficData: string | null;
   };
 }
 
@@ -152,18 +177,11 @@ export interface CompleteUserData {
   };
 }
 
-export interface ConversationWithMessages extends Conversation {
-  messages: Message[];
-}
-
 export interface UserDetailModalState {
   selectedUser: UserDetail | null;
   completeUserData: CompleteUserData | null;
-  selectedConversation: ConversationWithMessages | null;
   loading: boolean;
-  messagesLoading: boolean;
   error: string | null;
-  messagesError: string | null;
   isOpen: boolean;
-  view: 'conversations' | 'messages';
 }
+

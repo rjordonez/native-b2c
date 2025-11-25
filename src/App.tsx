@@ -10,6 +10,7 @@ import ChatPage from './features/chat/ChatPage';
 import SettingsPage from './features/settings/SettingsPage';
 import AuthPage from './features/auth/AuthPage';
 import OnboardingPage from './features/auth/components/OnboardingPage';
+import AuthCallback from './features/auth/components/AuthCallback';
 import LandingPage from './features/landing/LandingPage';
 import PrivacyPage from './features/landing/PrivacyPage';
 import TermsPage from './features/landing/TermsPage';
@@ -35,9 +36,11 @@ const AppRoutes: React.FC = () => {
     <Routes>
       {/* Public routes */}
       <Route path="/" element={
-        <LanguageProvider>
-          <LandingPage />
-        </LanguageProvider>
+        user ? <Navigate to="/library" replace /> : (
+          <LanguageProvider>
+            <LandingPage />
+          </LanguageProvider>
+        )
       } />
       <Route path="/landing" element={
         <LanguageProvider>
@@ -46,6 +49,7 @@ const AppRoutes: React.FC = () => {
       } />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
       
       {/* Protected routes */}
       {!user ? (

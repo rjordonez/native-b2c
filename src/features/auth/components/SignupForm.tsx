@@ -57,6 +57,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
 
       <ErrorMessage error={error} />
 
+      {/* TODO: Manual signup form - temporarily commented out
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <input
@@ -114,6 +115,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
       </form>
 
       <FormDivider />
+      */}
       
       <GoogleSignInButton />
 

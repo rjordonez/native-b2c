@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ArrowCounterClockwise, ArrowRight, CircleNotch, Warning } from 'phosphor-react';
 import { useAppDispatch, useAppSelector } from '../../../../store/hooks';
 import { selectTopicPractice, selectIsLoadingQuestion, selectQuestionError } from '../../store/topicPracticeSlice';
-import { getNextTopicQuestion, redoTopicQuestion } from '../../store/topicPracticeThunks';
+import { getNextTopicQuestion /* , redoTopicQuestion */ } from '../../store/topicPracticeThunks';
 import { selectActiveConversation } from '../../store/conversationSlice';
 
 const ActionButtons: React.FC = () => {
@@ -32,10 +32,12 @@ const ActionButtons: React.FC = () => {
     return null;
   }
 
+  /* Commented out redo functionality
   const handleRedo = async () => {
     if (isLoadingQuestion) return;
     await dispatch(redoTopicQuestion({}));
   };
+  */
 
   const handleNextQuestion = async () => {
     if (isLoadingQuestion) return;
@@ -55,10 +57,10 @@ const ActionButtons: React.FC = () => {
       )}
       
       <div className="flex gap-3">
-        {/* Redo Button */}
+        {/* Redo Button - Commented out
         <button
           onClick={handleRedo}
-          className={`p-3 rounded-full transition-all duration-200 shadow-sm group relative ${
+          className={`w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 shadow-sm group relative ${
             isLoadingQuestion 
               ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
               : 'text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 hover:shadow-md'
@@ -71,18 +73,18 @@ const ActionButtons: React.FC = () => {
           ) : (
             <ArrowCounterClockwise size={20} />
           )}
-          {/* Tooltip */}
           {!isLoadingQuestion && (
             <span className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-gray-800 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Redo
             </span>
           )}
         </button>
+        */}
 
         {/* Next Question Button */}
         <button
           onClick={handleNextQuestion}
-          className={`p-3 rounded-full transition-all duration-200 shadow-sm group relative ${
+          className={`w-12 h-12 flex items-center justify-center rounded-full transition-all duration-200 shadow-sm group relative ${
             isLoadingQuestion 
               ? 'text-gray-400 bg-gray-50 cursor-not-allowed' 
               : 'text-gray-500 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 hover:shadow-md'

@@ -6,6 +6,7 @@ export interface Message {
   isTyping?: boolean;
   isEnhanced?: boolean; // For enhanced transcript messages
   isTopicQuestion?: boolean; // For topic practice audio questions
+  questionIndex?: number; // Track which question this message belongs to
   audioUrl?: string; // For voice messages (temporary URL)
   audioData?: string; // For voice messages (base64 data for persistence)
   transcription?: {
@@ -31,12 +32,45 @@ export interface Message {
     isLoading: boolean;
     error?: string;
   };
+  ieltsScore?: {
+    overallBand: number;
+    fluencyCoherence: {
+      score: number;
+      feedback: string;
+    };
+    lexicalResource: {
+      score: number;
+      feedback: string;
+    };
+    grammaticalRange: {
+      score: number;
+      feedback: string;
+    };
+    pronunciation: {
+      score: number;
+      feedback: string;
+    };
+    strengths: string[];
+    improvements: string[];
+    summary: string;
+    metadata?: {
+      wordCount: number;
+      questionType: string;
+      timestamp: string;
+    };
+  };
+  actionButton?: {
+    text: string;
+    action: string;
+    part?: string;
+  };
 }
 
 export interface Conversation {
   id: string;
   title: string;
   messages: Message[];
+  messageCount?: number; // For displaying count without loading all messages
   createdAt: string; // ISO string for Redux serialization
   updatedAt: string; // ISO string for Redux serialization
 }

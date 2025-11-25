@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from '../../store/hooks';
 import { checkAuth, setUser } from './authSlice';
 import { fetchUserProfile } from '../settings/settingsSlice';
 import { subscriptions } from '../../shared/services/supabaseService';
-import { loadConversations } from '../chat/store/conversationSlice';
+import { loadConversations, switchConversation } from '../chat/store/conversationSlice';
 import { restoreTopicPracticeState } from '../chat/store/topicPracticeSlice';
 import { transformTopicPracticeState } from '../chat/services/persistence/topicTransformers';
 
@@ -50,6 +50,13 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           if (result.topicPracticeState) {
             const transformedState = transformTopicPracticeState(result.topicPracticeState);
             dispatch(restoreTopicPracticeState(transformedState));
+          }
+          
+          // Load messages for the active conversation if it exists
+          if (result.conversations.length > 0) {
+            const activeConv = result.conversations[0];
+            // Trigger a switch to load messages with pronunciation
+            dispatch(switchConversation(activeConv.id));
           }
         })
         .catch((error) => {

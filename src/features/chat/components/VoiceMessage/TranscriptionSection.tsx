@@ -66,13 +66,13 @@ export const TranscriptionSection: React.FC<TranscriptionSectionProps> = ({
             </p>
           )}
           
-          {/* Enhanced transcript button */}
+          {/* Enhance transcript button */}
           <div className="flex items-center justify-between mt-2 pt-2 border-t border-gray-200">
             <button
               onClick={() => onEnhanceTranscript?.(transcription.text)}
               className="text-xs bg-secondary text-white px-2 py-1 rounded hover:bg-secondary/90 font-medium transition-colors"
             >
-              Enhanced
+              Enhance
             </button>
           </div>
         </div>

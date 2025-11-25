@@ -27,15 +27,30 @@ const TopicList: React.FC = () => {
   // Capture first page height for fixed container size - only once when first page loads
   useEffect(() => {
     if (!loading && topics.length > 0 && paginationInfo.currentPage === 1 && containerRef.current && fixedHeight === null) {
-      // Small delay to ensure content is fully rendered
-      const timer = setTimeout(() => {
-        if (containerRef.current && fixedHeight === null) {
-          const measuredHeight = containerRef.current.scrollHeight;
-          dispatch(setFixedHeight(measuredHeight));
-        }
-      }, 100);
+      // Use requestAnimationFrame to ensure DOM is painted
+      const rafId = requestAnimationFrame(() => {
+        // Then use setTimeout for additional safety
+        const timer = setTimeout(() => {
+          if (containerRef.current && fixedHeight === null) {
+            const measuredHeight = containerRef.current.scrollHeight;
+            // Ensure minimum height of 480px
+            const finalHeight = Math.max(measuredHeight, 480);
+            dispatch(setFixedHeight(finalHeight));
+          }
+        }, 150);
+        
+        // Store timer for cleanup
+        (window as any).__topicListTimer = timer;
+      });
       
-      return () => clearTimeout(timer);
+      return () => {
+        cancelAnimationFrame(rafId);
+        const timer = (window as any).__topicListTimer;
+        if (timer) {
+          clearTimeout(timer);
+          delete (window as any).__topicListTimer;
+        }
+      };
     }
   }, [loading, topics.length, paginationInfo.currentPage, fixedHeight, dispatch]);
 
@@ -59,10 +74,10 @@ const TopicList: React.FC = () => {
 
   return (
     <>
-      {/* Header Row */}
-      <div className="bg-white rounded-xl p-3 border border-gray-200 mb-2">
+      {/* Header Row - Hidden on mobile */}
+      <div className="hidden lg:block bg-white rounded-xl p-3 border border-gray-200 mb-2">
         <div className="grid grid-cols-12 items-center gap-4">
-          <div className="col-span-6">
+          <div className="col-span-4">
             <div className="flex items-center gap-2 pl-2">
               <span className="text-sm font-medium text-gray-600">Topic</span>
               <CaretDown size={12} className="text-gray-400" />
@@ -71,11 +86,14 @@ const TopicList: React.FC = () => {
           <div className="col-span-2">
             <span className="text-sm font-medium text-gray-600">Part</span>
           </div>
-          <div className="col-span-2">
+          <div className="col-span-1">
             <span className="text-sm font-medium text-gray-600"></span>
           </div>
-          <div className="col-span-1 flex justify-end">
-            <span className="text-sm font-medium text-gray-600">Practice</span>
+          <div className="col-span-2 flex justify-center">
+            <span className="text-sm font-medium text-gray-600">Status</span>
+          </div>
+          <div className="col-span-2 flex justify-end">
+            <span className="text-sm font-medium text-gray-600">Action</span>
           </div>
           <div className="col-span-1">
             <span className="text-sm font-medium text-gray-600"></span>
@@ -84,12 +102,13 @@ const TopicList: React.FC = () => {
       </div>
 
       {/* Topic Rows - Fixed Height Container */}
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-white rounded-xl border border-gray-200 p-2 lg:p-4">
         <div 
           ref={containerRef}
           className="overflow-y-auto overflow-x-hidden"
           style={{
-            height: fixedHeight !== null ? `${fixedHeight}px` : '480px',
+            height: fixedHeight !== null && fixedHeight > 0 ? `${fixedHeight}px` : '480px',
+            minHeight: '480px',
             transition: fixedHeight !== null ? 'height 0.3s ease-out' : 'none'
           }}
         >

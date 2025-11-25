@@ -4,7 +4,6 @@ import {
   selectRecordingState,
   startRecording,
   updateRecordingDuration,
-  setIsPressed,
   clearRecording
 } from '../../store/voiceRecordingSlice';
 
@@ -23,11 +22,9 @@ export const useRecordingHandlers = ({
   const recordingState = useAppSelector(selectRecordingState);
   const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Start recording when space is pressed
-  const handleMouseDown = async () => {
+  // Start recording when clicked
+  const handleStartRecording = async () => {
     if (recordingState !== 'idle') return;
-    
-    dispatch(setIsPressed(true));
     
     // Reset duration before starting
     durationRef.current = 0;
@@ -37,56 +34,35 @@ export const useRecordingHandlers = ({
     
     if (success && mediaRecorderRef.current) {
       dispatch(startRecording());
-      mediaRecorderRef.current.start();
       
-      // Start timer
+      // Use a larger timeslice for mobile (1 second) to ensure data collection
+      const timeslice = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 1000 : 100;
+      mediaRecorderRef.current.start(timeslice);
+      
+      // Start timer - use Date.now() for more accurate timing on mobile
+      const startTime = Date.now();
       recordingTimerRef.current = setInterval(() => {
-        durationRef.current += 1;
-        dispatch(updateRecordingDuration(durationRef.current));
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        durationRef.current = elapsed;
+        dispatch(updateRecordingDuration(elapsed));
       }, 1000);
     }
   };
 
-  // Stop recording when space is released
-  const handleMouseUp = () => {
+  // Stop recording when clicked
+  const handleStopRecording = () => {
     if (recordingState !== 'recording') return;
-    
-    dispatch(setIsPressed(false));
-    
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
-      mediaRecorderRef.current.stop();
-    }
     
     if (recordingTimerRef.current) {
       clearInterval(recordingTimerRef.current);
       recordingTimerRef.current = null;
     }
+    
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      // Stop the recording
+      mediaRecorderRef.current.stop();
+    }
   };
-
-  // Handle keyboard events
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && !event.repeat && recordingState === 'idle') {
-        event.preventDefault();
-        handleMouseDown();
-      }
-    };
-
-    const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.code === 'Space' && recordingState === 'recording') {
-        event.preventDefault();
-        handleMouseUp();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, [recordingState]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -103,9 +79,38 @@ export const useRecordingHandlers = ({
     durationRef.current = 0;
   };
 
+  // Handle canceling recording (stops everything before clearing)
+  const handleCancelRecording = () => {
+    // Stop the timer
+    if (recordingTimerRef.current) {
+      clearInterval(recordingTimerRef.current);
+      recordingTimerRef.current = null;
+    }
+    
+    // Stop the media recorder
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+      try {
+        // Remove the onstop handler to prevent saving
+        mediaRecorderRef.current.onstop = null;
+        mediaRecorderRef.current.stop();
+        
+        // Stop all tracks
+        const stream = mediaRecorderRef.current.stream;
+        stream.getTracks().forEach(track => track.stop());
+      } catch (error) {
+        console.error('Error stopping recording:', error);
+      }
+    }
+    
+    // Clear the state
+    dispatch(clearRecording());
+    durationRef.current = 0;
+  };
+
   return {
-    handleMouseDown,
-    handleMouseUp,
-    handleClear
+    handleStartRecording,
+    handleStopRecording,
+    handleClear,
+    handleCancelRecording
   };
 };

@@ -133,14 +133,16 @@ export const PronunciationText: React.FC<PronunciationTextProps> = ({
   wordClassName = ''
 }) => {
   return (
-    <div className={cn('flex flex-wrap gap-1 justify-center', className)}>
+    <div className={cn('inline', className)}>
       {words.map((word, index) => (
-        <PronunciationWord
-          key={index}
-          word={word}
-          showScoring={showScoring}
-          className={wordClassName}
-        />
+        <React.Fragment key={index}>
+          <PronunciationWord
+            word={word}
+            showScoring={showScoring}
+            className={wordClassName}
+          />
+          {index < words.length - 1 && ' '}
+        </React.Fragment>
       ))}
     </div>
   );

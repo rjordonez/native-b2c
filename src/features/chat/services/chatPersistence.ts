@@ -96,6 +96,13 @@ export class ChatPersistenceService implements IChatPersistenceService {
   }
 
   /**
+   * Load a single conversation with all its messages
+   */
+  async loadConversationWithMessages(conversationId: string): Promise<Conversation | null> {
+    return this.conversationPersistence.loadWithMessages(conversationId);
+  }
+
+  /**
    * Load all conversations for a user with topic practice state
    */
   async loadUserConversations(userId: string): Promise<{ 

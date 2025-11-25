@@ -1,6 +1,6 @@
 import { createAsyncThunk } from '@reduxjs/toolkit';
 import type { AppDispatch } from '../../../../store/types';
-import { addMessage, setLoading, setTyping } from '../conversationSlice';
+import { addMessage, setTyping } from '../conversationSlice';
 import { API_BASE_URL } from '../../../../config/api';
 import type { EnhanceTranscriptResult } from './types';
 
@@ -13,7 +13,6 @@ export const enhanceTranscript = createAsyncThunk<
   'topicPractice/enhanceTranscript',
   async ({ conversationId, transcript }, { dispatch, rejectWithValue }) => {
     try {
-      dispatch(setLoading(true));
       dispatch(setTyping(true));
       
       const response = await fetch(`${API_BASE_URL}/enhancement/enhance`, {
@@ -48,12 +47,10 @@ export const enhanceTranscript = createAsyncThunk<
       // Add message to conversation
       dispatch(addMessage({ conversationId, message: enhancedMessage }));
 
-      dispatch(setLoading(false));
       dispatch(setTyping(false));
 
       return { conversationId, message: enhancedMessage };
     } catch (error) {
-      dispatch(setLoading(false));
       dispatch(setTyping(false));
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to enhance transcript');
     }

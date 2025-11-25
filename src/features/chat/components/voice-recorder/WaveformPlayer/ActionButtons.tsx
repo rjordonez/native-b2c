@@ -21,7 +21,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
       {/* Clear button */}
       <button
         onClick={onClear}
-        className="flex items-center justify-center w-8 h-8 text-gray-400 hover:text-red-500 transition-colors"
+        className="flex items-center justify-center w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 text-white transition-colors"
         title="Clear recording"
       >
         <X size={16} />
@@ -33,7 +33,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({
         disabled={!canSend}
         className={`flex items-center justify-center w-8 h-8 rounded-full transition-colors ${
           canSend 
-            ? 'text-white bg-blue-500 hover:bg-blue-600 cursor-pointer' 
+            ? 'text-white bg-secondary hover:bg-secondary/90 cursor-pointer' 
             : 'text-gray-400 bg-gray-200 cursor-not-allowed'
         }`}
         title={canSend 

@@ -85,33 +85,39 @@ export const userAnalyticsService = {
     
     
     if (usersError) {
-      console.error('❌ [getAllUserDetails] Error fetching users:', usersError);
       throw usersError;
     }
     if (!users || users.length === 0) {
       return [];
     }
 
-    // Get conversation counts for all users at once
+    // Extract auth_user_ids from users for batching
     const authUserIds = users.map(user => user.auth_user_id);
-    
-    
-    const { data: conversationCounts, error: countsError } = await supabase
-      .from('conversations')
-      .select('user_id')
-      .in('user_id', authUserIds);
-    
-    
-    if (countsError) {
-      console.error('❌ [getAllUserDetails] Error fetching conversations:', countsError);
-      throw countsError;
-    }
 
-    // Count conversations per user
+    // Get ALL conversations without limit by fetching in batches
     const countsByUser: { [key: string]: number } = {};
-    conversationCounts?.forEach(conv => {
-      countsByUser[conv.user_id] = (countsByUser[conv.user_id] || 0) + 1;
-    });
+    
+    // Fetch conversations in smaller batches to avoid limits
+    const batchSize = 20; // Process 20 users at a time
+    for (let i = 0; i < authUserIds.length; i += batchSize) {
+      const batchUserIds = authUserIds.slice(i, i + batchSize);
+      
+      // For each batch of users, get their conversations
+      const { data: batchConversations, error: batchError } = await supabase
+        .from('conversations')
+        .select('user_id')
+        .in('user_id', batchUserIds);
+      
+      if (batchError) {
+        continue; // Skip this batch but continue with others
+      }
+      
+      
+      // Count conversations for this batch
+      batchConversations?.forEach(conv => {
+        countsByUser[conv.user_id] = (countsByUser[conv.user_id] || 0) + 1;
+      });
+    }
     
     
     // Combine user data with conversation counts and remove auth_user_id from response

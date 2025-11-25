@@ -127,8 +127,15 @@ export const PronunciationModal: React.FC = () => {
         {/* Header */}
         <div className="px-6 py-4 flex justify-between items-center border-b border-gray-200">
           <div className="flex items-center gap-4">
-            {isProcessing && (
-              <span className="text-sm text-gray-600">Processing...</span>
+            {/* Skip button for word practice */}
+            {modalState.type === 'word' && !modalState.showResults && (
+              <button
+                onClick={handleSkip}
+                className="px-3 py-1.5 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors text-sm font-medium"
+                title="Skip this word"
+              >
+                Skip
+              </button>
             )}
           </div>
           <button
@@ -149,36 +156,33 @@ export const PronunciationModal: React.FC = () => {
 
         {/* Content */}
         <div className="flex-1 flex items-center justify-center p-6 overflow-y-auto relative">
-          <div className="text-center w-full">
-            {renderContent()}
-          </div>
-          
-          {/* Next button - positioned on the right side */}
-          {modalState.type !== 'complete' && modalState.showResults && (
-            <div className="absolute right-6 bottom-6">
-              <Button 
-                onClick={handleNext}
-                size="lg"
-                className="flex items-center gap-2"
-                disabled={isNextDisabled}
-              >
-                {isProcessing ? 'Processing...' : 'Next'}
-                <ArrowRight size={18} />
-              </Button>
+          {isProcessing ? (
+            <div className="flex flex-col items-center justify-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-4 border-gray-200 border-t-secondary"></div>
+              <p className="text-lg font-medium text-gray-700">Processing...</p>
             </div>
-          )}
-          
-          {/* Skip button - positioned at bottom right for word practice */}
-          {modalState.type === 'word' && !modalState.showResults && (
-            <div className="absolute right-6 bottom-6">
-              <button
-                onClick={handleSkip}
-                className="px-4 py-2 text-gray-500 hover:text-gray-700 transition-colors text-sm font-medium"
-                title="Skip this word"
-              >
-                Skip
-              </button>
-            </div>
+          ) : (
+            <>
+              <div className="text-center w-full">
+                {renderContent()}
+              </div>
+              
+              {/* Next button - positioned on the right side */}
+              {modalState.type !== 'complete' && modalState.showResults && (
+                <div className="absolute right-6 bottom-6">
+                  <Button 
+                    onClick={handleNext}
+                    size="lg"
+                    className="flex items-center gap-2"
+                    disabled={isNextDisabled}
+                  >
+                    Next
+                    <ArrowRight size={18} />
+                  </Button>
+                </div>
+              )}
+              
+            </>
           )}
         </div>
       </div>

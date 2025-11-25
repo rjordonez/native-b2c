@@ -6,7 +6,8 @@ import {
   selectHoveredItem, 
   selectTooltipPosition,
   setHoveredItem,
-  setTooltipPosition
+  setTooltipPosition,
+  toggleMobileMenu
 } from '../../../../store/slices/navigationSlice';
 
 const SidebarLogo: React.FC = () => {
@@ -52,7 +53,7 @@ const SidebarLogo: React.FC = () => {
 
   if (sidebarCollapsed) {
     return (
-      <div className="relative">
+      <div className="relative w-10 h-10">
         {/* N Logo - always present */}
         <button 
           onClick={handleClick}
@@ -71,7 +72,7 @@ const SidebarLogo: React.FC = () => {
           onClick={handleClick}
           onMouseEnter={(e) => handleMouseEnter(e, 'logo')}
           onMouseLeave={handleMouseLeave}
-          className={`absolute top-0 left-0 w-10 h-10 rounded-md flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-all duration-200 ${
+          className={`absolute inset-0 w-10 h-10 rounded-md flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-all duration-200 ${
             hoveredItem === 'logo' ? 'opacity-100' : 'opacity-0 pointer-events-none'
           }`}
         >
@@ -111,8 +112,31 @@ const SidebarLogo: React.FC = () => {
   return (
     <>
       <img src="/native-logo.png" alt="Native Logo" className="h-7 w-auto" />
-      {/* Collapse button */}
-      <div className="relative">
+      
+      {/* Mobile close button */}
+      <button
+        onClick={() => dispatch(toggleMobileMenu())}
+        className="lg:hidden w-10 h-10 rounded-md flex items-center justify-center text-gray-600 hover:text-black hover:bg-gray-50 transition-colors"
+        aria-label="Close menu"
+      >
+        <svg 
+          width="20" 
+          height="20" 
+          viewBox="0 0 24 24" 
+          xmlns="http://www.w3.org/2000/svg" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round"
+        >
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      
+      {/* Desktop collapse button - hidden on mobile */}
+      <div className="relative hidden lg:block">
         <button
           onClick={handleClick}
           onMouseEnter={(e) => handleMouseEnter(e, 'collapse')}

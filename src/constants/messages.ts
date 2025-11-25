@@ -84,7 +84,7 @@ export const BUTTON_LABELS = {
   CONTINUE: 'Continue',
   
   // Features
-  ENHANCE: 'Enhanced',
+  ENHANCE: 'Enhance',
   SHADOW_SENTENCE: 'Shadow sentence',
   TRY_AGAIN: 'Try again',
   SKIP: 'Skip',

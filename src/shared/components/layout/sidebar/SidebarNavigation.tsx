@@ -7,7 +7,8 @@ import {
   selectHoveredItem, 
   selectTooltipPosition,
   setHoveredItem,
-  setTooltipPosition
+  setTooltipPosition,
+  setMobileMenuOpen
 } from '../../../../store/slices/navigationSlice';
 
 const SidebarNavigation: React.FC = () => {
@@ -38,6 +39,8 @@ const SidebarNavigation: React.FC = () => {
   const handleClick = () => {
     dispatch(setHoveredItem(null));
     dispatch(setTooltipPosition(null));
+    // Close mobile menu when navigating
+    dispatch(setMobileMenuOpen(false));
   };
 
   return (

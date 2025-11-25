@@ -1,14 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAppSelector, useAppDispatch } from '../../../store/hooks';
-import { fetchCompleteUserData, fetchConversationMessages, closeUserDetailModal, selectConversation, backToConversations } from '../devDashSlice';
+import { fetchCompleteUserData, closeUserDetailModal } from '../devDashSlice';
 import { Card } from '../../../shared/components/layout/ui/card';
 import { Skeleton } from '../../../shared/components/layout/ui/skeleton';
 import { Conversation } from '../types';
+import { ChatViewModal } from './ChatViewModal';
 import { 
   ModalHeader, 
   UserProfileOverview, 
-  ConversationsList, 
-  MessagesList 
+  ConversationsList
 } from './UserDetailModal/index';
 
 export const UserDetailModal: React.FC = () => {
@@ -17,14 +17,12 @@ export const UserDetailModal: React.FC = () => {
   const { 
     selectedUser, 
     completeUserData, 
-    selectedConversation,
     loading, 
-    messagesLoading,
     error, 
-    messagesError,
-    isOpen,
-    view 
+    isOpen
   } = userDetailModal;
+
+  const [selectedConversationForChat, setSelectedConversationForChat] = useState<Conversation | null>(null);
 
   useEffect(() => {
     if (isOpen && selectedUser && !completeUserData) {
@@ -37,14 +35,14 @@ export const UserDetailModal: React.FC = () => {
   };
 
   const handleConversationClick = (conversation: Conversation) => {
-    const conversationWithMessages = { ...conversation, messages: [] };
-    dispatch(selectConversation(conversationWithMessages));
-    dispatch(fetchConversationMessages(conversation.id));
+    // Open the chat view modal
+    setSelectedConversationForChat(conversation);
   };
 
-  const handleBackToConversations = () => {
-    dispatch(backToConversations());
+  const handleCloseChatModal = () => {
+    setSelectedConversationForChat(null);
   };
+
 
   const handleRetryLoadData = () => {
     if (selectedUser) {
@@ -52,30 +50,21 @@ export const UserDetailModal: React.FC = () => {
     }
   };
 
-  const handleRetryLoadMessages = () => {
-    if (selectedConversation) {
-      dispatch(fetchConversationMessages(selectedConversation.id));
-    }
-  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+    <>
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
         <ModalHeader
-          view={view}
           selectedUser={selectedUser}
-          selectedConversation={selectedConversation}
-          onBack={handleBackToConversations}
           onClose={handleClose}
         />
 
         {/* Content */}
         <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-          {view === 'conversations' && (
-            <>
-              {loading && (
+          {loading && (
                 <div className="space-y-6">
                   <Card className="p-6">
                     <Skeleton className="h-6 w-1/3 mb-4" />
@@ -111,19 +100,18 @@ export const UserDetailModal: React.FC = () => {
                   />
                 </div>
               )}
-            </>
-          )}
-
-          {view === 'messages' && selectedConversation && (
-            <MessagesList
-              conversation={selectedConversation}
-              loading={messagesLoading}
-              error={messagesError}
-              onRetry={handleRetryLoadMessages}
-            />
-          )}
         </div>
       </div>
     </div>
+
+    {/* Chat View Modal */}
+    {selectedConversationForChat && (
+      <ChatViewModal
+        conversationId={selectedConversationForChat.id}
+        conversationTitle={selectedConversationForChat.title}
+        onClose={handleCloseChatModal}
+      />
+    )}
+    </>
   );
 };

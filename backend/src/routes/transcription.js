@@ -89,13 +89,14 @@ router.post('/transcribe-with-pronunciation', upload.single('audio'), async (req
     
     logger.info(`[${requestId}] Transcription completed in ${transcriptionTime}ms, starting pronunciation analysis...`);
     
-    // Step 2: Run pronunciation analysis using the transcribed text
+    // Step 2: Run pronunciation analysis using the transcribed text or provided reference text
     let pronunciationResult = null;
     let pronunciationError = null;
     
     if (transcriptionResult.text && transcriptionResult.text.trim().length > 0) {
       try {
         const pronunciationStartTime = Date.now();
+        // Use transcribed text as reference
         const referenceText = transcriptionResult.text.trim();
         
         logger.info(`[${requestId}] Using reference text for pronunciation: "${referenceText}"`);
@@ -109,14 +110,18 @@ router.post('/transcribe-with-pronunciation', upload.single('audio'), async (req
           const rawPronunciationResult = await pronunciationService.assessPronunciation(
             audioBuffer, 
             referenceText, 
-            azureContentType
+            azureContentType,
+            { skipIPA: true } // Skip IPA conversion for chat - not used in UI
           );
           const pronunciationTime = Date.now() - pronunciationStartTime;
           
           // Transform the pronunciation result to match chat message format
+          // Use the transcribed text to maintain proper capitalization
+          const transcribedWords = referenceText.split(' ');
           pronunciationResult = {
-            words: rawPronunciationResult.wordScores.map(wordScore => ({
-              text: wordScore.word,
+            words: rawPronunciationResult.wordScores.map((wordScore, index) => ({
+              // Use the word from transcribed text if available to preserve capitalization
+              text: transcribedWords[index] || wordScore.word,
               score: wordScore.score,
               phonemes: wordScore.phonemes || []
             })),

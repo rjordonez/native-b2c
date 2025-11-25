@@ -80,6 +80,29 @@ export const createConversation = createAsyncThunk(
   }
 );
 
+export const loadExistingConversation = createAsyncThunk(
+  'conversation/loadExistingConversation',
+  async (conversationId: string, { dispatch, rejectWithValue }) => {
+    try {
+      // Load the conversation from Supabase
+      const conversation = await chatPersistence.loadConversationWithMessages(conversationId);
+      
+      if (!conversation) {
+        throw new Error('Conversation not found');
+      }
+      
+      // Store a flag to indicate we should return to dev dashboard
+      sessionStorage.setItem('returnToDevDash', 'true');
+      sessionStorage.setItem('previousConversationId', conversationId);
+      
+      return conversation;
+    } catch (error) {
+      console.error('Failed to load conversation:', error);
+      return rejectWithValue(error instanceof Error ? error.message : 'Failed to load conversation');
+    }
+  }
+);
+
 export const switchConversation = createAsyncThunk(
   'conversation/switchConversation',
   async (conversationId: string | null, { getState, dispatch }) => {
@@ -87,12 +110,20 @@ export const switchConversation = createAsyncThunk(
     
     if (!conversationId) {
       dispatch(resetTopicPractice());
-      return null;
+      return { conversationId: null, messages: [] };
     }
     
-    const conversation = state.conversation.conversations.find(c => c.id === conversationId);
+    let conversation = state.conversation.conversations.find(c => c.id === conversationId);
     if (!conversation) {
-      return conversationId;
+      return { conversationId, messages: [] };
+    }
+    
+    // Load messages if they haven't been loaded yet (messages array is empty)
+    if (conversation.messages.length === 0) {
+      const loadedConversation = await chatPersistence.loadConversationWithMessages(conversationId);
+      if (loadedConversation) {
+        conversation = loadedConversation;
+      }
     }
     
     // Check if this is a topic practice conversation
@@ -151,6 +182,6 @@ export const switchConversation = createAsyncThunk(
       dispatch(resetTopicPractice());
     }
     
-    return conversationId;
+    return { conversationId, messages: conversation.messages };
   }
 );

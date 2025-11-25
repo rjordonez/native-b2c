@@ -4,6 +4,8 @@ const transcriptionRoutes = require('./transcription');
 const proxyRoutes = require('./proxy');
 const enhancementRoutes = require('./enhancement');
 const ttsRoutes = require('./tts');
+const ieltsRoutes = require('./ielts');
+const grammarRoutes = require('./grammar');
 
 const router = express.Router();
 
@@ -13,6 +15,8 @@ router.use('/transcription', transcriptionRoutes);
 router.use('/proxy', proxyRoutes);
 router.use('/enhancement', enhancementRoutes);
 router.use('/tts', ttsRoutes);
+router.use('/ielts', ieltsRoutes);
+router.use('/grammar', grammarRoutes);
 
 // API info endpoint
 router.get('/', (req, res) => {
@@ -25,6 +29,7 @@ router.get('/', (req, res) => {
       proxy: '/api/proxy',
       enhancement: '/api/enhancement',
       tts: '/api/tts',
+      ielts: '/api/ielts',
       health: '/health'
     },
     timestamp: new Date().toISOString()

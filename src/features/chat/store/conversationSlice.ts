@@ -6,7 +6,7 @@ import {
   UpdateConversationPayload 
 } from '../types';
 import { SAMPLE_CONVERSATIONS } from '../constants/chatData';
-import { loadConversations, sendMessage, createConversation, switchConversation } from './conversationThunks';
+import { loadConversations, sendMessage, createConversation, switchConversation, loadExistingConversation } from './conversationThunks';
 import { generateMessageId } from '../../../utils/idGenerator';
 
 interface ConversationState {
@@ -32,8 +32,8 @@ export const conversationSlice = createSlice({
     setActiveConversation: (state, action: PayloadAction<string | null>) => {
       state.activeConversationId = action.payload;
     },
-    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string; audioData?: string; messageId?: string }>) => {
-      const { conversationId, content, audioUrl, audioData, messageId } = action.payload;
+    addUserMessage: (state, action: PayloadAction<{ conversationId: string; content: string; audioUrl?: string; audioData?: string; messageId?: string; questionIndex?: number }>) => {
+      const { conversationId, content, audioUrl, audioData, messageId, questionIndex } = action.payload;
       const conversation = state.conversations.find(c => c.id === conversationId);
       
       if (conversation) {
@@ -44,10 +44,15 @@ export const conversationSlice = createSlice({
           timestamp: new Date().toISOString(),
           audioUrl,
           audioData,
+          questionIndex,
         };
         
         conversation.messages.push(userMessage);
         conversation.updatedAt = new Date().toISOString();
+        // Update message count if it exists
+        if (conversation.messageCount !== undefined) {
+          conversation.messageCount++;
+        }
       }
     },
     addMessage: (state, action: PayloadAction<{ conversationId: string; message: Message }>) => {
@@ -57,6 +62,10 @@ export const conversationSlice = createSlice({
       if (conversation) {
         conversation.messages.push(message);
         conversation.updatedAt = new Date().toISOString();
+        // Update message count if it exists
+        if (conversation.messageCount !== undefined) {
+          conversation.messageCount++;
+        }
       }
     },
     updateConversationTitle: (state, action: PayloadAction<UpdateConversationPayload>) => {
@@ -167,14 +176,49 @@ export const conversationSlice = createSlice({
         state.activeConversationId = SAMPLE_CONVERSATIONS[0]?.id || null;
       })
       // Switch conversation
-      .addCase(switchConversation.pending, (state) => {
-        // Don't change anything during pending
+      .addCase(switchConversation.pending, (state, action) => {
+        // Switch immediately to remove perceived delay but show brief loading
+        state.activeConversationId = action.meta.arg;
+        state.isLoading = true;
       })
       .addCase(switchConversation.fulfilled, (state, action) => {
-        state.activeConversationId = action.payload;
+        // Background processing complete, update with loaded messages
+        const { conversationId, messages } = action.payload;
+        state.activeConversationId = conversationId;
+        state.isLoading = false;
+        
+        // Update the conversation's messages if they were loaded
+        if (conversationId && messages && messages.length > 0) {
+          const conversation = state.conversations.find(c => c.id === conversationId);
+          if (conversation) {
+            // Always update messages to ensure we have the latest data including pronunciation
+            conversation.messages = messages;
+          }
+        }
       })
       .addCase(switchConversation.rejected, (state, action) => {
         console.error('Failed to switch conversation:', action.error);
+      })
+      // Load existing conversation (for dev dashboard navigation)
+      .addCase(loadExistingConversation.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loadExistingConversation.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Add the conversation if it doesn't exist
+        const existingIndex = state.conversations.findIndex(c => c.id === action.payload.id);
+        if (existingIndex === -1) {
+          state.conversations.unshift(action.payload);
+        } else {
+          // Update existing conversation
+          state.conversations[existingIndex] = action.payload;
+        }
+        state.activeConversationId = action.payload.id;
+      })
+      .addCase(loadExistingConversation.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

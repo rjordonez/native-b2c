@@ -51,7 +51,7 @@ const pronunciationSlice = createSlice({
       state.sentences = action.payload.map((text, index) => ({
         id: `enhanced-sentence-${index}`,
         text: text.trim(),
-        words: text.trim().split(' ').map(word => ({ text: word.replace(/[^\w]/g, '') }))
+        words: text.trim().split(' ').map(word => ({ text: word }))
       }));
       state.modalState = { 
         type: 'sentence', 
@@ -74,7 +74,36 @@ const pronunciationSlice = createSlice({
     updateWordResults: (state, action: PayloadAction<{ sentenceIndex: number; words: Word[] }>) => {
       const sentence = state.sentences[action.payload.sentenceIndex];
       if (sentence) {
-        sentence.words = action.payload.words;
+        // Map the scores and phonemes from recognized words to reference words
+        const referenceWords = sentence.words;
+        const recognizedWords = action.payload.words;
+        
+        // Update reference words with scores from recognized words
+        sentence.words = referenceWords.map((refWord, index) => {
+          // Try to find matching word in recognized words
+          const recognizedWord = recognizedWords[index];
+          
+          if (recognizedWord) {
+            // Keep reference text but update with pronunciation data
+            return {
+              ...refWord,
+              text: refWord.text, // Keep original reference text
+              score: recognizedWord.score,
+              isCorrect: recognizedWord.isCorrect,
+              phonemes: recognizedWord.phonemes,
+              ipa: recognizedWord.ipa,
+              audioTimestamp: recognizedWord.audioTimestamp
+            };
+          } else {
+            // No matching recognized word, mark as incorrect
+            return {
+              ...refWord,
+              score: 0,
+              isCorrect: false,
+              phonemes: []
+            };
+          }
+        });
       }
     },
     setModalState: (state, action: PayloadAction<ModalState>) => {
